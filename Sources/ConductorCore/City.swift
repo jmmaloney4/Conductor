@@ -7,8 +7,8 @@
 import Foundation
 import Squall
 
-internal class Track {
-    internal enum Color {
+public class Track {
+    public enum Color: CustomStringConvertible {
         case red
         case blue
         case black
@@ -71,6 +71,31 @@ internal class Track {
                 fatalError()
             }
         }
+        
+        public var description: String { get {
+            switch self {
+            case .red:
+                return "Red"
+            case .blue:
+                return "Blue"
+            case .black:
+                return "Black"
+            case .white:
+                return "White"
+            case .orange:
+                return "Orange"
+            case .yellow:
+                return "Yellow"
+            case .pink:
+                return "Pink"
+            case .green:
+                return "Green"
+            case .unspecified:
+                fatalError()
+            case .locomotive:
+                return "Locomotive"
+            }
+        }}
     }
     
     var endpoints: [City]
@@ -173,6 +198,7 @@ public protocol PlayerDelegate {
     
     func actionThisTurn() -> Game.Action
     
+    func whichCardToTake(faceUpCards: [Track.Color]) -> Int?
 }
 
 public class CLIDelegate: PlayerDelegate {
@@ -252,6 +278,19 @@ public class CLIDelegate: PlayerDelegate {
             fatalError()
         }
     }
+    
+    public func whichCardToTake(faceUpCards: [Track.Color]) -> Int? {
+        var options = faceUpCards.map({$0.description})
+        options.append("Draw From Random Pile")
+        
+        let i = optionListPrompt(options)
+        switch i {
+        case faceUpCards.count: // Draw from pile
+            return nil
+        default:
+            return i
+        }
+    }
 }
 
 public class Player {
@@ -274,6 +313,10 @@ public class Player {
     public init(withDelegate delegate: PlayerDelegate, andColor color: Color) {
         self.delegate = delegate
         self.color = color
+    }
+    
+    public func addCardToHand(_ color: Track.Color) {
+        cards[color.index()] += 1
     }
 }
 
@@ -337,6 +380,33 @@ public class Game {
         player.delegate.currentDestinations(player.destinations)
     }
     
+    func drawCardsForPlayer(_ player: Player) {
+        let card1 = player.delegate.whichCardToTake(faceUpCards: faceUpCards)
+        if card1 == nil {
+            player.addCardToHand(draw())
+        } else {
+            let card = faceUpCards.remove(at: card1!)
+            player.addCardToHand(card)
+            faceUpCards.append(draw())
+            if card == .locomotive {
+                return // Only one locomotive
+            }
+        }
+        
+        while true {
+            let card2 = player.delegate.whichCardToTake(faceUpCards: faceUpCards)
+            if card2 == nil {
+                player.addCardToHand(draw())
+            } else if faceUpCards[card2!] == .locomotive {
+                continue // Only one locomotive, can't choose it as second card
+            } else {
+                player.addCardToHand(faceUpCards.remove(at: card2!))
+                faceUpCards.append(draw())
+                break
+            }
+        }
+    }
+    
     public func run() -> Player {
         
         for p in players {
@@ -354,7 +424,7 @@ public class Game {
             for p in players {
                 switch p.delegate.actionThisTurn() {
                 case .drawCards:
-                    break
+                    drawCardsForPlayer(p)
                 case .playTrack:
                     break
                 case .newDestinations:
