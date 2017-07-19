@@ -6,7 +6,6 @@
 
 import Foundation
 import Squall
-import SwiftPriorityQueue
 
 internal class Track {
     internal enum Color {
@@ -108,9 +107,10 @@ internal class Track {
     }
 }
 
-public class City {
+public class City: CustomStringConvertible {
     var name: String
     var tracks: [Track] = []
+    public var description: String { get { return name } }
     
     public init(withName name: String) {
         self.name = name
@@ -155,9 +155,10 @@ public class City {
     }
 }
 
-internal class Destination {
+public class Destination: CustomStringConvertible {
     var endpoints: [City]
     var length: Int
+    public var description: String { get { return "\(endpoints[0]) to \(endpoints[1]) (\(length))" } }
     
     init(from cityA: City, to cityB: City, length: Int) {
         endpoints = [cityA, cityB]
@@ -165,156 +166,39 @@ internal class Destination {
     }
 }
 
-public class Board {
-    var cities: [City]
-    
-    public init(withCities cities: City...) {
-        self.cities = cities
-    }
-    
-    public static func standardEuropeMap() -> Board {
-        let paris = City(withName: "Paris") // 10
-        let frankfurt = City(withName: "Frankfurt") // 8
-        let bruxelles = City(withName: "Bruxelles") // 5
-        let dieppe = City(withName: "Dieppe") // 5
-        let essen = City(withName: "Essen") // 5
-        let london = City(withName: "London") // 5
-        let amsterdam = City(withName: "Amsterdam") // 4
-        let brest = City(withName: "Brest") // 3
-        let edinburgh = City(withName: "Edinburgh") // 2
-        
-        _ = Track(between: paris, and: frankfurt, length: 3, color: .white)
-        _ = Track(between: paris, and: frankfurt, length: 3, color: .orange)
-        _ = Track(between: paris, and: bruxelles, length: 2, color: .yellow)
-        _ = Track(between: paris, and: bruxelles, length: 2, color: .red)
-        _ = Track(between: paris, and: dieppe, length: 1, color: .pink)
-        _ = Track(between: paris, and: brest, length: 3, color: .black)
-
-        _ = Track(between: frankfurt, and: bruxelles, length: 2, color: .blue)
-        _ = Track(between: frankfurt, and: essen, length: 2, color: .green)
-        _ = Track(between: frankfurt, and: amsterdam, length: 2, color: .white)
-        
-        _ = Track(between: bruxelles, and: dieppe, length: 2, color: .green)
-        _ = Track(between: bruxelles, and: amsterdam, length: 1, color: .black)
-        
-        _ = Track(between: dieppe, and: london, length: 2, color: .unspecified, ferries: 1)
-        _ = Track(between: dieppe, and: london, length: 2, color: .unspecified, ferries: 1)
-        _ = Track(between: dieppe, and: brest, length: 2, color: .orange)
-        
-        _ = Track(between: essen, and: amsterdam, length: 3, color: .yellow)
-
-        _ = Track(between: london, and: amsterdam, length: 2, color: .unspecified, ferries: 2)
-        _ = Track(between: london, and: edinburgh, length: 4, color: .black)
-        _ = Track(between: london, and: edinburgh, length: 4, color: .orange)
-        
-        return Board(withCities: paris, frankfurt, bruxelles, dieppe, essen, london, amsterdam, brest, edinburgh)
-    }
-    
-    func cityForName(_ name: String) -> City? {
-        for city in cities {
-            if city.name == name {
-                return city
-            }
-        }
-        return nil
-    }
-    
-    private class DijkstraNode: Comparable {
-        static func ==(lhs: Board.DijkstraNode, rhs: Board.DijkstraNode) -> Bool {
-            return lhs.city === rhs.city
-        }
-
-        static func <(lhs: Board.DijkstraNode, rhs: Board.DijkstraNode) -> Bool {
-            return lhs.distance < rhs.distance
-        }
-
-        var city: City
-        var previous: DijkstraNode? // Previous city
-        var distance: Int // From origin
-        
-        init(city: City, previous: DijkstraNode? = nil, distance: Int = Int.max) {
-            self.city = city
-            self.previous = previous
-            self.distance = distance
-        }
-    }
-    
-    func findShortestRoute(between cityA: City, and cityB: City) -> ([City], Int) {
-        
-        var queue: PriorityQueue<DijkstraNode> = PriorityQueue<DijkstraNode>(ascending: true)
-        
-        queue.push(DijkstraNode(city: cityA, previous: nil, distance: 0))
-        for city in cities {
-            if city !== cityA {
-                queue.push(DijkstraNode(city: city))
-            }
-        }
-        
-        var finalNode: DijkstraNode? = nil
-        
-        while true {
-            let current = queue.pop()!
-            
-            var newQueue = PriorityQueue<DijkstraNode>(ascending: true)
-            
-            while let node = queue.pop() {
-                if node.city.isAdjacentToCity(current.city) {
-                    let distance = node.city.shortestTrackToCity(current.city)
-                    if node.distance > (current.distance + distance) {
-                        node.distance = current.distance + distance
-                        node.previous = current
-                    }
-                }
-                newQueue.push(node)
-            }
-            
-            queue = newQueue
-            if current.city === cityB {
-                finalNode = current
-                break;
-            }
-        }
-        
-        var rv: [City] = []
-        var node = finalNode
-        while true {
-            rv.append(node!.city)
-            node = node!.previous
-            if node == nil {
-                break
-            }
-        }
-        
-        return (rv.reversed(), finalNode!.distance)
-    }
-    
-    internal func generateDestination() -> Destination {
-        while true {
-            var rand: UInt64 = Game.rng.random()
-            let cityA = cities[Int(rand % UInt64(cities.count))]
-            rand = Game.rng.random()
-            let cityB = cities[Int(rand % UInt64(cities.count))]
-            
-            if cityA.isAdjacentToCity(cityB) {
-                continue
-            }
-            
-            let (path, distance) = findShortestRoute(between: cityA, and: cityB)
-            
-            print(distance)
-            print(path)
-            
-        }
-    }
-}
-
 public protocol PlayerDelegate {
-    
+    func keepDestinations(_ destinations: [Destination]) -> [Destination]
 }
 
 public class CLIDelegate: PlayerDelegate {
     public init() {
         
+    }
+    
+    public func keepDestinations(_ destinations: [Destination]) -> [Destination] {
+        print("Destinations Drawn: ")
+        print(destinations.map({$0.description}).joined(separator: "\n") )
+        
+        var rv: [Destination] = []
+        destLoop: for dest in destinations {
+            while true {
+                print("Keep \(dest)? [y/n]: ", terminator: "")
+                guard let line = readLine() else {
+                    fatalError()
+                }
+                
+                switch line {
+                case "y", "Y", "yes", "Yes","YES":
+                    rv.append(dest)
+                    continue destLoop
+                case "n", "N", "no", "No","NO":
+                    continue destLoop
+                default:
+                    continue;
+                }
+            }
+        }
+        return rv
     }
 }
 
@@ -333,6 +217,7 @@ public class Player {
     var trains: Int = 45
     var stations: Int = 3
     var cards: [Int] = Array(repeatElement(0, count:  Track.Color.count))
+    var destinations: [Destination] = []
     
     public init(withDelegate delegate: PlayerDelegate, andColor color: Color) {
         self.delegate = delegate
@@ -343,6 +228,7 @@ public class Player {
 public class Game {
     var players: [Player]
     var board: Board
+    var faceUpCards: [Track.Color] = []
     static let rng: Gust = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
     
     public init(withPlayers players: Player..., andBoard board: Board = Board.standardEuropeMap()) {
@@ -388,11 +274,21 @@ public class Game {
             for _ in 0..<3 {
                 p.cards[draw().index()] += 1
             }
+            var destinations: [Destination] = []
+            for _ in 0..<4 {
+                destinations.append(board.generateDestination())
+            }
+            p.destinations.append(contentsOf: p.delegate.keepDestinations(destinations))
+            print(p.destinations)
         }
         
-        var b = Board.standardEuropeMap()
-        //b.findShortestRoute(between: b.cityForName("Edinburgh")!, and: b.cityForName("Bruxelles")!)
-        b.generateDestination()
+        for _ in 0..<5 {
+            faceUpCards.append(draw())
+        }
+        
+        while true {
+            
+        }
         
         return players[0]
     }
