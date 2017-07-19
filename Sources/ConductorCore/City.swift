@@ -78,6 +78,7 @@ internal class Track {
     var color: Color
     var tunnel: Bool
     var ferries: Int
+    var owner: Player?
     
     init(between cityA: City, and cityB: City, length: Int, color: Color, tunnel: Bool = false, ferries: Int = 0, addTracks: Bool = true) {
         endpoints = [cityA, cityB]
@@ -168,6 +169,10 @@ public class Destination: CustomStringConvertible {
 
 public protocol PlayerDelegate {
     func keepDestinations(_ destinations: [Destination]) -> [Destination]
+    func currentDestinations(_ destinations: [Destination])
+    
+    func actionThisTurn() -> Game.Action
+    
 }
 
 public class CLIDelegate: PlayerDelegate {
@@ -175,30 +180,77 @@ public class CLIDelegate: PlayerDelegate {
         
     }
     
+    func boolPrompt(_ prompt:String) -> Bool {
+        while true {
+            print(prompt, terminator: "? [y/n]: ")
+            
+            guard let line = readLine() else {
+                fatalError()
+            }
+            
+            switch line {
+            case "y", "Y", "yes", "Yes","YES":
+                return true
+            case "n", "N", "no", "No","NO":
+                return false
+            default:
+                continue;
+            }
+        }
+    }
+    
+    func optionListPrompt(_ options: String...) -> Int { return optionListPrompt(options) }
+    func optionListPrompt(_ options: [String]) -> Int {
+        for (k, option) in options.enumerated() {
+            print("\(k) \(option)")
+        }
+        while true {
+            print("[0-\(options.count - 1)]", terminator: ": ")
+            guard let line = readLine() else {
+                continue
+            }
+            
+            let rv = Int(line)
+            if rv == nil || rv! < 0 || rv! > options.count - 1 {
+                continue
+            } else {
+                return rv!
+            }
+        }
+    }
+    
     public func keepDestinations(_ destinations: [Destination]) -> [Destination] {
         print("Destinations Drawn: ")
-        print(destinations.map({$0.description}).joined(separator: "\n") )
+        print(destinations.map({$0.description}).joined(separator: "\n"))
         
         var rv: [Destination] = []
         destLoop: for dest in destinations {
-            while true {
-                print("Keep \(dest)? [y/n]: ", terminator: "")
-                guard let line = readLine() else {
-                    fatalError()
-                }
-                
-                switch line {
-                case "y", "Y", "yes", "Yes","YES":
-                    rv.append(dest)
-                    continue destLoop
-                case "n", "N", "no", "No","NO":
-                    continue destLoop
-                default:
-                    continue;
-                }
+            if boolPrompt("Keep \(dest)") {
+                rv.append(dest)
             }
         }
         return rv
+    }
+    
+    public func currentDestinations(_ destinations: [Destination]) {
+        print("Current Destinations: ")
+        print(destinations.map({$0.description}).joined(separator: "\n"))
+    }
+    
+    public func actionThisTurn() -> Game.Action {
+        let action = optionListPrompt("Draw Cards", "Play Track", "New Destinations", "Build Station")
+        switch action {
+        case 0:
+            return .drawCards
+        case 1:
+            return .playTrack
+        case 2:
+            return .newDestinations
+        case 3:
+            return .buildStation
+        default:
+            fatalError()
+        }
     }
 }
 
@@ -236,6 +288,13 @@ public class Game {
         self.board = board
     }
     
+    public enum Action {
+        case drawCards
+        case playTrack
+        case newDestinations
+        case buildStation
+    }
+    
     // 12 of each color (8 colors)
     // 14 locomotive
     // (12 * 8) + 14 = 110
@@ -252,7 +311,7 @@ public class Game {
             Double(12)/Double(110),
             
             Double(14)/Double(110),
-        ]
+            ]
         
         let rngout: UInt64 = Game.rng.random()
         let rand = Double(rngout) / Double(UInt64.max)
@@ -268,18 +327,23 @@ public class Game {
         return .locomotive
     }
     
+    func newDestinationsForPlayer(_ player: Player, destinations: Int) {
+        var temp: [Destination] = []
+        for _ in 0..<destinations {
+            temp.append(board.generateDestination())
+        }
+        player.destinations.append(contentsOf: player.delegate.keepDestinations(temp))
+        print(player.destinations)
+        player.delegate.currentDestinations(player.destinations)
+    }
+    
     public func run() -> Player {
         
         for p in players {
             for _ in 0..<3 {
                 p.cards[draw().index()] += 1
             }
-            var destinations: [Destination] = []
-            for _ in 0..<4 {
-                destinations.append(board.generateDestination())
-            }
-            p.destinations.append(contentsOf: p.delegate.keepDestinations(destinations))
-            print(p.destinations)
+            newDestinationsForPlayer(p, destinations: 4)
         }
         
         for _ in 0..<5 {
@@ -287,7 +351,18 @@ public class Game {
         }
         
         while true {
-            
+            for p in players {
+                switch p.delegate.actionThisTurn() {
+                case .drawCards:
+                    break
+                case .playTrack:
+                    break
+                case .newDestinations:
+                    newDestinationsForPlayer(p, destinations: 3)
+                case .buildStation:
+                    break
+                }
+            }
         }
         
         return players[0]
