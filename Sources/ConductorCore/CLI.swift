@@ -7,7 +7,21 @@
 import Foundation
 
 public class CLIDelegate: PlayerDelegate {
-    public init() {}
+    public var player: Player
+
+    public required init(withPlayer player: Player) {
+        self.player = player
+    }
+
+    public static func createDelegateForPlayer(_ player: Player) -> PlayerDelegate {
+        let rv = CLIDelegate(withPlayer: player)
+        print(rv)
+        return rv
+    }
+
+    public func startingTurn(_ turn: Int) {
+        print("\n\n *=== \(player) Starting Turn \(turn) ===* \n\n")
+    }
 
     private func boolPrompt(_ prompt: String) -> Bool {
         while true {

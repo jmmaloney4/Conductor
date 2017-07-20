@@ -11,6 +11,7 @@ public class Game {
     var players: [Player]
     var board: Board
     var faceUpCards: [Track.Color] = []
+    var turn: Int = 0
     static let rng: Gust = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
 
     public init(withPlayers players: Player..., andBoard board: Board = Board.standardEuropeMap()) {
@@ -119,6 +120,7 @@ public class Game {
         }
 
         while true {
+            turn += 1
             for p in players {
                 switch p.delegate.actionThisTurn() {
                 case .drawCards:

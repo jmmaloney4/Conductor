@@ -1,6 +1,5 @@
 disabled_rules: # rule identifiers to exclude from running
   - weak_delegate
-  - class_delegate_protocol
 opt_in_rules: # some rules are only opt-in
   - empty_count
   - explicit_top_level_acl

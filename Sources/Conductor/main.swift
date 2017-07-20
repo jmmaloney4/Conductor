@@ -7,6 +7,11 @@
 import Foundation
 import ConductorCore
 
-internal var game: Game = Game(withPlayers: Player(withDelegate: CLIDelegate(), andColor: .blue),
-                               Player(withDelegate: CLIDelegate(), andColor: .red))
+internal var bluePlayer = Player(withColor: .blue)
+internal var redPlayer = Player(withColor: .red)
+
+bluePlayer.initDelegate(CLIDelegate.self)
+redPlayer.initDelegate(CLIDelegate.self)
+
+internal var game: Game = Game(withPlayers: bluePlayer, redPlayer)
 _ = game.run()

@@ -6,7 +6,13 @@
 
 import Foundation
 
-public protocol PlayerDelegate {
+public protocol PlayerDelegate: class {
+    var player: Player { get }
+
+    init(withPlayer player: Player)
+
+    func startingTurn(_ turn: Int)
+
     func keepDestinations(_ destinations: [Destination]) -> [Destination]
     func currentDestinations(_ destinations: [Destination])
 
@@ -36,7 +42,7 @@ public class Player: CustomStringConvertible {
 
     }
 
-    var delegate: PlayerDelegate
+    var delegate: PlayerDelegate!
 
     var color: Color
     var trains: Int = 45
@@ -46,9 +52,12 @@ public class Player: CustomStringConvertible {
 
     public var description: String { return "\(color) Player" }
 
-    public init(withDelegate delegate: PlayerDelegate, andColor color: Color) {
-        self.delegate = delegate
+    public init(withColor color: Color) {
         self.color = color
+    }
+
+    public func initDelegate(_ type: PlayerDelegate.Type) {
+        self.delegate = type.init(withPlayer: self)
     }
 
     public func addCardToHand(_ color: Track.Color) {
