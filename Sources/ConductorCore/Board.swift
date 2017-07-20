@@ -59,17 +59,8 @@ public class Board {
         _ = Track(between: london, and: edinburgh, length: 4, color: .black)
         _ = Track(between: london, and: edinburgh, length: 4, color: .orange)
 
-        return Board(withCities: paris,
-                     frankfurt,
-                     berlin,
-                     pamplona,
-                     bruxelles,
-                     dieppe,
-                     essen,
-                     london,
-                     amsterdam,
-                     brest,
-                     edinburgh)
+        return Board(withCities: paris, frankfurt, berlin, pamplona, bruxelles,
+                     dieppe, essen, london, amsterdam, brest, edinburgh)
     }
 
     func cityForName(_ name: String) -> City? {
@@ -170,7 +161,7 @@ public class Board {
         var rv: [Track] = []
         for city in cities {
             for track in city.tracks {
-                if !rv.contains(where: {$0 === track}) {
+                if !rv.contains(where: { $0 === track }) {
                     rv.append(track)
                 }
             }
@@ -179,10 +170,10 @@ public class Board {
     }
 
     func unownedTracks() -> [Track] {
-        return allTracks().filter({$0.owner == nil})
+        return allTracks().filter({ $0.owner == nil })
     }
 
     func tracksOwnedBy(_ player: Player) -> [Track] {
-        return allTracks().filter({$0.owner != nil && $0.owner! === player})
+        return allTracks().filter({ $0.owner != nil && $0.owner! === player })
     }
 }

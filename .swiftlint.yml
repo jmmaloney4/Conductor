@@ -1,9 +1,14 @@
 disabled_rules: # rule identifiers to exclude from running
-  - colon
-  - comma
-  - control_statement
+  - weak_delegate
+  - class_delegate_protocol
 opt_in_rules: # some rules are only opt-in
   - empty_count
+  - explicit_top_level_acl
+  - explicit_type_interface
+  - explicit_init
+  - closure_spacing
+  - closure_end_indentation
+  - operator_usage_whitespace
   # Find all the available rules by running:
   # swiftlint rules
 included: # paths to include during linting. `--path` is ignored if present.
@@ -14,6 +19,8 @@ excluded: # paths to ignore during linting. Takes precedence over `included`.
 file_length:
   warning: 500
   error: 1200
+
+line_length: 120
 
 type_name:
   min_length: 3 # only warning
@@ -29,4 +36,5 @@ identifier_name:
     error: 50
   excluded: # excluded via string array
     - k
+
 reporter: "xcode"
