@@ -23,9 +23,13 @@ public class Board {
         let dieppe = City(withName: "Dieppe") // 5
         let essen = City(withName: "Essen") // 5
         let london = City(withName: "London") // 5
+        let madrid = City(withName: "Madrid") // 5
         let amsterdam = City(withName: "Amsterdam") // 4
+        let barcelona = City(withName: "Barcelona") // 3
         let brest = City(withName: "Brest") // 3
+        let cadiz = City(withName: "Cadiz") // 2
         let edinburgh = City(withName: "Edinburgh") // 2
+        let lisboa = City(withName: "Lisboa") // 2s
 
         _ = Track(between: paris, and: frankfurt, length: 3, color: .white)
         _ = Track(between: paris, and: frankfurt, length: 3, color: .orange)
@@ -44,6 +48,9 @@ public class Board {
 
         _ = Track(between: berlin, and: essen, length: 2, color: .blue)
 
+        _ = Track(between: pamplona, and: madrid, length: 3, color: .black, tunnel: true)
+        _ = Track(between: pamplona, and: madrid, length: 3, color: .white, tunnel: true)
+        _ = Track(between: pamplona, and: barcelona, length: 2, color: .unspecified, tunnel: true)
         _ = Track(between: pamplona, and: brest, length: 4, color: .pink)
 
         _ = Track(between: bruxelles, and: dieppe, length: 2, color: .green)
@@ -59,8 +66,15 @@ public class Board {
         _ = Track(between: london, and: edinburgh, length: 4, color: .black)
         _ = Track(between: london, and: edinburgh, length: 4, color: .orange)
 
+        _ = Track(between: madrid, and: barcelona, length: 2, color: .yellow)
+        _ = Track(between: madrid, and: cadiz, length: 3, color: .orange)
+        _ = Track(between: madrid, and: lisboa, length: 3, color: .pink)
+
+        _ = Track(between: cadiz, and: lisboa, length: 2, color: .blue)
+
         return Board(withCities: paris, frankfurt, berlin, pamplona, bruxelles,
-                     dieppe, essen, london, amsterdam, brest, edinburgh)
+                     dieppe, essen, london, madrid, amsterdam, barcelona, brest,
+                     cadiz, edinburgh, lisboa)
     }
 
     func cityForName(_ name: String) -> City? {
