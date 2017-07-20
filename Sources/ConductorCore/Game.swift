@@ -14,7 +14,7 @@ public class Game {
     var turn: Int = 0
     static let rng: Gust = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
 
-    public init(withPlayers players: Player..., andBoard board: Board = Board.standardEuropeMap()) {
+    public init(withPlayers players: Player..., andBoard board: Board = standardEuropeMap()) {
         self.players = players
         self.board = board
     }
@@ -112,7 +112,7 @@ public class Game {
             for _ in 0..<3 {
                 p.cards[draw().rawValue] += 1
             }
-            newDestinationsForPlayer(p, destinations: 4)
+            newDestinationsForPlayer(p, destinations: 1000)
         }
 
         for _ in 0..<5 {
