@@ -1,0 +1,32 @@
+disabled_rules: # rule identifiers to exclude from running
+  - colon
+  - comma
+  - control_statement
+opt_in_rules: # some rules are only opt-in
+  - empty_count
+  # Find all the available rules by running:
+  # swiftlint rules
+included: # paths to include during linting. `--path` is ignored if present.
+  - Sources/
+excluded: # paths to ignore during linting. Takes precedence over `included`.
+  - .build/
+
+file_length:
+  warning: 500
+  error: 1200
+
+type_name:
+  min_length: 3 # only warning
+  max_length: # warning and error
+    warning: 35
+    error: 50
+
+identifier_name:
+  min_length: # only min_length
+    error: 3 # only error
+  max_length:
+    warning: 35
+    error: 50
+  excluded: # excluded via string array
+    - k
+reporter: "xcode"

@@ -7,7 +7,7 @@
 import Foundation
 import Squall
 
-public class Track {
+public class Track: CustomStringConvertible {
     public enum Color: CustomStringConvertible {
         case red
         case blue
@@ -19,7 +19,7 @@ public class Track {
         case green
         case unspecified // Used only for tracks
         case locomotive // Used for cards, not tracks
-        
+
         func index() -> Int {
             switch self {
             case .red:
@@ -44,9 +44,9 @@ public class Track {
                 return 8
             }
         }
-        
+
         static var count = 9
-        
+
         static func colorForIndex(_ index: Int) -> Color {
             switch index {
             case 0:
@@ -71,8 +71,8 @@ public class Track {
                 fatalError()
             }
         }
-        
-        public var description: String { get {
+
+        public var description: String {
             switch self {
             case .red:
                 return "Red"
@@ -91,40 +91,42 @@ public class Track {
             case .green:
                 return "Green"
             case .unspecified:
-                fatalError()
+                return "Unspecified"
             case .locomotive:
                 return "Locomotive"
             }
-        }}
+        }
     }
-    
+
     var endpoints: [City]
     var length: Int
     var color: Color
     var tunnel: Bool
     var ferries: Int
     var owner: Player?
-    
+
+    public var description: String { return "\(endpoints[0]) to \(endpoints[1]) (\(length), \(color), \(owner != nil ? owner!.description : "No Owner"))" }
+
     init(between cityA: City, and cityB: City, length: Int, color: Color, tunnel: Bool = false, ferries: Int = 0, addTracks: Bool = true) {
         endpoints = [cityA, cityB]
         self.length = length
         self.color = color
         self.tunnel = tunnel
         self.ferries = ferries
-        
+
         if addTracks {
             cityA.addTrack(self)
             cityB.addTrack(self)
         }
     }
-    
+
     func connectsToCity(_ city: City) -> Bool {
         if endpoints.contains(where: { $0 === city }) {
             return true
         }
         return false
     }
-    
+
     func getOtherCity(_ city: City) -> City? {
         if !self.connectsToCity(city) {
             return nil
@@ -136,16 +138,16 @@ public class Track {
 public class City: CustomStringConvertible {
     var name: String
     var tracks: [Track] = []
-    public var description: String { get { return name } }
-    
+    public var description: String { return name }
+
     public init(withName name: String) {
         self.name = name
     }
-    
+
     internal func addTrack(_ track: Track) {
         tracks.append(track)
     }
-    
+
     func isAdjacentToCity(_ city: City) -> Bool {
         for track in tracks {
             if track.endpoints.contains(where: {$0 === city}) {
@@ -154,22 +156,22 @@ public class City: CustomStringConvertible {
         }
         return false
     }
-    
+
     func tracksToCity(_ city: City) -> [Track]? {
         if !self.isAdjacentToCity(city) {
             return nil
         }
-        
+
         var rv: [Track] = []
         for track in tracks {
             if track.connectsToCity(city) {
                 rv.append(track)
             }
         }
-        
+
         return rv
     }
-    
+
     func shortestTrackToCity(_ city: City) -> Int {
         return self.tracksToCity(city)!.reduce(Int.max, {
             if $1.length < $0 {
@@ -184,8 +186,8 @@ public class City: CustomStringConvertible {
 public class Destination: CustomStringConvertible {
     var endpoints: [City]
     var length: Int
-    public var description: String { get { return "\(endpoints[0]) to \(endpoints[1]) (\(length))" } }
-    
+    public var description: String { return "\(endpoints[0]) to \(endpoints[1]) (\(length))" }
+
     init(from cityA: City, to cityB: City, length: Int) {
         endpoints = [cityA, cityB]
         self.length = length
@@ -195,36 +197,37 @@ public class Destination: CustomStringConvertible {
 public protocol PlayerDelegate {
     func keepDestinations(_ destinations: [Destination]) -> [Destination]
     func currentDestinations(_ destinations: [Destination])
-    
+
     func actionThisTurn() -> Game.Action
-    
-    func whichCardToTake(faceUpCards: [Track.Color]) -> Int?
+
+    func whichCardToTake(_ faceUpCards: [Track.Color]) -> Int?
+    func whichTrackToClaim(_ avaliableTracks: [Track]) -> Int
 }
 
 public class CLIDelegate: PlayerDelegate {
     public init() {
-        
+
     }
-    
+
     func boolPrompt(_ prompt:String) -> Bool {
         while true {
             print(prompt, terminator: "? [y/n]: ")
-            
+
             guard let line = readLine() else {
                 fatalError()
             }
-            
+
             switch line {
             case "y", "Y", "yes", "Yes","YES":
                 return true
             case "n", "N", "no", "No","NO":
                 return false
             default:
-                continue;
+                continue
             }
         }
     }
-    
+
     func optionListPrompt(_ options: String...) -> Int { return optionListPrompt(options) }
     func optionListPrompt(_ options: [String]) -> Int {
         for (k, option) in options.enumerated() {
@@ -235,7 +238,7 @@ public class CLIDelegate: PlayerDelegate {
             guard let line = readLine() else {
                 continue
             }
-            
+
             let rv = Int(line)
             if rv == nil || rv! < 0 || rv! > options.count - 1 {
                 continue
@@ -244,11 +247,11 @@ public class CLIDelegate: PlayerDelegate {
             }
         }
     }
-    
+
     public func keepDestinations(_ destinations: [Destination]) -> [Destination] {
         print("Destinations Drawn: ")
         print(destinations.map({$0.description}).joined(separator: "\n"))
-        
+
         var rv: [Destination] = []
         destLoop: for dest in destinations {
             if boolPrompt("Keep \(dest)") {
@@ -257,12 +260,12 @@ public class CLIDelegate: PlayerDelegate {
         }
         return rv
     }
-    
+
     public func currentDestinations(_ destinations: [Destination]) {
         print("Current Destinations: ")
         print(destinations.map({$0.description}).joined(separator: "\n"))
     }
-    
+
     public func actionThisTurn() -> Game.Action {
         let action = optionListPrompt("Draw Cards", "Play Track", "New Destinations", "Build Station")
         switch action {
@@ -278,11 +281,11 @@ public class CLIDelegate: PlayerDelegate {
             fatalError()
         }
     }
-    
-    public func whichCardToTake(faceUpCards: [Track.Color]) -> Int? {
+
+    public func whichCardToTake(_ faceUpCards: [Track.Color]) -> Int? {
         var options = faceUpCards.map({$0.description})
         options.append("Draw From Random Pile")
-        
+
         let i = optionListPrompt(options)
         switch i {
         case faceUpCards.count: // Draw from pile
@@ -291,9 +294,13 @@ public class CLIDelegate: PlayerDelegate {
             return i
         }
     }
+
+    public func whichTrackToClaim(_ avaliableTracks: [Track]) -> Int {
+        return optionListPrompt(avaliableTracks.map({$0.description}))
+    }
 }
 
-public class Player {
+public class Player: CustomStringConvertible {
     public enum Color {
         case black
         case green
@@ -301,22 +308,28 @@ public class Player {
         case blue
         case yellow
     }
-    
+
     var delegate: PlayerDelegate
-    
+
     var color: Color
     var trains: Int = 45
     var stations: Int = 3
     var cards: [Int] = Array(repeatElement(0, count:  Track.Color.count))
     var destinations: [Destination] = []
-    
+
+    public var description: String { return "\(color) Player" }
+
     public init(withDelegate delegate: PlayerDelegate, andColor color: Color) {
         self.delegate = delegate
         self.color = color
     }
-    
+
     public func addCardToHand(_ color: Track.Color) {
         cards[color.index()] += 1
+    }
+
+    func hasEnoughCards(_ numCards: Int, ofColor color: Track.Color) -> Bool {
+        return cards[color.index()] >= numCards
     }
 }
 
@@ -325,19 +338,19 @@ public class Game {
     var board: Board
     var faceUpCards: [Track.Color] = []
     static let rng: Gust = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
-    
+
     public init(withPlayers players: Player..., andBoard board: Board = Board.standardEuropeMap()) {
         self.players = players
         self.board = board
     }
-    
+
     public enum Action {
         case drawCards
         case playTrack
         case newDestinations
         case buildStation
     }
-    
+
     // 12 of each color (8 colors)
     // 14 locomotive
     // (12 * 8) + 14 = 110
@@ -352,10 +365,10 @@ public class Game {
             Double(12)/Double(110),
             Double(12)/Double(110),
             Double(12)/Double(110),
-            
-            Double(14)/Double(110),
+
+            Double(14)/Double(110)
             ]
-        
+
         let rngout: UInt64 = Game.rng.random()
         let rand = Double(rngout) / Double(UInt64.max)
         var accum = 0.0
@@ -365,11 +378,11 @@ public class Game {
                 return Track.Color.colorForIndex(i)
             }
         }
-        
+
         print("Double Math error")
         return .locomotive
     }
-    
+
     func newDestinationsForPlayer(_ player: Player, destinations: Int) {
         var temp: [Destination] = []
         for _ in 0..<destinations {
@@ -379,9 +392,9 @@ public class Game {
         print(player.destinations)
         player.delegate.currentDestinations(player.destinations)
     }
-    
+
     func drawCardsForPlayer(_ player: Player) {
-        let card1 = player.delegate.whichCardToTake(faceUpCards: faceUpCards)
+        let card1 = player.delegate.whichCardToTake(faceUpCards)
         if card1 == nil {
             player.addCardToHand(draw())
         } else {
@@ -392,9 +405,9 @@ public class Game {
                 return // Only one locomotive
             }
         }
-        
+
         while true {
-            let card2 = player.delegate.whichCardToTake(faceUpCards: faceUpCards)
+            let card2 = player.delegate.whichCardToTake(faceUpCards)
             if card2 == nil {
                 player.addCardToHand(draw())
             } else if faceUpCards[card2!] == .locomotive {
@@ -406,27 +419,38 @@ public class Game {
             }
         }
     }
-    
+
+    func playTrackForPlayer(_ player: Player) {
+        while true {
+            var tracks = board.unownedTracks()
+            let track = tracks[player.delegate.whichTrackToClaim(tracks)]
+
+            if player.hasEnoughCards(track.length, ofColor: track.color) {
+                track.owner = player
+                break
+            }
+        }
+    }
+
     public func run() -> Player {
-        
         for p in players {
             for _ in 0..<3 {
                 p.cards[draw().index()] += 1
             }
             newDestinationsForPlayer(p, destinations: 4)
         }
-        
+
         for _ in 0..<5 {
             faceUpCards.append(draw())
         }
-        
+
         while true {
             for p in players {
                 switch p.delegate.actionThisTurn() {
                 case .drawCards:
                     drawCardsForPlayer(p)
                 case .playTrack:
-                    break
+                    playTrackForPlayer(p)
                 case .newDestinations:
                     newDestinationsForPlayer(p, destinations: 3)
                 case .buildStation:
@@ -434,7 +458,7 @@ public class Game {
                 }
             }
         }
-        
-        return players[0]
+
+        // return players[0]
     }
 }
