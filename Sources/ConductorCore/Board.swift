@@ -9,6 +9,7 @@ import SwiftPriorityQueue
 
 public class Board {
     var cities: [City]
+    var game: Game!
 
     public init(withCities cities: City...) {
         self.cities = cities
@@ -126,5 +127,38 @@ public class Board {
 
     func tracksOwnedBy(_ player: Player) -> [Track] {
         return allTracks().filter({ $0.owner != nil && $0.owner! === player })
+    }
+
+    func citiesTouchedByPlayer(_ player: Player) -> [City] {
+        return cities.filter({ $0.tracks.contains(where: { $0.owner === player }) })
+    }
+
+    func trackBetweenCities(_ cityA: City, _ cityB: City) -> Track? {
+        return nil
+    }
+
+    func routeSearch(city: City, usedTracks: [Track], player: Player) -> [[Track]] {
+        var rv: [[Track]] = []
+        for track in city.tracks where track.owner === player && !usedTracks.contains(where: { $0 === track }) {
+            var newUsedTracks: [Track] = []
+            newUsedTracks.append(contentsOf: usedTracks)
+            newUsedTracks.append(track)
+            var routes = routeSearch(city: track.getOtherCity(city)!, usedTracks: newUsedTracks, player: player)
+        }
+        return rv
+    }
+
+    func findAllRoutesFromCity(_ city: City, for player: Player) -> [[Track]] {
+        return routeSearch(city: city, usedTracks: [], player: player)
+    }
+
+    func findLongestRoute() -> ([Track], Player) {
+        for player in game.players {
+            for city in cities where city.isEndpointForPlayer(player) {
+                var visitedTracks: [Track] = []
+
+            }
+        }
+        return ([], game.players[0])
     }
 }

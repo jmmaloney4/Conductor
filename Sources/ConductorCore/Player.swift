@@ -44,6 +44,8 @@ public class Player: CustomStringConvertible {
 
     var delegate: PlayerDelegate!
 
+    var game: Game!
+
     var color: Color
     var trains: Int = 45
     var stations: Int = 3
@@ -66,5 +68,13 @@ public class Player: CustomStringConvertible {
 
     func hasEnoughCards(_ numCards: Int, ofColor color: Track.Color) -> Bool {
         return cards[color.rawValue] >= numCards
+    }
+
+    func pointsFromTracks() -> Int {
+        var rv: Int = 0
+        for track in game.board.tracksOwnedBy(self) {
+            rv += track.points()!
+        }
+        return rv
     }
 }

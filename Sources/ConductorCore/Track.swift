@@ -95,4 +95,34 @@ public class Track: CustomStringConvertible {
         }
         return endpoints.filter({ $0 !== city })[0]
     }
+
+    func points() -> Int? {
+        switch length {
+        case 1: return 1
+        case 2: return 2
+        case 3: return 4
+        case 4: return 7
+        case 6: return 15
+        case 8: return 21
+        default: return nil
+        }
+    }
+}
+
+extension Array where Element: Track {
+    func totalLength() -> Int {
+        return self.reduce(0, { return $0 + $1.length })
+    }
+
+    func isEqualToRoute(_ route: [Track]) -> Bool {
+        if route.count != self.count {
+            return false
+        }
+
+        for track in route where !self.contains(where: { $0 === track }) {
+            return false
+        }
+
+        return true
+    }
 }

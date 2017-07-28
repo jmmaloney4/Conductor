@@ -6,7 +6,7 @@
 
 import Foundation
 
-public class City: CustomStringConvertible {
+public class City: CustomStringConvertible, Equatable {
     var name: String
     var tracks: [Track] = []
     public var description: String { return name }
@@ -51,5 +51,17 @@ public class City: CustomStringConvertible {
                 return $0
             }
         })
+    }
+
+    func isEndpointForPlayer(_ player: Player) -> Bool {
+        var seen: Int = 0
+        for track in tracks where track.owner === player {
+            seen += 1
+        }
+        return seen == 1
+    }
+
+    public static func == (lhs: City, rhs: City) -> Bool {
+        return lhs.name == rhs.name
     }
 }

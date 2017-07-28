@@ -17,6 +17,11 @@ public class Game {
     public init(withPlayers players: Player..., andBoard board: Board = standardEuropeMap()) {
         self.players = players
         self.board = board
+
+        self.board.game = self
+        for p in players {
+            p.game = self
+        }
     }
 
     public enum Action {
@@ -136,5 +141,17 @@ public class Game {
         }
 
         // return players[0]
+    }
+}
+
+public class State {
+    var game: Game
+    var board: [City]
+    var faceUpCards: [Track.Color]
+
+    init(withGame game: Game) {
+        self.game = game
+        board = []
+        faceUpCards = []
     }
 }

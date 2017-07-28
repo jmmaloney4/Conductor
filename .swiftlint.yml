@@ -34,6 +34,5 @@ identifier_name:
     warning: 35
     error: 50
   excluded: # excluded via string array
-    - k
 
 reporter: "xcode"
