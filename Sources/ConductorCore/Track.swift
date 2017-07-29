@@ -6,7 +6,7 @@
 
 import Foundation
 
-public class Track: CustomStringConvertible {
+public class Track: CustomStringConvertible, Hashable {
     public enum Color: Int, CustomStringConvertible {
         case red = 0
         case blue = 1
@@ -62,6 +62,14 @@ public class Track: CustomStringConvertible {
     var tunnel: Bool
     var ferries: Int
     var owner: Player?
+
+    public var hashValue: Int {
+        return ObjectIdentifier(self).hashValue
+    }
+
+    public static func == (lhs: Track, rhs: Track) -> Bool {
+        return lhs.hashValue == rhs.hashValue
+    }
 
     public var description: String {
         return "\(endpoints[0]) to \(endpoints[1])" +

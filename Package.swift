@@ -14,6 +14,7 @@ let package = Package(
         .Package(url: "https://github.com/jmmaloney4/Squall.git", versions: Version(1,2,3)..<Version(1,3,0)),
         .Package(url: "https://github.com/jmmaloney4/VarInt.git", "0.3.0"),
         .Package(url: "https://github.com/davecom/SwiftPriorityQueue.git", "1.1.2"),
+        .Package(url: "https://github.com/SwiftyJSON/SwiftyJSON.git", "3.1.4")
     ]
 )
 

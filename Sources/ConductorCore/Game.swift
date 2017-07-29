@@ -14,14 +14,18 @@ public class Game {
     var turn: Int = 0
     static let rng: Gust = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
 
+    var state: State!
+
     public init(withPlayers players: Player..., andBoard board: Board = standardEuropeMap()) {
         self.players = players
         self.board = board
+        self.state = State(withGame: self)
 
         self.board.game = self
         for p in players {
             p.game = self
         }
+
     }
 
     public enum Action {
@@ -145,13 +149,22 @@ public class Game {
 }
 
 public class State {
+    var parent: State?
     var game: Game
-    var board: [City]
-    var faceUpCards: [Track.Color]
+    var faceUpCards: [Track.Color] = []
+    var owners: [Track: Player] = [:]
 
     init(withGame game: Game) {
+        self.parent = nil
         self.game = game
-        board = []
-        faceUpCards = []
+        self.faceUpCards = []
+        self.owners = [:]
+    }
+
+    init(fromParentState parent: State) {
+        self.parent = parent
+        self.game = parent.game
+        self.faceUpCards = parent.faceUpCards
+        self.owners = parent.owners
     }
 }

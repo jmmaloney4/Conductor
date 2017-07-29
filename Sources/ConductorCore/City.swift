@@ -6,10 +6,15 @@
 
 import Foundation
 
-public class City: CustomStringConvertible, Equatable {
+public class City: CustomStringConvertible, Hashable {
     var name: String
     var tracks: [Track] = []
     public var description: String { return name }
+    public var hashValue: Int { return ObjectIdentifier(self).hashValue }
+
+    public static func == (lhs: City, rhs: City) -> Bool {
+        return lhs.hashValue == rhs.hashValue
+    }
 
     public init(withName name: String) {
         self.name = name
@@ -61,7 +66,4 @@ public class City: CustomStringConvertible, Equatable {
         return seen == 1
     }
 
-    public static func == (lhs: City, rhs: City) -> Bool {
-        return lhs.name == rhs.name
-    }
 }

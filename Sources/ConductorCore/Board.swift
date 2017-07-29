@@ -6,6 +6,7 @@
 
 import Foundation
 import SwiftPriorityQueue
+import SwiftyJSON
 
 public class Board {
     var cities: [City]
@@ -160,5 +161,23 @@ public class Board {
             }
         }
         return ([], game.players[0])
+    }
+
+    public func toJSON() -> String {
+        var rv = "[\n"
+        for track in allTracks() {
+            rv.append("\t{\n")
+
+            rv.append("\t\t\"endpoints\": [\"\(track.endpoints[0].name)\", \"\(track.endpoints[1].name)\"],\n")
+            rv.append("\t\t\"color\": \"\(track.color)\",\n")
+            rv.append("\t\t\"length\": \(track.length),\n")
+            rv.append("\t\t\"tunnel\": \(track.tunnel),\n")
+            rv.append("\t\t\"ferries\": \(track.ferries)\n")
+
+            rv.append("\t},\n")
+        }
+        rv.append("]\n")
+
+        return rv
     }
 }
