@@ -6,7 +6,7 @@
 
 import Foundation
 import ConductorCore
-
+/*
 internal var bluePlayer = Player(withColor: .blue)
 internal var redPlayer = Player(withColor: .red)
 
@@ -19,3 +19,5 @@ print(board.toJSON())
 internal var game: Game = Game(withPlayers: bluePlayer, redPlayer)
 _ = game.run()
 */
+
+ */
