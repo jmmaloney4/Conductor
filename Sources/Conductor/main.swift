@@ -21,3 +21,6 @@ _ = game.run()
 */
 
  */
+
+let board = try! Board(fromJSONFile: "/Users/jack/Developer/Conductor/europe.json")
+print(board)
