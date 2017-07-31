@@ -7,6 +7,6 @@
 
 import XCTest
 
-import ArcanusTests
+import ConductorTests
 
 XCTMain([testCase(InitTests.allTests)])
