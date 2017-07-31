@@ -6,21 +6,6 @@
 
 import Foundation
 import ConductorCore
-/*
-internal var bluePlayer = Player(withColor: .blue)
-internal var redPlayer = Player(withColor: .red)
-
-bluePlayer.initDelegate(CLIDelegate.self)
-redPlayer.initDelegate(CLIDelegate.self)
-
-internal var board: Board = standardEuropeMap()
-print(board.toJSON())
-/*
-internal var game: Game = Game(withPlayers: bluePlayer, redPlayer)
-_ = game.run()
-*/
-
- */
 
 let rules = try! Rules(fromJSONFile: "Tests/Resources/rules.json")
 print(rules.startingHandSize)
