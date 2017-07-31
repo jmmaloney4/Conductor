@@ -27,4 +27,3 @@ print(rules.startingHandSize)
 let board = try! Board(fromJSONFile: "Tests/Resources/europe.json")
 let game = Game(withRules: rules, board: board, andPlayers: CLIPlayerInterface(), CLIPlayerInterface())
 print(board.cities.count)
-

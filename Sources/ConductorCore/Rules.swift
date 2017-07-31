@@ -24,8 +24,6 @@ public class Rules {
             throw ConductorError.invalidJSON
         }
 
-        
     }
-
 
 }

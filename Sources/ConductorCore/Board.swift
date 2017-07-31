@@ -36,7 +36,7 @@ public class Board: CustomStringConvertible {
             }
 
             var cityA: City
-            let cityAlist = cities.filter({$0.name == cityAName})
+            let cityAlist = cities.filter({ $0.name == cityAName })
             if cityAlist.isEmpty {
                 cityA = City(withName: cityAName)
                 cities.append(cityA)
@@ -47,7 +47,7 @@ public class Board: CustomStringConvertible {
             }
 
             var cityB: City
-            let cityBlist = cities.filter({$0.name == cityBName})
+            let cityBlist = cities.filter({ $0.name == cityBName })
             if cityBlist.isEmpty {
                 cityB = City(withName: cityBName)
                 cities.append(cityB)
@@ -86,7 +86,7 @@ struct Destination: CustomStringConvertible {
     var description: String {
         return "\(cities[0]) to \(cities[1])"
     }
-    
+
     init(cityA: City, cityB: City) {
         cities = [cityA, cityB]
     }

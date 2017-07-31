@@ -8,7 +8,7 @@ import Foundation
 
 internal class State {
     weak var game: Game!
-    var parent: State? = nil
+    var parent: State?
     var tracks: [Track:Player?] = [:]
     var stations: [City:Player?] = [:]
     var cards: [Color] = []

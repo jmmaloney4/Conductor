@@ -26,7 +26,7 @@ public class Game: Hashable {
         for player in players {
             let p = Player(withInterface: player, andGame: self)
             for _ in 0..<rules.startingHandSize {
-                
+
             }
             self.players.append(p)
         }
