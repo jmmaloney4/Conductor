@@ -1,4 +1,4 @@
-env: 
+env:
   SWIFT_VERSION=swift-3.1.1-RELEASE
 
 matrix:
@@ -13,18 +13,18 @@ matrix:
       language: objective-c
       sudo: required
       env: URL="https://swift.org/builds/swift-3.1.1-release/xcode/swift-3.1.1-RELEASE/swift-3.1.1-RELEASE-osx.pkg"
-      
+
 script:
-  - swift build -c debug
-  - swift build -c release
+  - swift build
+  - cd Tests
   - swift test
-  
+
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget $URL; tar xzf swift-3.1.1-RELEASE-ubuntu14.04.tar.gz; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export PATH="${PWD}/swift-3.1.1-RELEASE-ubuntu14.04/usr/bin/:${PATH}"; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl -O $URL; sudo installer -pkg swift-3.1.1-RELEASE-osx.pkg -target /; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export TOOLCHAINS=swift; fi
-  
+
 notifications:
   email:
     on_success: never
