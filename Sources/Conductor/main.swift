@@ -23,4 +23,6 @@ _ = game.run()
  */
 
 let board = try! Board(fromJSONFile: "/Users/jack/Developer/Conductor/europe.json")
-print(board)
+let game = Game(withBoard: board, andPlayers: CLIPlayerInterface(), CLIPlayerInterface())
+
+
