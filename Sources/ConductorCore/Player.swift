@@ -14,7 +14,6 @@ public protocol PlayerInterface {
 public class Player: Hashable {
     weak var game: Game!
     var interface: PlayerInterface
-    var stations: [City] = []
     var hand: [Color:Int] = [:]
     var destinations: [Destination] = []
 

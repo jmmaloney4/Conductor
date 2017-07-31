@@ -8,7 +8,7 @@ import Foundation
 import Squall
 
 public class Game: Hashable {
-    var rules: Rules = Rules()
+    var rules: Rules
     var players: [Player]
     var board: Board
     var state: State!
@@ -19,11 +19,16 @@ public class Game: Hashable {
         return lhs.hashValue == rhs.hashValue
     }
 
-    public init(withBoard board: Board, andPlayers players: PlayerInterface...) {
+    public init(withRules rules: Rules, board: Board, andPlayers players: PlayerInterface...) {
+        self.rules = rules
         self.board = board
         self.players = []
         for player in players {
-            self.players.append(Player(withInterface: player, andGame: self))
+            let p = Player(withInterface: player, andGame: self)
+            for _ in 0..<rules.startingHandSize {
+                
+            }
+            self.players.append(p)
         }
 
         state = State(withGame: self)
@@ -59,6 +64,10 @@ public class Game: Hashable {
 
         print("Double Math error")
         return .locomotive
+    }
+
+    func cityForName() {
+
     }
 
 }

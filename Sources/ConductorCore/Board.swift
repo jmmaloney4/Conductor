@@ -8,7 +8,7 @@ import Foundation
 import SwiftyJSON
 
 public class Board: CustomStringConvertible {
-    var cities: [City]
+    public var cities: [City]
 
     public var description: String {
         let sorted = cities.sorted(by: { $0.tracks.count > $1.tracks.count })
@@ -18,8 +18,10 @@ public class Board: CustomStringConvertible {
     }
 
     public init(fromJSONFile path: String) throws {
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)) else {
+            throw ConductorError.fileError(path: path)
+        }
 
-        let data = try! Data(contentsOf: URL(fileURLWithPath: path))
         let json = JSON(data: data)
 
         self.cities = []
@@ -84,7 +86,7 @@ struct Destination: CustomStringConvertible {
     var description: String {
         return "\(cities[0]) to \(cities[1])"
     }
-
+    
     init(cityA: City, cityB: City) {
         cities = [cityA, cityB]
     }

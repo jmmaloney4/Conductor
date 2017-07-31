@@ -8,6 +8,11 @@ import Foundation
 import SwiftPriorityQueue
 import Weak
 
+public enum ConductorError: Error {
+    case invalidJSON
+    case fileError(path: String)
+}
+
 public enum Color: Int, CustomStringConvertible {
     case red = 0
     case blue = 1
@@ -65,8 +70,4 @@ public enum Color: Int, CustomStringConvertible {
         case .locomotive: return "Locomotive"
         }
     }
-}
-
-public enum ConductorError: Error {
-    case invalidJSON
 }

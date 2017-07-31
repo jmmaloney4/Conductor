@@ -5,11 +5,27 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import Foundation
+import SwiftyJSON
 
 public class Rules {
+    public var startingHandSize: Int
 
-    init() {
+    public init(fromJSONFile path: String) throws {
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)) else {
+            throw ConductorError.fileError(path: path)
+        }
 
+        let json = JSON(data: data)
+
+        switch json["startingHandSize"].int {
+        case .some(let size):
+            startingHandSize = size
+        case .none:
+            throw ConductorError.invalidJSON
+        }
+
+        
     }
-    
+
+
 }

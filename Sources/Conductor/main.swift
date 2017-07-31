@@ -22,7 +22,9 @@ _ = game.run()
 
  */
 
-let board = try! Board(fromJSONFile: "/Users/jack/Developer/Conductor/europe.json")
-let game = Game(withBoard: board, andPlayers: CLIPlayerInterface(), CLIPlayerInterface())
-
+let rules = try! Rules(fromJSONFile: "Tests/Resources/rules.json")
+print(rules.startingHandSize)
+let board = try! Board(fromJSONFile: "Tests/Resources/europe.json")
+let game = Game(withRules: rules, board: board, andPlayers: CLIPlayerInterface(), CLIPlayerInterface())
+print(board.cities.count)
 
