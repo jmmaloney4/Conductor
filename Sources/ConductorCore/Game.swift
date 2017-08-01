@@ -12,7 +12,8 @@ public class Game: Hashable {
     var players: [Player]
     var board: Board
     var state: State!
-    var rng: Gust = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
+    var rng: Gust
+    var seed: UInt32
 
     public var hashValue: Int { return ObjectIdentifier(self).hashValue }
     public static func == (lhs: Game, rhs: Game) -> Bool {
@@ -20,6 +21,9 @@ public class Game: Hashable {
     }
 
     public init(withRules rules: Rules, board: Board, andPlayers players: PlayerInterface...) {
+        self.seed = UInt32(Date().timeIntervalSinceReferenceDate)
+        print("Rng Seed: \(seed)")
+        self.rng = Gust(seed: seed)
         self.rules = rules
         self.board = board
         self.players = []
@@ -34,8 +38,6 @@ public class Game: Hashable {
         self.board.game = self
 
         state = State(withGame: self)
-
-        players[0].startingTurn(0)
     }
 
     // 12 of each color (8 colors)
@@ -68,5 +70,44 @@ public class Game: Hashable {
 
         print("Double Math error")
         return .locomotive
+    }
+
+    public func start() {
+        while true {
+            for player in players {
+                player.interface.startingTurn(state.turn)
+                switch player.interface.actionToTakeThisTurn(state.turn) {
+                case .drawCards(let fn, let drew):
+                    var c: Color
+
+                    // first card
+                    if let i = fn(state.cards) {
+                        c = state.takeCard(at: i)!
+                    } else {
+                        c = draw()
+                    }
+                    drew(c)
+                    player.addCardToHand(c)
+
+                    // if they drew a locomotive, they only get one card
+                    if c == .locomotive {
+                        break
+                    }
+
+                    // second card, filter locomotives, can't take one
+                    if let i = fn(state.cards.filter({ $0 != .locomotive })) {
+                        c = state.takeCard(at: i)!
+                    } else {
+                        c = draw()
+                    }
+                    drew(c)
+                    player.addCardToHand(c)
+
+                default:
+                    break
+                }
+                state.turn += 1
+            }
+        }
     }
 }

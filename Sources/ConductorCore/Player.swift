@@ -6,11 +6,19 @@
 
 import Foundation
 
+public enum Action {
+    case drawCards(([Color]) -> Int?, (Color) -> Void)
+    case getNewDestinations
+    case playTrack
+    case playStation
+}
+
 public protocol PlayerInterface {
     weak var player: Player! { get set }
 
     func startingGame()
     func startingTurn(_ turn: Int)
+    func actionToTakeThisTurn(_ turn: Int) -> Action
 }
 
 // Mostly storage-only, game logic in the Game class

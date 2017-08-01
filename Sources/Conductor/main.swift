@@ -7,8 +7,14 @@
 import Foundation
 import ConductorCore
 
+if CommandLine.argc < 3 {
+    print("Usage: \(CommandLine.arguments[0]) [rules.json] [map.json]")
+    exit(1)
+}
+
 let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
 let board = try! Board(fromJSONFile: CommandLine.arguments[2])
 let game = Game(withRules: rules, board: board, andPlayers: CLIPlayerInterface(), CLIPlayerInterface())
+game.start()
 
 print(board.generateDestination())

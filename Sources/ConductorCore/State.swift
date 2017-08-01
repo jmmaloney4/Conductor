@@ -21,6 +21,9 @@ internal class State: Hashable {
 
     init(withGame game: Game) {
         self.game = game
+        for _ in 0..<game.rules.faceUpCards {
+            cards.append(game.draw())
+        }
     }
 
     convenience init(fromParent parent: State) {
@@ -45,6 +48,34 @@ internal class State: Hashable {
         for (city, p) in stations where p == player {
             rv.append(city)
         }
+        return rv
+    }
+
+    func checkForMaxLocomotives() {
+        if cards.reduce(0, { (res, color) in
+            if color == .locomotive {
+                return res + 1
+            } else {
+                return res
+            }}) >= game.rules.maxLocomotivesFaceUp {
+            // Refresh cards, too many locomotives
+            var newCards: [Color] = []
+            for _ in 0..<game.rules.faceUpCards {
+                newCards.append(game.draw())
+            }
+            cards = newCards
+            checkForMaxLocomotives()
+        }
+    }
+
+    func takeCard(at index: Int) -> Color? {
+        if index >= cards.count || index < 0 {
+            return nil
+        }
+
+        let rv = cards.remove(at: index)
+        cards.append(game.draw())
+        checkForMaxLocomotives()
         return rv
     }
 }
