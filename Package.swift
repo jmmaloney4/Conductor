@@ -11,11 +11,11 @@ let package = Package(
     targets: [ Target(name: "Conductor", dependencies: ["ConductorCore"]) ],
 
     dependencies: [
-        .Package(url: "https://github.com/jmmaloney4/Squall.git", versions: Version(1,2,3)..<Version(1,3,0)),
+        .Package(url: "https://github.com/jmmaloney4/Squall.git", "1.2.3"),
         .Package(url: "https://github.com/jmmaloney4/VarInt.git", "0.3.0"),
         .Package(url: "https://github.com/davecom/SwiftPriorityQueue.git", "1.1.2"),
         .Package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", "16.0.1"),
-        .Package(url: "https://github.com/jmmaloney4/Weak.git", "0.0.5")
+        .Package(url: "https://github.com/jmmaloney4/Weak.git", "0.0.4")
     ],
     exclude: ["Tests/Resources/"]
 )
