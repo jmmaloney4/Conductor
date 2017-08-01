@@ -6,13 +6,18 @@
 
 import Foundation
 
-internal class State {
+internal class State: Hashable {
     weak var game: Game!
     var parent: State?
     var tracks: [Track:Player?] = [:]
     var stations: [City:Player?] = [:]
     var cards: [Color] = []
     var turn: Int = 0
+
+    var hashValue: Int { return ObjectIdentifier(self).hashValue }
+    static func == (lhs: State, rhs: State) -> Bool {
+        return lhs.hashValue == rhs.hashValue
+    }
 
     init(withGame game: Game) {
         self.game = game
@@ -25,5 +30,21 @@ internal class State {
         self.stations = parent.stations
         self.cards = parent.cards
         self.turn = parent.turn
+    }
+
+    func tracksOwnedBy(_ player: Player) -> [Track] {
+        var rv: [Track] = []
+        for (track, p) in tracks where p == player {
+            rv.append(track)
+        }
+        return rv
+    }
+
+    func stationsOwnedBy(_ player: Player) -> [City] {
+        var rv: [City] = []
+        for (city, p) in stations where p == player {
+            rv.append(city)
+        }
+        return rv
     }
 }

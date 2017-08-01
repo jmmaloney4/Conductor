@@ -7,8 +7,9 @@
 import Foundation
 
 public class City: CustomStringConvertible, Hashable {
-    internal private(set) var name: String
+    public private(set) var name: String
     internal private(set) var tracks: [Track] = []
+    internal private(set) weak var board: Board?
 
     public var description: String { return name }
     public var hashValue: Int { return ObjectIdentifier(self).hashValue }
@@ -16,20 +17,44 @@ public class City: CustomStringConvertible, Hashable {
         return lhs.hashValue == rhs.hashValue
     }
 
-    init(withName name: String) {
+    init(withName name: String, board: Board) {
         self.name = name
+        self.board = board
     }
 
     func addTrack(_ track: Track) {
         tracks.append(track)
     }
 
-    func isAdjacentToCity(_ city: City) -> Bool {
-        for track in tracks {
-            if track.endpoints.contains(where: { $0 === city }) {
-                return true
-            }
+    public func isAdjacentToCity(_ city: City) -> Bool {
+        for track in tracks where track.connectsToCity(city) {
+            return true
         }
         return false
+    }
+
+    func tracksToAdjacentCity(_ city: City) -> [Track]? {
+        if !self.isAdjacentToCity(city) {
+            return nil
+        }
+
+        var rv: [Track] = []
+        for track in tracks {
+            if track.connectsToCity(city) {
+                rv.append(track)
+            }
+        }
+
+        return rv
+    }
+
+    func shortestTrackToAdjacentCity(_ city: City) -> Int {
+        return self.tracksToAdjacentCity(city)!.reduce(Int.max, {
+            if $1.length < $0 {
+                return $1.length
+            } else {
+                return $0
+            }
+        })
     }
 }

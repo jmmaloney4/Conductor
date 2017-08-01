@@ -9,6 +9,7 @@ import SwiftyJSON
 
 public class Rules {
     public var startingHandSize: Int
+    public var faceUpCards: Int
 
     public init(fromJSONFile path: String) throws {
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)) else {
@@ -24,6 +25,12 @@ public class Rules {
             throw ConductorError.invalidJSON
         }
 
+        switch json["faceUpCards"].int {
+        case .some(let cards):
+            faceUpCards = cards
+        case .none:
+            throw ConductorError.invalidJSON
+        }
     }
 
 }

@@ -7,8 +7,8 @@
 import Foundation
 import ConductorCore
 
-let rules = try! Rules(fromJSONFile: "Tests/Resources/rules.json")
-print(rules.startingHandSize)
-let board = try! Board(fromJSONFile: "Tests/Resources/europe.json")
+let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
+let board = try! Board(fromJSONFile: CommandLine.arguments[2])
 let game = Game(withRules: rules, board: board, andPlayers: CLIPlayerInterface(), CLIPlayerInterface())
-print(board.cities.count)
+
+print(board.generateDestination())

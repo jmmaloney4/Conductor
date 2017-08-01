@@ -14,7 +14,7 @@ public class Track: CustomStringConvertible, Hashable {
     internal private(set) var tunnel: Bool
     internal private(set) var ferries: Int
 
-    public var description: String { return "\(endpoints[0]) to \(endpoints[1])" }
+    public var description: String { return "\(endpoints[0]) to \(endpoints[1]) (\(length), \(color))" }
     public var hashValue: Int { return ObjectIdentifier(self).hashValue }
     public static func == (lhs: Track, rhs: Track) -> Bool {
         return lhs.hashValue == rhs.hashValue
@@ -30,7 +30,7 @@ public class Track: CustomStringConvertible, Hashable {
     }
 
     func connectsToCity(_ city: City) -> Bool {
-        if endpoints.contains(where: { $0 === city }) {
+        if endpoints.contains(where: { $0 == city }) {
             return true
         }
         return false
@@ -40,7 +40,7 @@ public class Track: CustomStringConvertible, Hashable {
         if !self.connectsToCity(city) {
             return nil
         }
-        return endpoints.filter({ $0 !== city })[0].value!
+        return endpoints.filter({ !($0 == city) })[0].value!
     }
 
     func points() -> Int? {

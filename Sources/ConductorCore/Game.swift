@@ -26,10 +26,12 @@ public class Game: Hashable {
         for player in players {
             let p = Player(withInterface: player, andGame: self)
             for _ in 0..<rules.startingHandSize {
-
+                p.addCardToHand(draw())
             }
             self.players.append(p)
         }
+
+        self.board.game = self
 
         state = State(withGame: self)
     }

@@ -27,4 +27,20 @@ public class Player: Hashable {
         self.interface.player = self
         self.game = game
     }
+
+    func addCardToHand(_ color: Color) {
+        if hand[color] == nil {
+            hand[color] = 1
+        } else {
+            hand[color]! += 1
+        }
+    }
+
+    func getCardsInHand(_ color: Color) -> Int {
+        if let rv = hand[color] {
+            return rv
+        } else {
+            return 0
+        }
+    }
 }

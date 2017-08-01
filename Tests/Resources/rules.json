@@ -1,3 +1,4 @@
 {
-  "startingHandSize": 4
+  "startingHandSize": 4,
+  "faceUpCards": 5
 }

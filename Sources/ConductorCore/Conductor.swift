@@ -23,7 +23,7 @@ public enum Color: Int, CustomStringConvertible {
     case pink = 6
     case green = 7
     case unspecified = -1 // Used only for tracks
-    case locomotive = 9 // Used for cards, not tracks
+    case locomotive = 8 // Used for cards, not tracks
 
     static func colorForIndex(_ index: Int) -> Color? {
         switch index {
