@@ -8,6 +8,9 @@ import Foundation
 
 public protocol PlayerInterface {
     weak var player: Player! { get set }
+
+    func startingGame()
+    func startingTurn(_ turn: Int)
 }
 
 // Mostly storage-only, game logic in the Game class

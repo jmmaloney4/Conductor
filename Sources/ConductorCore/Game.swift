@@ -34,6 +34,8 @@ public class Game: Hashable {
         self.board.game = self
 
         state = State(withGame: self)
+
+        players[0].startingTurn(0)
     }
 
     // 12 of each color (8 colors)
@@ -67,9 +69,4 @@ public class Game: Hashable {
         print("Double Math error")
         return .locomotive
     }
-
-    func cityForName() {
-
-    }
-
 }

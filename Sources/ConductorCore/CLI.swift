@@ -10,4 +10,16 @@ public class CLIPlayerInterface: PlayerInterface {
     public weak var player: Player! = nil
 
     public init() {}
+
+    public func startingGame() {}
+
+    public func startingTurn(_ turn: Int) {
+        print("\n\n === Player \(player.game.players.index(of: player)!) Starting Turn ===")
+        print("Active Destinations: \(player.destinations)")
+        print("Hand: \(player.hand)")
+
+        for p in player.game.players {
+            print("Player \(player.game.players.index(of: p)!) Owns: \(player.game.state.tracksOwnedBy(p))")
+        }
+    }
 }
