@@ -103,6 +103,20 @@ public class Game: Hashable {
                     drew(c)
                     player.addCardToHand(c)
 
+                case .getNewDestinations(let fn, let keeping):
+                    var destinations: [Destination] = []
+                    for _ in 0..<rules.numDestinationsToChooseFrom {
+                        destinations.append(board.generateDestination())
+                    }
+                    var kept: [Destination] = []
+                    while true {
+                        kept = fn(destinations)
+                        if !kept.isEmpty {
+                            break
+                        }
+                    }
+                    keeping(kept)
+                    player.destinations.append(contentsOf: kept)
                 default:
                     break
                 }

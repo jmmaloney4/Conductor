@@ -14,7 +14,7 @@ public class CLIPlayerInterface: PlayerInterface {
     public func startingGame() {}
 
     public func startingTurn(_ turn: Int) {
-        print("\n === Player \(player.game.players.index(of: player)!) " +
+        print("\n=== Player \(player.game.players.index(of: player)!) " +
             "Starting Turn \(turn / player.game.players.count) ===")
         print("Active Destinations: \(player.destinations)")
         print("Hand: \(player.hand)")
@@ -33,9 +33,9 @@ public class CLIPlayerInterface: PlayerInterface {
             }
 
             switch line {
-            case "y", "Y", "yes", "Yes", "YES":
+            case "y", "Y", "yes", "Yes", "YES", "1":
                 return true
-            case "n", "N", "no", "No", "NO":
+            case "n", "N", "no", "No", "NO", "0":
                 return false
             default:
                 continue
@@ -72,7 +72,7 @@ public class CLIPlayerInterface: PlayerInterface {
                 var toPrint = cards.map({ "\($0)" })
                 toPrint.append("Draw From Pile")
 
-                print("\n => Choose Card: ")
+                print("\n=> Choose Card:")
                 self.printList(toPrint)
                 let rv = self.promptInCount(toPrint.count)
                 if rv >= cards.count {
@@ -83,12 +83,24 @@ public class CLIPlayerInterface: PlayerInterface {
             }, { color in
                 print("Drew a \(color)")
             }),
-            .getNewDestinations,
+            .getNewDestinations({ destinations in
+                var rv: [Destination] = []
+                print("\n=> Choose Destinations:")
+                self.printList(destinations.map({ "\($0)" }))
+                for dest in destinations {
+                    if self.promptYesNo("Keep \(dest)") {
+                        rv.append(dest)
+                    }
+                }
+                return rv
+            }, { kept in
+                print("Keeping: \(kept)")
+            }),
             .playTrack,
             .playStation
         ]
 
-        print("\n => Choose Action: ")
+        print("\n=> Choose Action: ")
         printList(options.map({ "\($0)" }))
 
         return options[promptInCount(options.count)]

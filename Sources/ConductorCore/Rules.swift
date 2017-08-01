@@ -8,9 +8,10 @@ import Foundation
 import SwiftyJSON
 
 public class Rules {
-    public var startingHandSize: Int
-    public var faceUpCards: Int
-    public var maxLocomotivesFaceUp: Int
+    public private(set) var startingHandSize: Int
+    public private(set) var faceUpCards: Int
+    public private(set) var maxLocomotivesFaceUp: Int
+    public private(set) var numDestinationsToChooseFrom: Int
 
     public init(fromJSONFile path: String) throws {
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)) else {
@@ -36,6 +37,13 @@ public class Rules {
         switch json["maxLocomotivesFaceUp"].int {
         case .some(let cards):
             maxLocomotivesFaceUp = cards
+        case .none:
+            throw ConductorError.invalidJSON
+        }
+
+        switch json["numDestinationsToChooseFrom"].int {
+        case .some(let num):
+            numDestinationsToChooseFrom = num
         case .none:
             throw ConductorError.invalidJSON
         }

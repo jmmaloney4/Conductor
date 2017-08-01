@@ -8,7 +8,7 @@ import Foundation
 
 public enum Action {
     case drawCards(([Color]) -> Int?, (Color) -> Void)
-    case getNewDestinations
+    case getNewDestinations(([Destination]) -> [Destination], ([Destination]) -> Void)
     case playTrack
     case playStation
 }

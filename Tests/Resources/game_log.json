@@ -1,3 +1,10 @@
 {
-  "seed": ""
+  "seed": "523313113",
+  "actions": [
+    {
+      "name": "drawCards",
+      "card1Index": 0,
+      "card2Index": -1
+    }
+  ]
 }
