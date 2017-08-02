@@ -8,8 +8,8 @@ import Foundation
 
 public enum Action {
     case drawCards(([Color]) -> Int?, (Color) -> Void)
-    case getNewDestinations(([Destination]) -> [Destination], ([Destination]) -> Void)
-    case playTrack
+    case getNewDestinations(([Destination]) -> [Int], ([Destination]) -> Void)
+    case playTrack(([Track]) -> Int, (Track) -> Void)
     case playStation
 }
 
@@ -53,5 +53,23 @@ public class Player: Hashable {
         } else {
             return 0
         }
+    }
+
+    func canAffordCost(_ cost: Int, color: Color) -> Bool {
+        for entry in hand where color == .unspecified || entry.key == color {
+            if entry.value >= cost {
+                return true
+            }
+        }
+        return false
+    }
+
+    func canAffordTrack(_ track: Track) -> Bool {
+        // Need locomotive cards to build ferries
+        if self.getCardsInHand(.locomotive) < track.ferries {
+            return false
+        }
+        let cardsNeeded = track.length - track.ferries
+        return canAffordCost(cardsNeeded, color: track.color)
     }
 }

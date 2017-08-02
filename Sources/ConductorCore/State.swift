@@ -43,6 +43,14 @@ internal class State: Hashable {
         return rv
     }
 
+    func unownedTracks() -> [Track] {
+        var rv: [Track] = []
+        for track in game.board.getAllTracks() where tracks[track] == nil {
+            rv.append(track)
+        }
+        return rv
+    }
+
     func stationsOwnedBy(_ player: Player) -> [City] {
         var rv: [City] = []
         for (city, p) in stations where p == player {
@@ -52,7 +60,7 @@ internal class State: Hashable {
     }
 
     func checkForMaxLocomotives() {
-        if cards.reduce(0, { (res, color) in
+        if cards.reduce(0, { res, color in
             if color == .locomotive {
                 return res + 1
             } else {

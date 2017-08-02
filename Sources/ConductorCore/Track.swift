@@ -30,7 +30,7 @@ public class Track: CustomStringConvertible, Hashable {
     }
 
     func connectsToCity(_ city: City) -> Bool {
-        if endpoints.contains(where: { $0 == city }) {
+        if endpoints.contains(Weak(city)) {
             return true
         }
         return false

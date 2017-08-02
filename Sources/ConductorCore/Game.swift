@@ -108,15 +108,28 @@ public class Game: Hashable {
                     for _ in 0..<rules.numDestinationsToChooseFrom {
                         destinations.append(board.generateDestination())
                     }
-                    var kept: [Destination] = []
+
+                    var indices: [Int] = []
                     while true {
-                        kept = fn(destinations)
-                        if !kept.isEmpty {
+                        indices = fn(destinations)
+                        if !indices.isEmpty {
                             break
                         }
                     }
+
+                    var kept: [Destination] = []
+                    for index in indices {
+                        kept.append(destinations[index])
+                    }
                     keeping(kept)
+
                     player.destinations.append(contentsOf: kept)
+
+                case .playTrack(let fn, let playing):
+                    let tracks = state.unownedTracks().filter({ player.canAffordTrack($0) })
+                    let track = tracks[fn(tracks)]
+                    playing(track)
+                    state.tracks[track] = player
                 default:
                     break
                 }

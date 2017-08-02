@@ -75,6 +75,18 @@ public class Board: CustomStringConvertible {
         }
     }
 
+    func getAllTracks() -> [Track] {
+        var rv: [Track] = []
+        for city in cities {
+            for track in city.tracks {
+                if !rv.contains(track) {
+                    rv.append(track)
+                }
+            }
+        }
+        return rv
+    }
+
     public func getCityForName(_ name: String) -> City? {
         for city in cities where city.name == name {
             return city

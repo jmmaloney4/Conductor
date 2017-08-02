@@ -84,19 +84,26 @@ public class CLIPlayerInterface: PlayerInterface {
                 print("Drew a \(color)")
             }),
             .getNewDestinations({ destinations in
-                var rv: [Destination] = []
                 print("\n=> Choose Destinations:")
                 self.printList(destinations.map({ "\($0)" }))
-                for dest in destinations {
+
+                var rv: [Int] = []
+                for (k, dest) in destinations.enumerated() {
                     if self.promptYesNo("Keep \(dest)") {
-                        rv.append(dest)
+                        rv.append(k)
                     }
                 }
                 return rv
             }, { kept in
                 print("Keeping: \(kept)")
             }),
-            .playTrack,
+            .playTrack({ tracks in
+                print("=> Choose Tracks: ")
+                self.printList(tracks.map({ "\($0)" }))
+                return self.promptInCount(tracks.count)
+            }, { track in
+                print("Playing track on \(track)")
+            }),
             .playStation
         ]
 
