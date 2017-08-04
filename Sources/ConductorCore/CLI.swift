@@ -46,7 +46,13 @@ public class CLIPlayerInterface: PlayerInterface {
     func printList(_ options: String...) { printList(options) }
     func printList(_ options: [String]) {
         for (k, option) in options.enumerated() {
-            print("\(k) \(option)")
+            var str: String = ""
+            if options.count >= 10 {
+                str = String(format: "%02d", k)
+            } else {
+                str = "\(k)"
+            }
+            print("\(str) \(option)")
         }
     }
 
@@ -95,16 +101,22 @@ public class CLIPlayerInterface: PlayerInterface {
                 }
                 return rv
             }, { kept in
-                print("Keeping: \(kept)")
+                print("Keeping: \(kept.map({ "\($0)" }).joined(separator: ", "))")
             }),
             .playTrack({ tracks in
-                print("=> Choose Tracks: ")
+                print("\n=> Choose Tracks: ")
                 self.printList(tracks.map({ "\($0)" }))
                 return self.promptInCount(tracks.count)
             }, { track in
-                print("Playing track on \(track)")
+                print("Playing Track on \(track)")
             }),
-            .playStation
+            .playStation({ cities in
+                print("=> Choose City: ")
+                self.printList(cities.map({ "\($0.name)" }))
+                return self.promptInCount(cities.count)
+            }, { city in
+                print("Placing Station at \(city)")
+            })
         ]
 
         print("\n=> Choose Action: ")

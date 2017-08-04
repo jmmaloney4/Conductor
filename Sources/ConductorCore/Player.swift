@@ -6,11 +6,20 @@
 
 import Foundation
 
-public enum Action {
+public enum Action: CustomStringConvertible {
     case drawCards(([Color]) -> Int?, (Color) -> Void)
     case getNewDestinations(([Destination]) -> [Int], ([Destination]) -> Void)
     case playTrack(([Track]) -> Int, (Track) -> Void)
-    case playStation
+    case playStation(([City]) -> Int, (City) -> Void)
+
+    public var description: String {
+        switch self {
+        case .drawCards: return "Draw Cards"
+        case .getNewDestinations: return "Get New Destinations"
+        case .playTrack: return "Play Track"
+        case .playStation: return "Play Station"
+        }
+    }
 }
 
 public protocol PlayerInterface {
@@ -57,9 +66,12 @@ public class Player: Hashable {
 
     func canAffordCost(_ cost: Int, color: Color) -> Bool {
         for entry in hand where color == .unspecified || entry.key == color {
+            // swiftlint:disable for_where
+            // too messy to combine this if statement with other where conditions
             if entry.value >= cost {
                 return true
             }
+            // swiftlint:enable for_where
         }
         return false
     }

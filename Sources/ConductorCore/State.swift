@@ -86,4 +86,10 @@ internal class State: Hashable {
         checkForMaxLocomotives()
         return rv
     }
+
+    func playerDestinationPoints(_ player: Player) -> Int {
+        for destination in player.destinations {
+
+        }
+    }
 }

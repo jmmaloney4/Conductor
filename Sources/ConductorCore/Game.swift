@@ -72,67 +72,84 @@ public class Game: Hashable {
         return .locomotive
     }
 
+    func runTurnForPlayer(_ player: Player) {
+        switch player.interface.actionToTakeThisTurn(state.turn) {
+        case .drawCards(let fn, let drew):
+            var c: Color
+
+            // first card
+            if let i = fn(state.cards) {
+                c = state.takeCard(at: i)!
+            } else {
+                c = draw()
+            }
+            drew(c)
+            player.addCardToHand(c)
+
+            // if they drew a locomotive, they only get one card
+            if c == .locomotive {
+                break
+            }
+
+            // second card, filter locomotives, can't take one
+            if let i = fn(state.cards.filter({ $0 != .locomotive })) {
+                c = state.takeCard(at: i)!
+            } else {
+                c = draw()
+            }
+            drew(c)
+            player.addCardToHand(c)
+
+        case .getNewDestinations(let fn, let keeping):
+            var destinations: [Destination] = []
+            for _ in 0..<rules.numDestinationsToChooseFrom {
+                destinations.append(board.generateDestination())
+            }
+
+            var indices: [Int] = []
+            while true {
+                indices = fn(destinations)
+                if !indices.isEmpty {
+                    break
+                }
+            }
+
+            var kept: [Destination] = []
+            for index in indices {
+                kept.append(destinations[index])
+            }
+            keeping(kept)
+
+            player.destinations.append(contentsOf: kept)
+
+        case .playTrack(let fn, let playing):
+            let tracks = state.unownedTracks().filter({ player.canAffordTrack($0) })
+            if tracks.isEmpty {
+                print("No avaliable tracks")
+                runTurnForPlayer(player)
+            }
+            let track = tracks[fn(tracks)]
+            playing(track)
+            state.tracks[track] = player
+
+        case .playStation(let fn, let playing):
+            let cost = state.stationsOwnedBy(player).count + 1
+            if cost > 3 || !player.canAffordCost(cost, color: .unspecified) {
+                print("No avaliable stations")
+                runTurnForPlayer(player)
+            }
+            let cities = board.cities.filter({ state.stations[$0] == nil })
+            let city = cities[fn(cities)]
+            playing(city)
+            state.stations[city] = player
+        }
+    }
+
     public func start() {
         while true {
             for player in players {
                 player.interface.startingTurn(state.turn)
-                switch player.interface.actionToTakeThisTurn(state.turn) {
-                case .drawCards(let fn, let drew):
-                    var c: Color
-
-                    // first card
-                    if let i = fn(state.cards) {
-                        c = state.takeCard(at: i)!
-                    } else {
-                        c = draw()
-                    }
-                    drew(c)
-                    player.addCardToHand(c)
-
-                    // if they drew a locomotive, they only get one card
-                    if c == .locomotive {
-                        break
-                    }
-
-                    // second card, filter locomotives, can't take one
-                    if let i = fn(state.cards.filter({ $0 != .locomotive })) {
-                        c = state.takeCard(at: i)!
-                    } else {
-                        c = draw()
-                    }
-                    drew(c)
-                    player.addCardToHand(c)
-
-                case .getNewDestinations(let fn, let keeping):
-                    var destinations: [Destination] = []
-                    for _ in 0..<rules.numDestinationsToChooseFrom {
-                        destinations.append(board.generateDestination())
-                    }
-
-                    var indices: [Int] = []
-                    while true {
-                        indices = fn(destinations)
-                        if !indices.isEmpty {
-                            break
-                        }
-                    }
-
-                    var kept: [Destination] = []
-                    for index in indices {
-                        kept.append(destinations[index])
-                    }
-                    keeping(kept)
-
-                    player.destinations.append(contentsOf: kept)
-
-                case .playTrack(let fn, let playing):
-                    let tracks = state.unownedTracks().filter({ player.canAffordTrack($0) })
-                    let track = tracks[fn(tracks)]
-                    playing(track)
-                    state.tracks[track] = player
-                default:
-                    break
-                }
+                runTurnForPlayer(player)
                 state.turn += 1
             }
         }
