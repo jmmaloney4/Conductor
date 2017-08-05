@@ -5,12 +5,13 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import Foundation
+import SwiftPriorityQueue
 
 internal class State: Hashable {
     weak var game: Game!
     var parent: State?
-    var tracks: [Track:Player?] = [:]
-    var stations: [City:Player?] = [:]
+    var tracks: [Track:Player] = [:]
+    var stations: [City:Player] = [:]
     var cards: [Color] = []
     var turn: Int = 0
 
@@ -35,9 +36,17 @@ internal class State: Hashable {
         self.turn = parent.turn
     }
 
+    func playerOwnsTrack(_ player: Player, _ track: Track) -> Bool {
+        return tracks[track] == player
+    }
+
+    func isTrackUnowned(_ track: Track) -> Bool {
+        return tracks[track] == nil
+    }
+
     func tracksOwnedBy(_ player: Player) -> [Track] {
         var rv: [Track] = []
-        for (track, p) in tracks where p == player {
+        for (track, _) in tracks where playerOwnsTrack(player, track) {
             rv.append(track)
         }
         return rv
@@ -45,7 +54,7 @@ internal class State: Hashable {
 
     func unownedTracks() -> [Track] {
         var rv: [Track] = []
-        for track in game.board.getAllTracks() where tracks[track] == nil {
+        for track in game.board.getAllTracks() where isTrackUnowned(track) {
             rv.append(track)
         }
         return rv
@@ -87,9 +96,36 @@ internal class State: Hashable {
         return rv
     }
 
+    public func playerMeetsDestination(_ player: Player, _ destination: Destination) -> Bool {
+        var queue: [Track] = []
+        var city = destination.cities[0]
+
+        var fn: ((City) -> Bool)! = nil
+        fn = { city in
+            for track in city.tracks where self.playerOwnsTrack(player, track) {
+                queue.append(track)
+                var endpoint = track.getOtherCity(city)!
+
+                if endpoint == destination.cities[1] {
+                    return true
+                }
+
+                if fn(endpoint) {
+                    return true
+                }
+
+                queue.removeLast()
+            }
+            return false
+        }
+
+        return fn(city)
+    }
+
     func playerDestinationPoints(_ player: Player) -> Int {
         for destination in player.destinations {
 
         }
+        return 0
     }
 }
