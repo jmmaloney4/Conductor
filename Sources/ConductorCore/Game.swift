@@ -9,9 +9,9 @@ import Squall
 
 public class Game: Hashable {
     var rules: Rules
-    var players: [Player]
+    public var players: [Player]
     var board: Board
-    var state: State!
+    public var state: State!
     var rng: Gust
     var seed: UInt32
 
@@ -78,8 +78,12 @@ public class Game: Hashable {
             var c: Color
 
             // first card
+            var locomotive = false
             if let i = fn(state.cards) {
                 c = state.takeCard(at: i)!
+                if c == .locomotive {
+                    locomotive = true
+                }
             } else {
                 c = draw()
             }
@@ -87,7 +91,7 @@ public class Game: Hashable {
             player.addCardToHand(c)
 
             // if they drew a locomotive, they only get one card
-            if c == .locomotive {
+            if locomotive {
                 break
             }
 

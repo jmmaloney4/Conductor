@@ -7,16 +7,16 @@
 import Foundation
 import SwiftPriorityQueue
 
-internal class State: Hashable {
+public class State: Hashable {
     weak var game: Game!
     var parent: State?
-    var tracks: [Track:Player] = [:]
-    var stations: [City:Player] = [:]
+    public var tracks: [Track:Player] = [:]
+    public var stations: [City:Player] = [:]
     var cards: [Color] = []
     var turn: Int = 0
 
-    var hashValue: Int { return ObjectIdentifier(self).hashValue }
-    static func == (lhs: State, rhs: State) -> Bool {
+    public var hashValue: Int { return ObjectIdentifier(self).hashValue }
+    public static func == (lhs: State, rhs: State) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
 
@@ -98,13 +98,13 @@ internal class State: Hashable {
 
     public func playerMeetsDestination(_ player: Player, _ destination: Destination) -> Bool {
         var queue: [Track] = []
-        var city = destination.cities[0]
+        let city = destination.cities[0]
 
         var fn: ((City) -> Bool)! = nil
         fn = { city in
-            for track in city.tracks where self.playerOwnsTrack(player, track) {
+            for track in city.tracks where self.playerOwnsTrack(player, track) && !queue.contains(track) {
                 queue.append(track)
-                var endpoint = track.getOtherCity(city)!
+                let endpoint = track.getOtherCity(city)!
 
                 if endpoint == destination.cities[1] {
                     return true
@@ -123,9 +123,12 @@ internal class State: Hashable {
     }
 
     func playerDestinationPoints(_ player: Player) -> Int {
+        var rv = 0
         for destination in player.destinations {
-
+            if playerMeetsDestination(player, destination) {
+                rv += destination.length
+            }
         }
-        return 0
+        return rv
     }
 }

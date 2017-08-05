@@ -56,7 +56,7 @@ public class Player: Hashable {
         }
     }
 
-    func getCardsInHand(_ color: Color) -> Int {
+    func cardsInHand(_ color: Color) -> Int {
         if let rv = hand[color] {
             return rv
         } else {
@@ -78,10 +78,9 @@ public class Player: Hashable {
 
     func canAffordTrack(_ track: Track) -> Bool {
         // Need locomotive cards to build ferries
-        if self.getCardsInHand(.locomotive) < track.ferries {
+        if self.cardsInHand(.locomotive) < track.ferries {
             return false
         }
-        let cardsNeeded = track.length - track.ferries
-        return canAffordCost(cardsNeeded, color: track.color)
+        return canAffordCost(track.length - self.cardsInHand(.locomotive), color: track.color)
     }
 }

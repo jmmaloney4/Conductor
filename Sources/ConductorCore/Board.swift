@@ -7,6 +7,7 @@
 import Foundation
 import SwiftyJSON
 import SwiftPriorityQueue
+import Weak
 
 public class Board: CustomStringConvertible {
     weak var game: Game!
@@ -87,11 +88,19 @@ public class Board: CustomStringConvertible {
         return rv
     }
 
-    public func getCityForName(_ name: String) -> City? {
+    public func cityForName(_ name: String) -> City? {
         for city in cities where city.name == name {
             return city
         }
         return nil
+    }
+
+    public func tracksBetween(_ cityA: City, and cityB: City) -> [Track] {
+        var rv: [Track] = []
+        for track in getAllTracks() where track.endpoints.contains(Weak(cityA)) && track.endpoints.contains(Weak(cityB)) {
+            rv.append(track)
+        }
+        return rv
     }
 
     private class DijkstraNode: Comparable {
@@ -189,7 +198,7 @@ public struct Destination: CustomStringConvertible {
         return "\(cities[0]) to \(cities[1]) (\(length))"
     }
 
-    init(from cityA: City, to cityB: City, length: Int) {
+    public init(from cityA: City, to cityB: City, length: Int) {
         cities = [cityA, cityB]
         self.length = length
     }
