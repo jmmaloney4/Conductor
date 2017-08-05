@@ -21,31 +21,23 @@ public class Rules {
         let json = JSON(data: data)
 
         switch json["startingHandSize"].int {
-        case .some(let size):
-            startingHandSize = size
-        case .none:
-            throw ConductorError.invalidJSON
+        case .some(let size): startingHandSize = size
+        case .none: throw ConductorError.invalidJSON
         }
 
         switch json["faceUpCards"].int {
-        case .some(let cards):
-            faceUpCards = cards
-        case .none:
-            throw ConductorError.invalidJSON
+        case .some(let cards): faceUpCards = cards
+        case .none: throw ConductorError.invalidJSON
         }
 
         switch json["maxLocomotivesFaceUp"].int {
-        case .some(let cards):
-            maxLocomotivesFaceUp = cards
-        case .none:
-            throw ConductorError.invalidJSON
+        case .some(let cards): maxLocomotivesFaceUp = cards
+        case .none: throw ConductorError.invalidJSON
         }
 
         switch json["numDestinationsToChooseFrom"].int {
-        case .some(let num):
-            numDestinationsToChooseFrom = num
-        case .none:
-            throw ConductorError.invalidJSON
+        case .some(let num): numDestinationsToChooseFrom = num
+        case .none: throw ConductorError.invalidJSON
         }
     }
 

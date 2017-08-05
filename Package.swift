@@ -15,7 +15,9 @@ let package = Package(
         .Package(url: "https://github.com/jmmaloney4/VarInt.git", "0.3.0"),
         .Package(url: "https://github.com/davecom/SwiftPriorityQueue.git", "1.1.2"),
         .Package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", "16.0.1"),
-        .Package(url: "https://github.com/jmmaloney4/Weak.git", "0.0.5")
+        .Package(url: "https://github.com/jmmaloney4/Weak.git", "0.0.5"),
+        .Package(url: "https://github.com/jmmaloney4/CommandLine.git", "3.0.2"),
+        .Package(url: "https://github.com/onevcat/Rainbow.git", "2.1.0")
     ],
     exclude: ["Tests/Resources/"]
 )
