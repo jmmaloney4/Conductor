@@ -8,14 +8,21 @@ import Foundation
 import ConductorCore
 import SwiftyJSON
 import CommandLineKit
+import Socket
 
 let cli = CommandLineKit.CommandLine()
 
-let rulesPath = StringOption(shortFlag: "r", longFlag: "rules", required: true, helpMessage: "A JSON File specifying the rules to be followed in this game")
-let mapPath = StringOption(shortFlag: "m", longFlag: "map", required: true, helpMessage: "A JSON File specifying the map to be used in this game")
-let gameSavePath = StringOption(shortFlag: "s", longFlag: "save", helpMessage: "A File path to save the game to")
+let server = BoolOption(longFlag: "server", helpMessage: "Set to configure this process as a server")
+let rulesPath = StringOption(shortFlag: "r", longFlag: "rules", helpMessage: "Server Only, a JSON File specifying the rules to be followed in this game")
+let mapPath = StringOption(shortFlag: "m", longFlag: "map", helpMessage: "Server Only, a JSON File specifying the map to be used in this game")
+let gameSavePath = StringOption(shortFlag: "s", longFlag: "save", helpMessage: "Server Only, a File path to save the game to")
 
-cli.addOptions(rulesPath, mapPath, gameSavePath)
+let host = StringOption(shortFlag: "h", longFlag: "host", helpMessage: "Client Only, the server to connect to")
+let port = IntOption(shortFlag: "p", longFlag: "port", helpMessage: "For Client, the port to connect to the server on. For Server, the port to open the server on.")
+
+let help = Option(longFlag: "help", helpMessage: "Prints a help message")
+
+cli.addOptions(server, rulesPath, mapPath, gameSavePath, host, port, help)
 
 do {
     try cli.parse()
@@ -24,7 +31,48 @@ do {
     exit(EX_USAGE)
 }
 
+if help.wasSet {
+    cli.printUsage()
+    exit(0)
+}
+
+if server.value {
+
+    if !rulesPath.wasSet || !mapPath.wasSet || !gameSavePath.wasSet || !port.wasSet {
+        print("Missing server-required arguments")
+        cli.printUsage()
+        exit(EX_USAGE)
+    }
+
+    let rules = try! Rules(fromJSONFile: rulesPath.value!)
+    let board = try! Board(fromJSONFile: mapPath.value!)
+    let game = Game(withRules: rules, board: board)
+
+    var server = try! Server(port: 5555, game: game)
+    print("Connect Clients, then hit [enter]", terminator: "")
+
+    guard let line = readLine() else {
+        fatalError()
+    }
+
+} else {
+    // Client
+
+    if !host.wasSet || !port.wasSet {
+        print("Missing client-required arguments")
+        cli.printUsage()
+        exit(EX_USAGE)
+    }
+
+    let client = try! Client(host: host.value!, port: port.value!)
+
+}
+
 /*
+ 
+
+ let board = try! Board(fromJSONFile: "Tests/Resources/europe.json")
+ print(board.json.rawString()!)
 
 let json: JSON = [["action": "seed", "seed": UInt32(523313113)]]
 print(json.rawString()!)

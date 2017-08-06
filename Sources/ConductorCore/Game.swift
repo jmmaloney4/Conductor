@@ -6,10 +6,12 @@
 
 import Foundation
 import Squall
+import Socket
 
 public class Game: Hashable {
     var rules: Rules
     public var players: [Player]
+    var started: Bool = false
     var board: Board
     public var state: State!
     var rng: Gust
@@ -20,7 +22,15 @@ public class Game: Hashable {
         return lhs.hashValue == rhs.hashValue
     }
 
-    public init(withRules rules: Rules, board: Board, andPlayers players: PlayerInterface...) {
+    public convenience init(withRules rules: Rules, board: Board) {
+        self.init(withRules: rules, board: board, andPlayers: [])
+    }
+
+    public convenience init(withRules rules: Rules, board: Board, andPlayers players: PlayerInterface...) {
+        self.init(withRules: rules, board: board, andPlayers: players)
+    }
+
+    public init(withRules rules: Rules, board: Board, andPlayers players: [PlayerInterface]) {
         self.seed = UInt32(Date().timeIntervalSinceReferenceDate)
         print("Rng Seed: \(seed)")
         self.rng = Gust(seed: seed)
@@ -38,6 +48,13 @@ public class Game: Hashable {
         self.board.game = self
 
         state = State(withGame: self)
+    }
+
+    func addPlayer(_ player: Socket) {
+        if started {
+            fatalError("Can't add player after game has started")
+        }
+        players.append(Player(socket: player, game: self))
     }
 
     // 12 of each color (8 colors)
