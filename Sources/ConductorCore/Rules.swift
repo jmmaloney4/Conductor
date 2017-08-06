@@ -41,4 +41,13 @@ public class Rules {
         }
     }
 
+    public var json: JSON {
+        return [
+            "startingHandSize": startingHandSize,
+            "faceUpCards": faceUpCards,
+            "maxLocomotivesFaceUp": maxLocomotivesFaceUp,
+            "numDestinationsToChooseFrom": maxLocomotivesFaceUp
+        ]
+    }
+
 }

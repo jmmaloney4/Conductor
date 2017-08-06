@@ -76,6 +76,18 @@ public class Board: CustomStringConvertible {
         }
     }
 
+    public var json: JSON {
+        var array: [[String:Any?]] = []
+        for track in getAllTracks() {
+            array.append(["endpoints": track.endpoints.map({ "\($0)" }),
+                          "color": "\(track.color)",
+                          "length": track.length,
+                          "tunnel": track.tunnel,
+                          "ferries": track.ferries])
+        }
+        return JSON(array)
+    }
+
     func getAllTracks() -> [Track] {
         var rv: [Track] = []
         for city in cities {
