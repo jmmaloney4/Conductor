@@ -39,7 +39,7 @@ public class Game: Hashable {
         self.players = []
         for player in players {
             let p = Player(withInterface: player, andGame: self)
-            for _ in 0..<rules.startingHandSize {
+            for _ in 0..<rules.get(Rules.kStartingHandSize).int! {
                 p.addCardToHand(draw())
             }
             self.players.append(p)
@@ -50,11 +50,11 @@ public class Game: Hashable {
         state = State(withGame: self)
     }
 
-    func addPlayer(_ player: Socket) {
+    func addPlayer(_ socket: Socket) {
         if started {
             fatalError("Can't add player after game has started")
         }
-        players.append(Player(socket: player, game: self))
+        players.append(Player(socket: socket, game: self))
     }
 
     // 12 of each color (8 colors)
@@ -123,7 +123,7 @@ public class Game: Hashable {
 
         case .getNewDestinations(let fn, let keeping):
             var destinations: [Destination] = []
-            for _ in 0..<rules.numDestinationsToChooseFrom {
+            for _ in 0..<rules.get(Rules.kNumDestinationsToChooseFrom).int! {
                 destinations.append(board.generateDestination())
             }
 

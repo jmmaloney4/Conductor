@@ -11,6 +11,9 @@ import Weak
 public enum ConductorError: Error {
     case invalidJSON
     case fileError(path: String)
+    case jsonToStringError
+    case socketError
+    case dataError
 }
 
 public enum Color: Int, CustomStringConvertible {

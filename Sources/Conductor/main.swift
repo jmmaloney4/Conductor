@@ -14,7 +14,7 @@ let cli = CommandLineKit.CommandLine()
 
 let server = BoolOption(longFlag: "server", helpMessage: "Set to configure this process as a server")
 let rulesPath = StringOption(shortFlag: "r", longFlag: "rules", helpMessage: "Server Only, a JSON File specifying the rules to be followed in this game")
-let mapPath = StringOption(shortFlag: "m", longFlag: "map", helpMessage: "Server Only, a JSON File specifying the map to be used in this game")
+let boardPath = StringOption(shortFlag: "m", longFlag: "board", helpMessage: "Server Only, a JSON File specifying the board to be used in this game")
 let gameSavePath = StringOption(shortFlag: "s", longFlag: "save", helpMessage: "Server Only, a File path to save the game to")
 
 let host = StringOption(shortFlag: "h", longFlag: "host", helpMessage: "Client Only, the server to connect to")
@@ -22,7 +22,7 @@ let port = IntOption(shortFlag: "p", longFlag: "port", helpMessage: "For Client,
 
 let help = Option(longFlag: "help", helpMessage: "Prints a help message")
 
-cli.addOptions(server, rulesPath, mapPath, gameSavePath, host, port, help)
+cli.addOptions(server, rulesPath, boardPath, gameSavePath, host, port, help)
 
 do {
     try cli.parse()
@@ -38,14 +38,14 @@ if help.wasSet {
 
 if server.value {
 
-    if !rulesPath.wasSet || !mapPath.wasSet || !gameSavePath.wasSet || !port.wasSet {
+    if !rulesPath.wasSet || !boardPath.wasSet || !gameSavePath.wasSet || !port.wasSet {
         print("Missing server-required arguments")
         cli.printUsage()
         exit(EX_USAGE)
     }
 
     let rules = try! Rules(fromJSONFile: rulesPath.value!)
-    let board = try! Board(fromJSONFile: mapPath.value!)
+    let board = try! Board(fromJSONFile: boardPath.value!)
     let game = Game(withRules: rules, board: board)
 
     var server = try! Server(port: 5555, game: game)
@@ -57,7 +57,6 @@ if server.value {
 
 } else {
     // Client
-
     if !host.wasSet || !port.wasSet {
         print("Missing client-required arguments")
         cli.printUsage()
@@ -65,7 +64,6 @@ if server.value {
     }
 
     let client = try! Client(host: host.value!, port: port.value!)
-
 }
 
 /*

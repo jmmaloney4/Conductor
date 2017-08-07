@@ -6,9 +6,11 @@
 
 import Foundation
 import Socket
+import KituraNet
+import SwiftyJSON
 
 public class Client {
-    var game: Game!
+    var game: Game
     var socket: Socket
 
     public init(host: String, port: Int) throws {
@@ -16,7 +18,12 @@ public class Client {
             socket = try Socket.create()
             try socket.connect(to: host, port: Int32(port))
 
-            
+            let rulesMessage = try Message(from: socket)
+            let boardMessage = try Message(from: socket)
+
+            let rules = try Rules(fromData: rulesMessage.data)
+            let board = try Board(fromData: boardMessage.data)
+
 
         } catch {
             throw error

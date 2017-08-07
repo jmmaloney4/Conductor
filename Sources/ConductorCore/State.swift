@@ -22,7 +22,7 @@ public class State: Hashable {
 
     init(withGame game: Game) {
         self.game = game
-        for _ in 0..<game.rules.faceUpCards {
+        for _ in 0..<game.rules.get(Rules.kFaceUpCards).int! {
             cards.append(game.draw())
         }
     }
@@ -74,10 +74,10 @@ public class State: Hashable {
                 return res + 1
             } else {
                 return res
-            }}) >= game.rules.maxLocomotivesFaceUp {
+            }}) >= game.rules.get(Rules.kMaxLocomotivesFaceUp).int! {
             // Refresh cards, too many locomotives
             var newCards: [Color] = []
-            for _ in 0..<game.rules.faceUpCards {
+            for _ in 0..<game.rules.get(Rules.kFaceUpCards).int! {
                 newCards.append(game.draw())
             }
             cards = newCards

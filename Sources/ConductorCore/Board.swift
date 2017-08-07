@@ -20,11 +20,13 @@ public class Board: CustomStringConvertible {
         return sorted.map({ $0.description + ": \($0.tracks)" }).joined(separator: "\n")
     }
 
-    public init(fromJSONFile path: String) throws {
+    public convenience init(fromJSONFile path: String) throws {
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)) else {
             throw ConductorError.fileError(path: path)
         }
-
+        try self.init(fromData: data)
+    }
+    public init(fromData data: Data) throws {
         let json = JSON(data: data)
 
         self.cities = []

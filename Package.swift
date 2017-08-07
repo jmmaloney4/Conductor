@@ -18,7 +18,8 @@ let package = Package(
         .Package(url: "https://github.com/jmmaloney4/Weak.git", "0.0.5"),
         .Package(url: "https://github.com/jmmaloney4/CommandLine.git", "3.0.2"),
         .Package(url: "https://github.com/onevcat/Rainbow.git", "2.1.0"),
-        .Package(url: "https://github.com/IBM-Swift/BlueSocket.git", "0.12.59")
+        .Package(url: "https://github.com/IBM-Swift/BlueSocket.git", "0.12.59"),
+        .Package(url: "https://github.com/IBM-Swift/Kitura.git", "1.7.6")
     ],
     exclude: ["Tests/Resources/"]
 )
