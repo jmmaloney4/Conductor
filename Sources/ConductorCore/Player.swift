@@ -5,7 +5,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import Foundation
-import Socket
 
 public enum Action: CustomStringConvertible {
     case drawCards(([Color]) -> Int?, (Color) -> Void)
@@ -35,7 +34,6 @@ public protocol PlayerInterface {
 public class Player: Hashable {
     weak var game: Game!
     var interface: PlayerInterface
-    var socket: Socket!
     var hand: [Color:Int] = [:]
     var destinations: [Destination] = []
 
@@ -44,9 +42,8 @@ public class Player: Hashable {
         return lhs.hashValue == rhs.hashValue
     }
 
-    init(socket: Socket, game: Game) {
+    init(game: Game) {
         self.game = game
-        self.socket = socket
         self.interface = CLIPlayerInterface()
     }
 

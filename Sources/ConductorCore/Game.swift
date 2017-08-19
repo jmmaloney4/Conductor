@@ -6,7 +6,6 @@
 
 import Foundation
 import Squall
-import Socket
 
 public class Game: Hashable {
     var rules: Rules
@@ -48,13 +47,6 @@ public class Game: Hashable {
         self.board.game = self
 
         state = State(withGame: self)
-    }
-
-    func addPlayer(_ socket: Socket) {
-        if started {
-            fatalError("Can't add player after game has started")
-        }
-        players.append(Player(socket: socket, game: self))
     }
 
     // 12 of each color (8 colors)
