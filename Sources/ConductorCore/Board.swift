@@ -160,7 +160,8 @@ public class Board: CustomStringConvertible {
         return (rv.reversed(), finalNode!.distance)
     }
 
-    public func generateDestination() -> Destination {
+    public func generateDestination(lengthMin: Int? = 5, lengthMax: Int? = nil, trackMin: Int? = 3, trackMax: Int? = nil) -> Destination {
+        var count = 0
         while true {
             var rand: UInt64 = game.rng.random()
             let cityA = cities[Int(rand % UInt64(cities.count))]
@@ -173,10 +174,17 @@ public class Board: CustomStringConvertible {
 
             let (path, distance) = findShortestRoute(between: cityA, and: cityB)
 
-            if path.count >= 3 && distance >= 5 {
+            if  lengthMin != nil && distance >= lengthMin! &&
+                lengthMax != nil && distance <= lengthMax! &&
+                trackMin != nil && path.count >= trackMin! &&
+                trackMax != nil && path.count <= trackMax! {
                 return Destination(from: cityA, to: cityB, length: distance)
             }
 
+            count += 1
+            if count >= 150 {
+                fatalError("Couldn't generate destination")
+            }
         }
     }
 }
