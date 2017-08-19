@@ -5,23 +5,24 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import Foundation
+import SwiftPriorityQueue
 
-internal class State: Hashable {
+public class State: Hashable {
     weak var game: Game!
     var parent: State?
-    var tracks: [Track:Player?] = [:]
-    var stations: [City:Player?] = [:]
+    public var tracks: [Track:Player] = [:]
+    public var stations: [City:Player] = [:]
     var cards: [Color] = []
     var turn: Int = 0
 
-    var hashValue: Int { return ObjectIdentifier(self).hashValue }
-    static func == (lhs: State, rhs: State) -> Bool {
+    public var hashValue: Int { return ObjectIdentifier(self).hashValue }
+    public static func == (lhs: State, rhs: State) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
 
     init(withGame game: Game) {
         self.game = game
-        for _ in 0..<game.rules.faceUpCards {
+        for _ in 0..<game.rules.get(Rules.kFaceUpCards).int! {
             cards.append(game.draw())
         }
     }
@@ -35,9 +36,17 @@ internal class State: Hashable {
         self.turn = parent.turn
     }
 
+    func playerOwnsTrack(_ player: Player, _ track: Track) -> Bool {
+        return tracks[track] == player
+    }
+
+    func isTrackUnowned(_ track: Track) -> Bool {
+        return tracks[track] == nil
+    }
+
     func tracksOwnedBy(_ player: Player) -> [Track] {
         var rv: [Track] = []
-        for (track, p) in tracks where p == player {
+        for (track, _) in tracks where playerOwnsTrack(player, track) {
             rv.append(track)
         }
         return rv
@@ -45,7 +54,7 @@ internal class State: Hashable {
 
     func unownedTracks() -> [Track] {
         var rv: [Track] = []
-        for track in game.board.getAllTracks() where tracks[track] == nil {
+        for track in game.board.getAllTracks() where isTrackUnowned(track) {
             rv.append(track)
         }
         return rv
@@ -65,10 +74,10 @@ internal class State: Hashable {
                 return res + 1
             } else {
                 return res
-            }}) >= game.rules.maxLocomotivesFaceUp {
+            }}) >= game.rules.get(Rules.kMaxLocomotivesFaceUp).int! {
             // Refresh cards, too many locomotives
             var newCards: [Color] = []
-            for _ in 0..<game.rules.faceUpCards {
+            for _ in 0..<game.rules.get(Rules.kFaceUpCards).int! {
                 newCards.append(game.draw())
             }
             cards = newCards
@@ -87,9 +96,39 @@ internal class State: Hashable {
         return rv
     }
 
-    func playerDestinationPoints(_ player: Player) -> Int {
-        for destination in player.destinations {
+    public func playerMeetsDestination(_ player: Player, _ destination: Destination) -> Bool {
+        var queue: [Track] = []
+        let city = destination.cities[0]
 
+        var fn: ((City) -> Bool)! = nil
+        fn = { city in
+            for track in city.tracks where self.playerOwnsTrack(player, track) && !queue.contains(track) {
+                queue.append(track)
+                let endpoint = track.getOtherCity(city)!
+
+                if endpoint == destination.cities[1] {
+                    return true
+                }
+
+                if fn(endpoint) {
+                    return true
+                }
+
+                queue.removeLast()
+            }
+            return false
         }
+
+        return fn(city)
+    }
+
+    func playerDestinationPoints(_ player: Player) -> Int {
+        var rv = 0
+        for destination in player.destinations {
+            if playerMeetsDestination(player, destination) {
+                rv += destination.length
+            }
+        }
+        return rv
     }
 }

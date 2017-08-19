@@ -6,12 +6,14 @@
 
 import Foundation
 import Squall
+import Socket
 
 public class Game: Hashable {
     var rules: Rules
-    var players: [Player]
+    public var players: [Player]
+    var started: Bool = false
     var board: Board
-    var state: State!
+    public var state: State!
     var rng: Gust
     var seed: UInt32
 
@@ -20,7 +22,15 @@ public class Game: Hashable {
         return lhs.hashValue == rhs.hashValue
     }
 
-    public init(withRules rules: Rules, board: Board, andPlayers players: PlayerInterface...) {
+    public convenience init(withRules rules: Rules, board: Board) {
+        self.init(withRules: rules, board: board, andPlayers: [])
+    }
+
+    public convenience init(withRules rules: Rules, board: Board, andPlayers players: PlayerInterface...) {
+        self.init(withRules: rules, board: board, andPlayers: players)
+    }
+
+    public init(withRules rules: Rules, board: Board, andPlayers players: [PlayerInterface]) {
         self.seed = UInt32(Date().timeIntervalSinceReferenceDate)
         print("Rng Seed: \(seed)")
         self.rng = Gust(seed: seed)
@@ -29,7 +39,7 @@ public class Game: Hashable {
         self.players = []
         for player in players {
             let p = Player(withInterface: player, andGame: self)
-            for _ in 0..<rules.startingHandSize {
+            for _ in 0..<rules.get(Rules.kStartingHandSize).int! {
                 p.addCardToHand(draw())
             }
             self.players.append(p)
@@ -38,6 +48,13 @@ public class Game: Hashable {
         self.board.game = self
 
         state = State(withGame: self)
+    }
+
+    func addPlayer(_ socket: Socket) {
+        if started {
+            fatalError("Can't add player after game has started")
+        }
+        players.append(Player(socket: socket, game: self))
     }
 
     // 12 of each color (8 colors)
@@ -78,8 +95,12 @@ public class Game: Hashable {
             var c: Color
 
             // first card
+            var locomotive = false
             if let i = fn(state.cards) {
                 c = state.takeCard(at: i)!
+                if c == .locomotive {
+                    locomotive = true
+                }
             } else {
                 c = draw()
             }
@@ -87,7 +108,7 @@ public class Game: Hashable {
             player.addCardToHand(c)
 
             // if they drew a locomotive, they only get one card
-            if c == .locomotive {
+            if locomotive {
                 break
             }
 
@@ -102,7 +123,7 @@ public class Game: Hashable {
 
         case .getNewDestinations(let fn, let keeping):
             var destinations: [Destination] = []
-            for _ in 0..<rules.numDestinationsToChooseFrom {
+            for _ in 0..<rules.get(Rules.kNumDestinationsToChooseFrom).int! {
                 destinations.append(board.generateDestination())
             }
 

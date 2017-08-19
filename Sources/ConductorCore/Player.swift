@@ -5,6 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import Foundation
+import Socket
 
 public enum Action: CustomStringConvertible {
     case drawCards(([Color]) -> Int?, (Color) -> Void)
@@ -34,12 +35,19 @@ public protocol PlayerInterface {
 public class Player: Hashable {
     weak var game: Game!
     var interface: PlayerInterface
+    var socket: Socket!
     var hand: [Color:Int] = [:]
     var destinations: [Destination] = []
 
     public var hashValue: Int { return ObjectIdentifier(self).hashValue }
     public static func == (lhs: Player, rhs: Player) -> Bool {
         return lhs.hashValue == rhs.hashValue
+    }
+
+    init(socket: Socket, game: Game) {
+        self.game = game
+        self.socket = socket
+        self.interface = CLIPlayerInterface()
     }
 
     init(withInterface interface: PlayerInterface, andGame game: Game) {
@@ -56,7 +64,7 @@ public class Player: Hashable {
         }
     }
 
-    func getCardsInHand(_ color: Color) -> Int {
+    func cardsInHand(_ color: Color) -> Int {
         if let rv = hand[color] {
             return rv
         } else {
@@ -78,10 +86,9 @@ public class Player: Hashable {
 
     func canAffordTrack(_ track: Track) -> Bool {
         // Need locomotive cards to build ferries
-        if self.getCardsInHand(.locomotive) < track.ferries {
+        if self.cardsInHand(.locomotive) < track.ferries {
             return false
         }
-        let cardsNeeded = track.length - track.ferries
-        return canAffordCost(cardsNeeded, color: track.color)
+        return canAffordCost(track.length - self.cardsInHand(.locomotive), color: track.color)
     }
 }

@@ -7,6 +7,7 @@
 import Foundation
 import SwiftyJSON
 import SwiftPriorityQueue
+import Weak
 
 public class Board: CustomStringConvertible {
     weak var game: Game!
@@ -19,11 +20,13 @@ public class Board: CustomStringConvertible {
         return sorted.map({ $0.description + ": \($0.tracks)" }).joined(separator: "\n")
     }
 
-    public init(fromJSONFile path: String) throws {
+    public convenience init(fromJSONFile path: String) throws {
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)) else {
             throw ConductorError.fileError(path: path)
         }
-
+        try self.init(fromData: data)
+    }
+    public init(fromData data: Data) throws {
         let json = JSON(data: data)
 
         self.cities = []
@@ -75,6 +78,18 @@ public class Board: CustomStringConvertible {
         }
     }
 
+    public var json: JSON {
+        var array: [[String:Any?]] = []
+        for track in getAllTracks() {
+            array.append(["endpoints": track.endpoints.map({ "\($0)" }),
+                          "color": "\(track.color)",
+                          "length": track.length,
+                          "tunnel": track.tunnel,
+                          "ferries": track.ferries])
+        }
+        return JSON(array)
+    }
+
     func getAllTracks() -> [Track] {
         var rv: [Track] = []
         for city in cities {
@@ -87,11 +102,19 @@ public class Board: CustomStringConvertible {
         return rv
     }
 
-    public func getCityForName(_ name: String) -> City? {
+    public func cityForName(_ name: String) -> City? {
         for city in cities where city.name == name {
             return city
         }
         return nil
+    }
+
+    public func tracksBetween(_ cityA: City, and cityB: City) -> [Track] {
+        var rv: [Track] = []
+        for track in getAllTracks() where track.endpoints.contains(Weak(cityA)) && track.endpoints.contains(Weak(cityB)) {
+            rv.append(track)
+        }
+        return rv
     }
 
     private class DijkstraNode: Comparable {
@@ -197,7 +220,7 @@ public struct Destination: CustomStringConvertible {
         return "\(cities[0]) to \(cities[1]) (\(length))"
     }
 
-    init(from cityA: City, to cityB: City, length: Int) {
+    public init(from cityA: City, to cityB: City, length: Int) {
         cities = [cityA, cityB]
         self.length = length
     }

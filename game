@@ -1,0 +1,43 @@
+[
+    {
+        "action": "init",
+        "players": 3,
+        "hands": [
+            ["Red", "Blue", "Green"],
+            ["Black", "Yellow", "Locomotive"],
+            ["Pink", "White", "Blue"]
+        ],
+        "cards": ["Red", "Black", "Green", "Black", "Yellow"]
+    },
+    {
+        "turn": 0,
+        "action": "Draw Card",
+        "pickedFromPile": false,
+        "index": 4,
+        "replacement": "Red"
+    },
+    {
+        "turn": 0,
+        "action": "Draw Card",
+        "pickedFromPile": false,
+        "index": 2,
+        "replacement": "Pink"
+    },
+    {
+        "turn": 1,
+        "action": "Get Destinations",
+        "options": [["Paris", "Sarajevo"],["Zurich", "Petrograd"],["Rica", "Sochi"]],
+        "kept": [1]
+    },
+]
+
+{
+    "cards":[],
+    "players": [
+        {
+            "tracks": [["Paris", "Dieppe"]],
+            "stations": ["Petrograd"],
+            "hand": ["Red", "Blue", "Unknown"]
+        }
+    ]
+}

@@ -16,7 +16,7 @@ public class CLIPlayerInterface: PlayerInterface {
     public func startingTurn(_ turn: Int) {
         print("\n=== Player \(player.game.players.index(of: player)!) " +
             "Starting Turn \(turn / player.game.players.count) ===")
-        print("Active Destinations: \(player.destinations)")
+        print("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.state.playerMeetsDestination(player, $0) }))")
         print("Hand: \(player.hand)")
 
         for p in player.game.players {
