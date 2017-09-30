@@ -139,22 +139,27 @@ public class Board: CustomStringConvertible {
     enum DijkstraSearchType {
         case all
         case unowned
+        case avaliable(Player)
         case owned(Player?) // if nil then just any player owning it
     }
 
-    public func findShortestRoute(between cityA: City, and cityB: City, ownedBy: Player?) -> ([City], Int) {
-        return findShortestRoute(between: cityA, and: cityB, search: .owned(ownedBy))
-    }
-
-    public func findShortestUnownedRoute(between cityA: City, and cityB: City) -> ([City], Int) {
-        return findShortestRoute(between: cityA, and: cityB, search: .unowned)
-    }
-
-    public func findShortestRoute(between cityA: City, and cityB: City) -> ([City], Int) {
+    public func findShortestRoute(between cityA: City, and cityB: City) -> ([City], Int)? {
         return findShortestRoute(between: cityA, and: cityB, search: .all)
     }
 
-    func findShortestRoute(between cityA: City, and cityB: City, search: DijkstraSearchType) -> ([City], Int) {
+    public func findShortestUnownedRoute(between cityA: City, and cityB: City) -> ([City], Int)? {
+        return findShortestRoute(between: cityA, and: cityB, search: .unowned)
+    }
+
+    public func findShortesAvaliableRoute(between cityA: City, and cityB: City, to player: Player) -> ([City], Int)? {
+        return findShortestRoute(between: cityA, and: cityB, search: .avaliable(player))
+    }
+
+    public func findShortestRoute(between cityA: City, and cityB: City, ownedBy player: Player?) -> ([City], Int)? {
+        return findShortestRoute(between: cityA, and: cityB, search: .owned(player))
+    }
+
+    func findShortestRoute(between cityA: City, and cityB: City, search: DijkstraSearchType) -> ([City], Int)? {
 
         var queue: PriorityQueue<DijkstraNode> = PriorityQueue<DijkstraNode>(ascending: true)
 
@@ -171,7 +176,6 @@ public class Board: CustomStringConvertible {
             var newQueue = PriorityQueue<DijkstraNode>(ascending: true)
 
             while let node = queue.pop() {
-                print(node.city.name)
                 if node.city.isAdjacentToCity(current.city) {
                     let tracks = node.city.tracksToAdjacentCity(current.city)!
                     for track in tracks {
@@ -180,6 +184,12 @@ public class Board: CustomStringConvertible {
                             break;
                         case .unowned:
                             if game.state.tracks[track] == nil {
+                                break
+                            } else {
+                                continue
+                            }
+                        case .avaliable(let player):
+                            if game.state.tracks[track] == player || game.state.tracks[track] == nil {
                                 break
                             } else {
                                 continue
@@ -218,7 +228,11 @@ public class Board: CustomStringConvertible {
                 break
             }
         }
-        
+
+        if rv.count < 2 {
+            return nil
+        }
+
         return (rv.reversed(), finalNode!.distance)
     }
 
@@ -234,7 +248,7 @@ public class Board: CustomStringConvertible {
                 continue
             }
 
-            let (path, distance) = findShortestRoute(between: cityA, and: cityB)
+            let (path, distance) = findShortestRoute(between: cityA, and: cityB)!
 
             if  (lengthMin != nil && distance >= lengthMin!) || lengthMin == nil &&
                 (lengthMax != nil && distance <= lengthMax!) || lengthMax == nil &&

@@ -96,8 +96,8 @@ public class Game: Hashable {
             } else {
                 c = draw()
             }
-            drew(c)
             player.addCardToHand(c)
+            drew(c)
 
             // if they drew a locomotive, they only get one card
             if locomotive {
@@ -110,8 +110,8 @@ public class Game: Hashable {
             } else {
                 c = draw()
             }
-            drew(c)
             player.addCardToHand(c)
+            drew(c)
 
         case .getNewDestinations(let fn, let keeping):
             var destinations: [Destination] = []
