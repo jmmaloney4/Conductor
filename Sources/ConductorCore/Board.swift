@@ -136,7 +136,25 @@ public class Board: CustomStringConvertible {
         }
     }
 
-    func findShortestRoute(between cityA: City, and cityB: City) -> ([City], Int) {
+    enum DijkstraSearchType {
+        case all
+        case unowned
+        case owned(Player?) // if nil then just any player owning it
+    }
+
+    public func findShortestRoute(between cityA: City, and cityB: City, ownedBy: Player?) -> ([City], Int) {
+        return findShortestRoute(between: cityA, and: cityB, search: .owned(ownedBy))
+    }
+
+    public func findShortestUnownedRoute(between cityA: City, and cityB: City) -> ([City], Int) {
+        return findShortestRoute(between: cityA, and: cityB, search: .unowned)
+    }
+
+    public func findShortestRoute(between cityA: City, and cityB: City) -> ([City], Int) {
+        return findShortestRoute(between: cityA, and: cityB, search: .all)
+    }
+
+    func findShortestRoute(between cityA: City, and cityB: City, search: DijkstraSearchType) -> ([City], Int) {
 
         var queue: PriorityQueue<DijkstraNode> = PriorityQueue<DijkstraNode>(ascending: true)
 
@@ -153,11 +171,32 @@ public class Board: CustomStringConvertible {
             var newQueue = PriorityQueue<DijkstraNode>(ascending: true)
 
             while let node = queue.pop() {
+                print(node.city.name)
                 if node.city.isAdjacentToCity(current.city) {
-                    let distance = node.city.shortestTrackToAdjacentCity(current.city)
-                    if node.distance > (current.distance + distance) {
-                        node.distance = current.distance + distance
-                        node.previous = current
+                    let tracks = node.city.tracksToAdjacentCity(current.city)!
+                    for track in tracks {
+                        switch search {
+                        case .all:
+                            break;
+                        case .unowned:
+                            if game.state.tracks[track] == nil {
+                                break
+                            } else {
+                                continue
+                            }
+                        case .owned(let owner):
+                            if owner == nil && game.state.tracks[track] != nil {
+                                break
+                            } else if owner != nil && game.state.tracks[track] == owner {
+                                break
+                            } else {
+                                continue
+                            }
+                        }
+                        if node.distance > (current.distance + track.length) {
+                            node.distance = current.distance + track.length
+                            node.previous = current
+                        }
                     }
                 }
                 newQueue.push(node)
@@ -179,7 +218,7 @@ public class Board: CustomStringConvertible {
                 break
             }
         }
-
+        
         return (rv.reversed(), finalNode!.distance)
     }
 
@@ -197,15 +236,15 @@ public class Board: CustomStringConvertible {
 
             let (path, distance) = findShortestRoute(between: cityA, and: cityB)
 
-            if  lengthMin != nil && distance >= lengthMin! &&
-                lengthMax != nil && distance <= lengthMax! &&
-                trackMin != nil && path.count >= trackMin! &&
-                trackMax != nil && path.count <= trackMax! {
+            if  (lengthMin != nil && distance >= lengthMin!) || lengthMin == nil &&
+                (lengthMax != nil && distance <= lengthMax!) || lengthMax == nil &&
+                (trackMin != nil && path.count >= trackMin!) || trackMin == nil &&
+                (trackMax != nil && path.count <= trackMax!) || trackMax == nil {
                 return Destination(from: cityA, to: cityB, length: distance)
             }
 
             count += 1
-            if count >= 150 {
+            if count >= 1000 {
                 fatalError("Couldn't generate destination")
             }
         }

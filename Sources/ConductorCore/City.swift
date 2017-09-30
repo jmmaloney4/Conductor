@@ -48,10 +48,11 @@ public class City: CustomStringConvertible, Hashable {
         return rv
     }
 
-    func shortestTrackToAdjacentCity(_ city: City) -> Int {
-        return self.tracksToAdjacentCity(city)!.reduce(Int.max, {
-            if $1.length < $0 {
-                return $1.length
+    func shortestTrackToAdjacentCity(_ city: City) -> Track {
+        let tracks = self.tracksToAdjacentCity(city)!
+            return tracks.reduce(tracks[0], {
+            if $1.length < $0.length {
+                return $1
             } else {
                 return $0
             }

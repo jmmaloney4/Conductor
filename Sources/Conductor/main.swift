@@ -22,11 +22,16 @@ let paris = board.cityForName("Paris")!
 let frankfurt = board.cityForName("Frankfurt")!
 let munchen = board.cityForName("Munchen")!
 let zurich = board.cityForName("Zurich")!
+let wien = board.cityForName("Wien")!
 
 game.state.tracks[board.tracksBetween(paris, and: frankfurt)[0]] = game.players[0]
+game.state.tracks[board.tracksBetween(paris, and: frankfurt)[1]] = game.players[0]
 game.state.tracks[board.tracksBetween(frankfurt, and: munchen)[0]] = game.players[0]
 game.state.tracks[board.tracksBetween(munchen, and: zurich)[0]] = game.players[0]
+game.state.tracks[board.tracksBetween(munchen, and: wien)[0]] = game.players[0]
 print(game.state.playerMeetsDestination(game.players[0], Destination(from: paris, to: zurich, length: 7)))
+
+print(board.findShortestUnownedRoute(between: paris, and: wien))
 
 game.start()
 
