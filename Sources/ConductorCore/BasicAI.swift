@@ -40,29 +40,29 @@ public class BasicAIPlayerInterface: PlayerInterface {
         }
         print(destination)
 
-        let (route, _) = player.game.board.findShortesAvaliableRoute(between: destination.cities[0], and: destination.cities[1], to: player)!
-        print(route)
+        if let (route, _) = player.game.board.findShortesAvaliableRoute(between: destination.cities[0], and: destination.cities[1], to: player) {
+            print(route)
 
-        for i in 1..<route.count {
-            let tracks = player.game.board.tracksBetween(route[i-1], and: route[i])
-            for track in tracks {
-                if player.game.state.tracks[track] == nil {
-                    if player.canAffordTrack(track) {
-                        return .playTrack({ (tracks: [Track]) -> Int in
-                            return tracks.index(of:tracks.filter({ $0 == track })[0])!
-                        }, {_ in })
-                    } else {
-                        return .drawCards({ (colors: [Color]) -> Int? in
-                            print("Drawing")
-                            return nil
-                        }, { _ in print("Hand: \(self.player.hand)") })
+            for i in 1..<route.count {
+                let tracks = player.game.board.tracksBetween(route[i-1], and: route[i])
+                for track in tracks {
+                    if player.game.state.tracks[track] == nil {
+                        if player.canAffordTrack(track) {
+                            return .playTrack({ (tracks: [Track]) -> Int in
+                                return tracks.index(of:tracks.filter({ $0 == track })[0])!
+                            }, {_ in })
+                        } else {
+                            return .drawCards({ (colors: [Color]) -> Int? in
+                                print("Drawing")
+                                return nil
+                            }, { _ in print("Hand: \(self.player.hand)") })
+                        }
                     }
                 }
             }
         }
-
-
-
+        
+        
         return .drawCards({_ in return 0 }, {_ in})
     }
 }

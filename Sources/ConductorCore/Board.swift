@@ -172,6 +172,9 @@ public class Board: CustomStringConvertible {
 
         while true {
             let current = queue.pop()!
+            if current.distance == Int.max {
+                return nil
+            }
 
             var newQueue = PriorityQueue<DijkstraNode>(ascending: true)
 
@@ -230,7 +233,7 @@ public class Board: CustomStringConvertible {
         }
 
         if rv.count < 2 {
-            return nil
+            fatalError("What")
         }
 
         return (rv.reversed(), finalNode!.distance)

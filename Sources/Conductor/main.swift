@@ -16,7 +16,25 @@ if CommandLine.argc < 3 {
 
 let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
 let board = try! Board(fromJSONFile: CommandLine.arguments[2])
-let game = Game(withRules: rules, board: board, andPlayers: BasicAIPlayerInterface(), BasicAIPlayerInterface())
+let game = Game(withRules: rules, board: board, andPlayers: BasicAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface())
+/*
+let tracks: [(String, String, Int)] = [("Brest", "Dieppe", 0),
+                                  ("Brest", "Paris", 0),
+                                  ("Paris", "Pamplona", 0),
+                                  ("Paris", "Pamplona", 1),
+                                  ("Pamplona", "Marseille", 0),
+                                  ("Barcelona", "Marseille", 0)]
+
+for (a, b, i) in tracks {
+    game.state.tracks[board.tracksBetween(board.cityForName(a)! , and: board.cityForName(b)!)[i]] = game.players[0]
+}
+
+let brest = board.cityForName("Brest")!
+let frankfurt = board.cityForName("Frankfurt")!
+// Destination(from: brest, to: frankfurt, length: 6)
+print(board.findShortesAvaliableRoute(between: brest, and: frankfurt, to: game.players[1]))
+
+*/
 /*
 let paris = board.cityForName("Paris")!
 let frankfurt = board.cityForName("Frankfurt")!
@@ -24,6 +42,9 @@ let munchen = board.cityForName("Munchen")!
 let zurich = board.cityForName("Zurich")!
 let wien = board.cityForName("Wien")!
 let zagrab = board.cityForName("Zagrab")!
+let brest = board.cityForName("Brest")!
+let pamploma = board.cityForName("Pamploma")!
+let dieppe = board.cityForName("Dieppe")!
 
 game.state.tracks[board.tracksBetween(paris, and: frankfurt)[0]] = game.players[0]
 game.state.tracks[board.tracksBetween(paris, and: frankfurt)[1]] = game.players[0]
@@ -35,7 +56,8 @@ print(game.state.playerMeetsDestination(game.players[0], Destination(from: paris
 
 print(board.findShortesAvaliableRoute(between: zurich, and: zagrab, to: game.players[0])!)
 */
-game.start()
+
+print(game.start())
 
 print(board.generateDestination())
 

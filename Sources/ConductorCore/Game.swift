@@ -158,13 +158,40 @@ public class Game: Hashable {
         }
     }
 
-    public func start() {
-        while true {
+    public func start() -> [Player:Int] {
+        var end = false
+        var pt: Int! = nil
+        while state.turn < 1000 {
             for player in players {
                 player.interface.startingTurn(state.turn)
                 runTurnForPlayer(player)
+
+                if end && state.turn >= pt + players.count {
+                    print("End (\(state.turn))")
+                    return winners()
+                } else if state.tracksOwnedBy(player).reduce(0, { $0 + $1.length }) > 43 {
+                    end = true
+                    pt = state.turn
+                }
+
                 state.turn += 1
             }
         }
+        return [:]
+    }
+
+    public func winners() -> [Player:Int] {
+        var rv: [Player:Int] = [:]
+        for player in players {
+            var points = 0
+            for track in state.tracksOwnedBy(player) {
+                points += track.points()!
+            }
+            for dest in player.destinations where state.playerMeetsDestination(player, dest) {
+                points += dest.length
+            }
+            rv[player] = points
+        }
+        return rv
     }
 }
