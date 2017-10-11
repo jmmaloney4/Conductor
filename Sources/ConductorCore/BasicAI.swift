@@ -49,7 +49,7 @@ public class BasicAIPlayerInterface: PlayerInterface {
                     if player.game.state.tracks[track] == nil {
                         if player.canAffordTrack(track) {
                             return .playTrack({ (tracks: [Track]) -> Int in
-                                return tracks.index(of:tracks.filter({ $0 == track })[0])!
+                                return tracks.index(of:track)!
                             }, {_ in })
                         } else {
                             return .drawCards({ (colors: [Color]) -> Int? in
@@ -61,8 +61,16 @@ public class BasicAIPlayerInterface: PlayerInterface {
                 }
             }
         }
+
+        for track in player.game.state.unownedTracks() where player.canAffordTrack(track) {
+            return .playTrack({ (tracks: [Track]) -> Int in
+                return tracks.index(of:track)!
+            }, {_ in})
+        }
         
-        
-        return .drawCards({_ in return 0 }, {_ in})
+        return .drawCards({ (colors: [Color]) -> Int? in
+            print("Drawing")
+            return nil
+        }, { _ in print("Hand: \(self.player.hand)") })
     }
 }

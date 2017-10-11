@@ -8,12 +8,14 @@ import Foundation
 import SwiftyJSON
 
 public class Rules {
-        public static let kStartingHandSize = "startingHandSize"
-        public static let kFaceUpCards = "faceUpCards"
-        public static let kMaxLocomotivesFaceUp = "maxLocomotivesFaceUp"
-        public static let kNumDestinationsToChooseFrom = "numDestinationsToChooseFrom"
+    public static let kStartingHandSize = "startingHandSize"
+    public static let kFaceUpCards = "faceUpCards"
+    public static let kMaxLocomotivesFaceUp = "maxLocomotivesFaceUp"
+    public static let kNumDestinationsToChooseFrom = "numDestinationsToChooseFrom"
+    public static let kInitialTrains = "initialTrains"
+    public static let kMinTrains = "minTrains"
 
-        public static let allKeys = [kStartingHandSize, kFaceUpCards, kMaxLocomotivesFaceUp, kNumDestinationsToChooseFrom]
+    public static let allKeys = [kStartingHandSize, kFaceUpCards, kMaxLocomotivesFaceUp, kNumDestinationsToChooseFrom, kInitialTrains, kMinTrains]
 
     public enum Rule {
         case int(Int)

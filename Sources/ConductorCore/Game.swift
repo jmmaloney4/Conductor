@@ -159,18 +159,17 @@ public class Game: Hashable {
     }
 
     public func start() -> [Player:Int] {
-        var end = false
+        print("Min: \(rules.get(Rules.kMinTrains).int!)")
         var pt: Int! = nil
         while state.turn < 1000 {
             for player in players {
                 player.interface.startingTurn(state.turn)
                 runTurnForPlayer(player)
 
-                if end && state.turn >= pt + players.count {
+                if pt != nil && state.turn >= pt + players.count {
                     print("End (\(state.turn))")
                     return winners()
-                } else if state.tracksOwnedBy(player).reduce(0, { $0 + $1.length }) > 43 {
-                    end = true
+                } else if pt == nil && player.trainsLeft() < rules.get(Rules.kMinTrains).int! {
                     pt = state.turn
                 }
 
@@ -189,6 +188,9 @@ public class Game: Hashable {
             }
             for dest in player.destinations where state.playerMeetsDestination(player, dest) {
                 points += dest.length
+            }
+            for dest in player.destinations where !state.playerMeetsDestination(player, dest) {
+                points -= dest.length
             }
             rv[player] = points
         }

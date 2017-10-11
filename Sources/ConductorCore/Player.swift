@@ -86,6 +86,14 @@ public class Player: Hashable {
         if self.cardsInHand(.locomotive) < track.ferries {
             return false
         }
+        if self.trainsLeft() < track.length {
+            return false
+        }
         return canAffordCost(track.length - self.cardsInHand(.locomotive), color: track.color)
+    }
+
+    func trainsLeft() -> Int {
+        let trains = game.state.tracksOwnedBy(self).reduce(0, { $0 + $1.length })
+        return game.rules.get(Rules.kInitialTrains).int! - trains
     }
 }

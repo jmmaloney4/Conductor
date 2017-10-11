@@ -239,6 +239,26 @@ public class Board: CustomStringConvertible {
         return (rv.reversed(), finalNode!.distance)
     }
 
+    public func longestPathOwnedBy(player: Player) -> ([City], Int)? {
+        var rv: ([City], Int) = ([], 0)
+
+        for city in cities {
+
+        }
+        return nil
+    }
+
+    func depthFirstSearch(player: Player, city: City, prev: City?) -> ([City], Int)? {
+        var tracks = city.tracks
+        tracks.sort { (a, b) -> Bool in
+            return a.length < b.length
+        }
+        for track in tracks where prev == nil || !track.connectsToCity(prev!) {
+            
+        }
+        return nil
+    }
+
     public func generateDestination(lengthMin: Int? = 5, lengthMax: Int? = nil, trackMin: Int? = 3, trackMax: Int? = nil) -> Destination {
         var count = 0
         while true {
