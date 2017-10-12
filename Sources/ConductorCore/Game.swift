@@ -31,7 +31,6 @@ public class Game: Hashable {
 
     public init(withRules rules: Rules, board: Board, andPlayers players: [PlayerInterface]) {
         self.seed = UInt32(Date().timeIntervalSinceReferenceDate)
-        print("Rng Seed: \(seed)")
         self.rng = Gust(seed: seed)
         self.rules = rules
         self.board = board
@@ -43,6 +42,7 @@ public class Game: Hashable {
             }
             self.players.append(p)
         }
+        log.info("Rng Seed: \(seed)")
 
         self.board.game = self
 
@@ -77,7 +77,7 @@ public class Game: Hashable {
             }
         }
 
-        print("Double Math error")
+        log.warning("Double Math error")
         return .locomotive
     }
 
@@ -138,7 +138,7 @@ public class Game: Hashable {
         case .playTrack(let fn, let playing):
             let tracks = state.unownedTracks().filter({ player.canAffordTrack($0) })
             if tracks.isEmpty {
-                print("No avaliable tracks")
+                log.warning("No avaliable tracks")
                 runTurnForPlayer(player)
             }
             let track = tracks[fn(tracks)]
@@ -148,7 +148,7 @@ public class Game: Hashable {
         case .playStation(let fn, let playing):
             let cost = state.stationsOwnedBy(player).count + 1
             if cost > 3 || !player.canAffordCost(cost, color: .unspecified) {
-                print("No avaliable stations")
+                log.warning("No avaliable stations")
                 runTurnForPlayer(player)
             }
             let cities = board.cities.filter({ state.stations[$0] == nil })
@@ -159,15 +159,14 @@ public class Game: Hashable {
     }
 
     public func start() -> [Player:Int] {
-        print("Min: \(rules.get(Rules.kMinTrains).int!)")
         var pt: Int! = nil
         while state.turn < 1000 {
             for player in players {
                 player.interface.startingTurn(state.turn)
                 runTurnForPlayer(player)
 
-                if pt != nil && state.turn >= pt + players.count {
-                    print("End (\(state.turn))")
+                if (pt != nil && state.turn >= pt + players.count) || state.unownedTracks().isEmpty {
+                    log.info("End (\(state.turn))")
                     return winners()
                 } else if pt == nil && player.trainsLeft() < rules.get(Rules.kMinTrains).int! {
                     pt = state.turn

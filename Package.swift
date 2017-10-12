@@ -16,6 +16,7 @@ let package = Package(
         .Package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", "16.0.1"),
         .Package(url: "https://github.com/jmmaloney4/Weak.git", "0.0.5"),
         .Package(url: "https://github.com/jmmaloney4/CommandLine.git", "3.0.2"),
+        .Package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", majorVersion: 1),
     ],
     exclude: ["Tests/Resources/"]
 )

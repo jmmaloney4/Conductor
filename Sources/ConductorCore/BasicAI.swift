@@ -14,18 +14,18 @@ public class BasicAIPlayerInterface: PlayerInterface {
     public func startingGame() {}
 
     public func startingTurn(_ turn: Int) {
-        print("\n=== AI Player \(player.game.players.index(of: player)!) " +
+        log.info("=== Basic AI Player \(player.game.players.index(of: player)!) " +
             "Starting Turn \(turn / player.game.players.count) ===")
-        print("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.state.playerMeetsDestination(player, $0) }))")
-        print("Hand: \(player.hand)")
+        log.info("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.state.playerMeetsDestination(player, $0) }))")
+        log.info("Hand: \(player.hand)")
 
         for p in player.game.players {
-            print("Player \(player.game.players.index(of: p)!) Owns: \(player.game.state.tracksOwnedBy(p))")
+            log.info("Player \(player.game.players.index(of: p)!) Owns: \(player.game.state.tracksOwnedBy(p))")
         }
     }
 
     public func actionToTakeThisTurn(_ turn: Int) -> Action {
-        print(turn)
+        log.debug(turn)
 
         // var destination: Destination! = Destination(from: player.game.board.cityForName("Venezia")!, to: player.game.board.cityForName("Pamplona")!, length: 8)
         var destination: Destination! = nil
@@ -38,10 +38,10 @@ public class BasicAIPlayerInterface: PlayerInterface {
                 return [0]
             }, { (kept) in })
         }
-        print(destination)
+        log.debug(destination)
 
         if let (route, _) = player.game.board.findShortesAvaliableRoute(between: destination.cities[0], and: destination.cities[1], to: player) {
-            print(route)
+            log.debug("Route: \(route)")
 
             for i in 1..<route.count {
                 let tracks = player.game.board.tracksBetween(route[i-1], and: route[i])
@@ -53,9 +53,14 @@ public class BasicAIPlayerInterface: PlayerInterface {
                             }, {_ in })
                         } else {
                             return .drawCards({ (colors: [Color]) -> Int? in
-                                print("Drawing")
-                                return nil
-                            }, { _ in print("Hand: \(self.player.hand)") })
+                                let rv = BasicAIPlayerInterface.smartDraw(player: self.player, target: track, options: colors)
+                                if rv != nil {
+                                    log.debug("Drawing \(colors[rv!])")
+                                } else {
+                                    log.debug("Drawing Random")
+                                }
+                                return rv
+                            }, { _ in log.info("Hand: \(self.player.hand)") })
                         }
                     }
                 }
@@ -67,10 +72,23 @@ public class BasicAIPlayerInterface: PlayerInterface {
                 return tracks.index(of:track)!
             }, {_ in})
         }
-        
+
         return .drawCards({ (colors: [Color]) -> Int? in
-            print("Drawing")
+            log.debug("Drawing")
             return nil
-        }, { _ in print("Hand: \(self.player.hand)") })
+        }, { _ in log.info("Hand: \(self.player.hand)") })
+    }
+
+    class func smartDraw(player: Player, target: Track, options: [Color]) -> Int? {
+        var color = target.color
+        if target.color == .unspecified {
+            color = player.mostColorInHand()
+        }
+
+        if let rv = options.index(of: color) {
+            return rv
+        } else {
+            return nil
+        }
     }
 }

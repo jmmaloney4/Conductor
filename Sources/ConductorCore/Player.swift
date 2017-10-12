@@ -96,4 +96,16 @@ public class Player: Hashable {
         let trains = game.state.tracksOwnedBy(self).reduce(0, { $0 + $1.length })
         return game.rules.get(Rules.kInitialTrains).int! - trains
     }
+
+    func mostColorInHand() -> Color {
+        var most: Color = .unspecified
+        var mc: Int = 0
+        for (color, i) in hand {
+            if mc < i {
+                most = color
+                mc = i
+            }
+        }
+        return most
+    }
 }

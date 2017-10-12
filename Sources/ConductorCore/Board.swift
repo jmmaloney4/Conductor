@@ -15,8 +15,6 @@ public class Board: CustomStringConvertible {
 
     public var description: String {
         let sorted = cities.sorted(by: { $0.tracks.count > $1.tracks.count })
-        print(sorted)
-
         return sorted.map({ $0.description + ": \($0.tracks)" }).joined(separator: "\n")
     }
 

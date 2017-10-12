@@ -8,6 +8,9 @@ import Foundation
 import ConductorCore
 import SwiftyJSON
 import CommandLineKit
+import SwiftyBeaver
+
+Conductor.InitLog()
 
 if CommandLine.argc < 3 {
     print("Usage: \(CommandLine.arguments[0]) [rules.json] [map.json]")
@@ -16,7 +19,7 @@ if CommandLine.argc < 3 {
 
 let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
 let board = try! Board(fromJSONFile: CommandLine.arguments[2])
-let game = Game(withRules: rules, board: board, andPlayers: BasicAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface(),BigTrackAIPlayerInterface())
+let game = Game(withRules: rules, board: board, andPlayers: BigTrackAIPlayerInterface(), BasicAIPlayerInterface())
 
 /*
 let tracks: [(String, String, Int)] = [("Brest", "Dieppe", 0),
@@ -59,8 +62,6 @@ print(board.findShortesAvaliableRoute(between: zurich, and: zagrab, to: game.pla
 */
 
 print(game.start())
-
-print(board.generateDestination())
 
 /*
 

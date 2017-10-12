@@ -7,6 +7,19 @@
 import Foundation
 import SwiftPriorityQueue
 import Weak
+import SwiftyBeaver
+
+let log = SwiftyBeaver.self
+
+public class Conductor {
+    public static let console = ConsoleDestination()
+
+    public class func InitLog() {
+        console.minLevel = log.Level.info
+        log.addDestination(console)
+    }
+}
+
 
 public enum ConductorError: Error {
     case invalidJSON

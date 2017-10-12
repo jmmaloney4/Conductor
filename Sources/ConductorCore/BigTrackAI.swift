@@ -14,80 +14,44 @@ public class BigTrackAIPlayerInterface: PlayerInterface {
     public func startingGame() {}
 
     public func startingTurn(_ turn: Int) {
-        print("\n=== AI Player \(player.game.players.index(of: player)!) " +
+        log.info("=== Big Track AI Player \(player.game.players.index(of: player)!) " +
             "Starting Turn \(turn / player.game.players.count) ===")
-        print("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.state.playerMeetsDestination(player, $0) }))")
-        print("Hand: \(player.hand)")
+        log.info("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.state.playerMeetsDestination(player, $0) }))")
+        log.info("Hand: \(player.hand)")
 
         for p in player.game.players {
-            print("Player \(player.game.players.index(of: p)!) Owns: \(player.game.state.tracksOwnedBy(p))")
+            log.info("Player \(player.game.players.index(of: p)!) Owns: \(player.game.state.tracksOwnedBy(p))")
         }
     }
 
     public func actionToTakeThisTurn(_ turn: Int) -> Action {
-        print(turn)
+        log.debug(turn)
 
         var tracksSorted = player.game.state.unownedTracks().sorted(by: { (a: Track, b: Track) -> Bool in
-            a.length < b.length
+            a.length > b.length
         })
-        if player.canAffordTrack(tracksSorted[0]) {
+        if !tracksSorted.isEmpty && player.canAffordTrack(tracksSorted[0]) {
             return .playTrack({ (tracks: [Track]) -> Int in
                 return tracks.index(of: tracksSorted[0])!
             }, { _ in })
         }
 
+        if !tracksSorted.isEmpty {
+            log.debug("Biggest Track: \(tracksSorted[0])")
+        }
+
         return .drawCards({ (colors: [Color]) -> Int? in
-            print("Drawing")
-            return nil
-        }, { _ in print("Hand: \(self.player.hand)") })
-
-        /*
-
-        // var destination: Destination! = Destination(from: player.game.board.cityForName("Venezia")!, to: player.game.board.cityForName("Pamplona")!, length: 8)
-        var destination: Destination! = nil
-        for dest in player.destinations where !player.game.state.playerMeetsDestination(player, dest) {
-            destination = dest
-            break
-        }
-        if destination == nil {
-            return .getNewDestinations({ _ in
-                return [0]
-            }, { (kept) in })
-        }
-        print(destination)
-
-        if let (route, _) = player.game.board.findShortesAvaliableRoute(between: destination.cities[0], and: destination.cities[1], to: player) {
-            print(route)
-
-            for i in 1..<route.count {
-                let tracks = player.game.board.tracksBetween(route[i-1], and: route[i])
-                for track in tracks {
-                    if player.game.state.tracks[track] == nil {
-                        if player.canAffordTrack(track) {
-                            return .playTrack({ (tracks: [Track]) -> Int in
-                                return tracks.index(of:track)!
-                            }, {_ in })
-                        } else {
-                            return .drawCards({ (colors: [Color]) -> Int? in
-                                print("Drawing")
-                                return nil
-                            }, { _ in print("Hand: \(self.player.hand)") })
-                        }
-                    }
-                }
+            if tracksSorted.isEmpty {
+                log.debug("Drawing Random")
+                return nil
             }
-        }
-
-        for track in player.game.state.unownedTracks() where player.canAffordTrack(track) {
-            return .playTrack({ (tracks: [Track]) -> Int in
-                return tracks.index(of:track)!
-            }, {_ in})
-        }
-
-        return .drawCards({ (colors: [Color]) -> Int? in
-            print("Drawing")
-            return nil
-        }, { _ in print("Hand: \(self.player.hand)") })
-         */
+            let rv = BasicAIPlayerInterface.smartDraw(player: self.player, target: tracksSorted[0], options: colors)
+            if rv != nil {
+                log.debug("Drawing \(colors[rv!])")
+            } else {
+                log.debug("Drawing Random")
+            }
+            return rv
+        }, { _ in log.info("Hand: \(self.player.hand)") })
     }
 }
