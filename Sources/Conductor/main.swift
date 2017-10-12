@@ -10,16 +10,81 @@ import SwiftyJSON
 import CommandLineKit
 import SwiftyBeaver
 
+enum Interface {
+    case bigTrack
+    case destination
+}
+
 Conductor.InitLog()
+let log = SwiftyBeaver.self
 
 if CommandLine.argc < 3 {
     print("Usage: \(CommandLine.arguments[0]) [rules.json] [map.json]")
     exit(1)
 }
 
-let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
-let board = try! Board(fromJSONFile: CommandLine.arguments[2])
-let game = Game(withRules: rules, board: board, andPlayers: BigTrackAIPlayerInterface(), BasicAIPlayerInterface())
+func runSimulations(interfaces: [Interface], games: Int) -> [[Player:Int]] {
+    var rv: [[Player:Int]] = []
+    for _ in 0..<games {
+        var players: [PlayerInterface] = []
+        for i in interfaces {
+            switch i {
+            case .bigTrack:
+                players.append(BigTrackAIPlayerInterface())
+            case .destination:
+                players.append(DestinationAIPlayerInterface())
+            }
+        }
+
+        let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
+        let board = try! Board(fromJSONFile: CommandLine.arguments[2])
+        let game = Game(withRules: rules, board: board, andPlayers: players)
+        let res = game.start()
+        log.info("\(res)")
+
+        rv.append(res)
+    }
+    return rv
+}
+
+var scores: [[Player:Int]] = runSimulations(interfaces: [.destination, .bigTrack, .bigTrack, .bigTrack], games: 10)
+/*
+for _ in 0..<100 {
+    let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
+    let board = try! Board(fromJSONFile: CommandLine.arguments[2])
+    let game = Game(withRules: rules, board: board, andPlayers: BigTrackAIPlayerInterface(), DestinationAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface())
+    let res = game.start()
+    log.info("\(res)")
+
+    scores.append(res)
+}
+*/
+
+func totalWins(_ scores: [[Player:Int]]) -> [Int] {
+    var rv = Array(repeating: 0, count: scores[0].count)
+    for game in scores {
+        let sorted = Array(game.keys).sorted(by: { game[$0]! < game[$1]! })
+        let winner = sorted[0]
+        rv[Array(game.keys).index(of: winner)!] += 1
+    }
+    return rv
+}
+
+func totalScores(_ scores: [[Player:Int]]) -> [Int] {
+    var rv = Array(repeating: 0, count: scores[0].count)
+    for game in scores {
+        for (i, v) in Array(game.values).enumerated() {
+            rv[i] += v
+        }
+    }
+    return rv
+}
+
+print(totalWins(scores))
+print(totalScores(scores))
+print(totalScores(scores).map({ Float($0) / Float(scores.count) }))
+
+
 
 /*
 let tracks: [(String, String, Int)] = [("Brest", "Dieppe", 0),
@@ -60,8 +125,6 @@ print(game.state.playerMeetsDestination(game.players[0], Destination(from: paris
 
 print(board.findShortesAvaliableRoute(between: zurich, and: zagrab, to: game.players[0])!)
 */
-
-print(game.start())
 
 /*
 

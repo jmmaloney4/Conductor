@@ -14,18 +14,18 @@ public class BigTrackAIPlayerInterface: PlayerInterface {
     public func startingGame() {}
 
     public func startingTurn(_ turn: Int) {
-        log.info("=== Big Track AI Player \(player.game.players.index(of: player)!) " +
+        log.debug("=== Big Track AI Player \(player.game.players.index(of: player)!) " +
             "Starting Turn \(turn / player.game.players.count) ===")
-        log.info("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.state.playerMeetsDestination(player, $0) }))")
-        log.info("Hand: \(player.hand)")
+        log.debug("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.state.playerMeetsDestination(player, $0) }))")
+        log.debug("Hand: \(player.hand)")
 
         for p in player.game.players {
-            log.info("Player \(player.game.players.index(of: p)!) Owns: \(player.game.state.tracksOwnedBy(p))")
+            log.debug("Player \(player.game.players.index(of: p)!) Owns: \(player.game.state.tracksOwnedBy(p))")
         }
     }
 
     public func actionToTakeThisTurn(_ turn: Int) -> Action {
-        log.debug(turn)
+        log.verbose(turn)
 
         var tracksSorted = player.game.state.unownedTracks().sorted(by: { (a: Track, b: Track) -> Bool in
             a.length > b.length
@@ -37,21 +37,21 @@ public class BigTrackAIPlayerInterface: PlayerInterface {
         }
 
         if !tracksSorted.isEmpty {
-            log.debug("Biggest Track: \(tracksSorted[0])")
+            log.verbose("Biggest Track: \(tracksSorted[0])")
         }
 
         return .drawCards({ (colors: [Color]) -> Int? in
             if tracksSorted.isEmpty {
-                log.debug("Drawing Random")
+                log.verbose("Drawing Random")
                 return nil
             }
-            let rv = BasicAIPlayerInterface.smartDraw(player: self.player, target: tracksSorted[0], options: colors)
+            let rv = DestinationAIPlayerInterface.smartDraw(player: self.player, target: tracksSorted[0], options: colors)
             if rv != nil {
-                log.debug("Drawing \(colors[rv!])")
+                log.verbose("Drawing \(colors[rv!])")
             } else {
-                log.debug("Drawing Random")
+                log.verbose("Drawing Random")
             }
             return rv
-        }, { _ in log.info("Hand: \(self.player.hand)") })
+        }, { _ in log.debug("Hand: \(self.player.hand)") })
     }
 }
