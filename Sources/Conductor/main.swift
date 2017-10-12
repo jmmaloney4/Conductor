@@ -16,7 +16,7 @@ if CommandLine.argc < 3 {
 
 let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
 let board = try! Board(fromJSONFile: CommandLine.arguments[2])
-let game = Game(withRules: rules, board: board, andPlayers: BasicAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface())
+let game = Game(withRules: rules, board: board, andPlayers: BasicAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface(),BigTrackAIPlayerInterface())
 
 /*
 let tracks: [(String, String, Int)] = [("Brest", "Dieppe", 0),
