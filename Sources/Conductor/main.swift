@@ -33,7 +33,7 @@ print(game.start())
 func runSimulations(interfaces: [Interface], games: Int) -> [[Player:Int]] {
     let group = DispatchGroup()
     var rv: [[Player:Int]] = []
-    for _ in 0..<games {
+    for i in 0..<games {
         group.enter()
         DispatchQueue.global(qos: .default).async {
             var players: [PlayerInterface] = []
@@ -57,7 +57,7 @@ func runSimulations(interfaces: [Interface], games: Int) -> [[Player:Int]] {
             }
 
             rv.append(res)
-            log.info(res)
+            log.info("Simulation \(i)/\(games): \(res)")
 
             group.leave()
         }
