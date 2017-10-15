@@ -42,7 +42,7 @@ public class Game: Hashable {
             }
             self.players.append(p)
         }
-        log.info("Rng Seed: \(seed)")
+        // log.info("Rng Seed: \(seed)")
 
         self.board.game = self
 
@@ -135,7 +135,7 @@ public class Game: Hashable {
 
             player.destinations.append(contentsOf: kept)
 
-        case .playTrack(let fn, let playing):
+        case .playTrack(let fn, let cards, let playing):
             let tracks = state.unownedTracks().filter({ player.canAffordTrack($0) })
             if tracks.isEmpty {
                 log.warning("No avaliable tracks")
@@ -143,6 +143,8 @@ public class Game: Hashable {
             }
             let track = tracks[fn(tracks)]
             playing(track)
+            let cost = track.length - player.hand[.locomotive]!
+            player.hand[.locomotive] = 0
             state.tracks[track] = player
 
         case .playStation(let fn, let playing):
@@ -166,7 +168,7 @@ public class Game: Hashable {
                 runTurnForPlayer(player)
 
                 if (pt != nil && state.turn >= pt + players.count) || state.unownedTracks().isEmpty {
-                    log.info("End (\(state.turn))")
+                    log.debug("End (\(state.turn))")
                     return winners()
                 } else if pt == nil && player.trainsLeft() < rules.get(Rules.kMinTrains).int! {
                     pt = state.turn
@@ -175,6 +177,7 @@ public class Game: Hashable {
                 state.turn += 1
             }
         }
+        log.error("Hit turn limit")
         return [:]
     }
 
@@ -192,6 +195,9 @@ public class Game: Hashable {
                 points -= dest.length
             }
             rv[player] = points
+        }
+        if rv.count == 0 {
+            log.error("No Players")
         }
         return rv
     }

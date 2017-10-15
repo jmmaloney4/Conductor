@@ -33,7 +33,7 @@ public class BigTrackAIPlayerInterface: PlayerInterface {
         if !tracksSorted.isEmpty && player.canAffordTrack(tracksSorted[0]) {
             return .playTrack({ (tracks: [Track]) -> Int in
                 return tracks.index(of: tracksSorted[0])!
-            }, { _ in })
+            }, { DestinationAIPlayerInterface.playCards(cost: $0, color: $1, hand: $2, player: self.player) }, { _ in })
         }
 
         if !tracksSorted.isEmpty {
@@ -49,7 +49,7 @@ public class BigTrackAIPlayerInterface: PlayerInterface {
             if rv != nil {
                 log.verbose("Drawing \(colors[rv!])")
             } else {
-                log.verbose("Drawing Random")
+                log.verbose("Drawing Smart Random")
             }
             return rv
         }, { _ in log.debug("Hand: \(self.player.hand)") })

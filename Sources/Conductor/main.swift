@@ -9,6 +9,7 @@ import ConductorCore
 import SwiftyJSON
 import CommandLineKit
 import SwiftyBeaver
+import Dispatch
 
 enum Interface {
     case bigTrack
@@ -17,6 +18,7 @@ enum Interface {
 
 Conductor.InitLog()
 let log = SwiftyBeaver.self
+Conductor.console.minLevel = .verbose
 
 if CommandLine.argc < 3 {
     print("Usage: \(CommandLine.arguments[0]) [rules.json] [map.json]")
@@ -24,41 +26,54 @@ if CommandLine.argc < 3 {
 }
 
 func runSimulations(interfaces: [Interface], games: Int) -> [[Player:Int]] {
+    let group = DispatchGroup()
     var rv: [[Player:Int]] = []
     for _ in 0..<games {
-        var players: [PlayerInterface] = []
-        for i in interfaces {
-            switch i {
-            case .bigTrack:
-                players.append(BigTrackAIPlayerInterface())
-            case .destination:
-                players.append(DestinationAIPlayerInterface())
+        group.enter()
+        DispatchQueue.global(qos: .default).sync {
+            var players: [PlayerInterface] = []
+            for i in interfaces {
+                switch i {
+                case .bigTrack:
+                    players.append(BigTrackAIPlayerInterface())
+                case .destination:
+                    players.append(DestinationAIPlayerInterface())
+                }
             }
+
+            let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
+            let board = try! Board(fromJSONFile: CommandLine.arguments[2])
+            let game = Game(withRules: rules, board: board, andPlayers: players)
+            let res = game.start()
+            log.debug("\(res)")
+
+            if res.count == 0 {
+                log.error("Game Failed")
+                sleep(1)
+                print("Hi")
+            }
+
+            rv.append(res)
+
+            group.leave()
         }
-
-        let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
-        let board = try! Board(fromJSONFile: CommandLine.arguments[2])
-        let game = Game(withRules: rules, board: board, andPlayers: players)
-        let res = game.start()
-        log.info("\(res)")
-
-        rv.append(res)
     }
+
+    group.wait()
     return rv
 }
 
-var scores: [[Player:Int]] = runSimulations(interfaces: [.destination, .bigTrack, .bigTrack, .bigTrack], games: 10)
 /*
-for _ in 0..<100 {
-    let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
-    let board = try! Board(fromJSONFile: CommandLine.arguments[2])
-    let game = Game(withRules: rules, board: board, andPlayers: BigTrackAIPlayerInterface(), DestinationAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface())
-    let res = game.start()
-    log.info("\(res)")
+ for _ in 0..<100 {
+ let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
+ let board = try! Board(fromJSONFile: CommandLine.arguments[2])
+ let game = Game(withRules: rules, board: board, andPlayers: BigTrackAIPlayerInterface(), DestinationAIPlayerInterface(), BasicAIPlayerInterface(), BasicAIPlayerInterface())
+ let res = game.start()
+ log.info("\(res)")
 
-    scores.append(res)
-}
-*/
+ scores.append(res)
+ }
+ */
 
 func totalWins(_ scores: [[Player:Int]]) -> [Int] {
     var rv = Array(repeating: 0, count: scores[0].count)
@@ -80,51 +95,68 @@ func totalScores(_ scores: [[Player:Int]]) -> [Int] {
     return rv
 }
 
-print(totalWins(scores))
-print(totalScores(scores))
-print(totalScores(scores).map({ Float($0) / Float(scores.count) }))
+var averagePoints: [Float] = []
+var wins: [Float] = []
 
+for i in 1...6 {
+    var interfaces: [Interface] = [.destination]
+    interfaces.append(contentsOf: Array(repeating: .bigTrack, count: i))
 
+    var scores: [[Player:Int]] = runSimulations(interfaces: interfaces, games: 1000)
 
-/*
-let tracks: [(String, String, Int)] = [("Brest", "Dieppe", 0),
-                                  ("Brest", "Paris", 0),
-                                  ("Paris", "Pamplona", 0),
-                                  ("Paris", "Pamplona", 1),
-                                  ("Pamplona", "Marseille", 0),
-                                  ("Barcelona", "Marseille", 0)]
+    log.debug(totalWins(scores))
+    log.debug(totalScores(scores))
+    log.info(totalScores(scores).map({ Float($0) / Float(scores.count) }))
+    log.info(totalWins(scores).map({ Float($0) / Float(scores.count) }))
 
-for (a, b, i) in tracks {
-    game.state.tracks[board.tracksBetween(board.cityForName(a)! , and: board.cityForName(b)!)[i]] = game.players[0]
+    averagePoints.append(totalScores(scores).map({ Float($0) / Float(scores.count) })[0])
+    wins.append(totalWins(scores).map({ Float($0) / Float(scores.count) })[0])
 }
 
-let brest = board.cityForName("Brest")!
-let frankfurt = board.cityForName("Frankfurt")!
-// Destination(from: brest, to: frankfurt, length: 6)
-print(board.findShortesAvaliableRoute(between: brest, and: frankfurt, to: game.players[1]))
+log.info(averagePoints)
+log.info(wins)
 
-*/
+// Flush log queue
+sleep(1)
 /*
-let paris = board.cityForName("Paris")!
-let frankfurt = board.cityForName("Frankfurt")!
-let munchen = board.cityForName("Munchen")!
-let zurich = board.cityForName("Zurich")!
-let wien = board.cityForName("Wien")!
-let zagrab = board.cityForName("Zagrab")!
-let brest = board.cityForName("Brest")!
-let pamploma = board.cityForName("Pamploma")!
-let dieppe = board.cityForName("Dieppe")!
+ let tracks: [(String, String, Int)] = [("Brest", "Dieppe", 0),
+ ("Brest", "Paris", 0),
+ ("Paris", "Pamplona", 0),
+ ("Paris", "Pamplona", 1),
+ ("Pamplona", "Marseille", 0),
+ ("Barcelona", "Marseille", 0)]
 
-game.state.tracks[board.tracksBetween(paris, and: frankfurt)[0]] = game.players[0]
-game.state.tracks[board.tracksBetween(paris, and: frankfurt)[1]] = game.players[0]
-game.state.tracks[board.tracksBetween(frankfurt, and: munchen)[0]] = game.players[0]
-game.state.tracks[board.tracksBetween(munchen, and: zurich)[0]] = game.players[0]
-game.state.tracks[board.tracksBetween(munchen, and: wien)[0]] = game.players[0]
-//game.state.tracks[board.tracksBetween(wien, and: zagrab)[0]] = game.players[0]
-print(game.state.playerMeetsDestination(game.players[0], Destination(from: paris, to: zurich, length: 7)))
+ for (a, b, i) in tracks {
+ game.state.tracks[board.tracksBetween(board.cityForName(a)! , and: board.cityForName(b)!)[i]] = game.players[0]
+ }
 
-print(board.findShortesAvaliableRoute(between: zurich, and: zagrab, to: game.players[0])!)
-*/
+ let brest = board.cityForName("Brest")!
+ let frankfurt = board.cityForName("Frankfurt")!
+ // Destination(from: brest, to: frankfurt, length: 6)
+ print(board.findShortesAvaliableRoute(between: brest, and: frankfurt, to: game.players[1]))
+
+ */
+/*
+ let paris = board.cityForName("Paris")!
+ let frankfurt = board.cityForName("Frankfurt")!
+ let munchen = board.cityForName("Munchen")!
+ let zurich = board.cityForName("Zurich")!
+ let wien = board.cityForName("Wien")!
+ let zagrab = board.cityForName("Zagrab")!
+ let brest = board.cityForName("Brest")!
+ let pamploma = board.cityForName("Pamploma")!
+ let dieppe = board.cityForName("Dieppe")!
+
+ game.state.tracks[board.tracksBetween(paris, and: frankfurt)[0]] = game.players[0]
+ game.state.tracks[board.tracksBetween(paris, and: frankfurt)[1]] = game.players[0]
+ game.state.tracks[board.tracksBetween(frankfurt, and: munchen)[0]] = game.players[0]
+ game.state.tracks[board.tracksBetween(munchen, and: zurich)[0]] = game.players[0]
+ game.state.tracks[board.tracksBetween(munchen, and: wien)[0]] = game.players[0]
+ //game.state.tracks[board.tracksBetween(wien, and: zagrab)[0]] = game.players[0]
+ print(game.state.playerMeetsDestination(game.players[0], Destination(from: paris, to: zurich, length: 7)))
+
+ print(board.findShortesAvaliableRoute(between: zurich, and: zagrab, to: game.players[0])!)
+ */
 
 /*
 

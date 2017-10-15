@@ -9,7 +9,7 @@ import Foundation
 public enum Action: CustomStringConvertible {
     case drawCards(([Color]) -> Int?, (Color) -> Void)
     case getNewDestinations(([Destination]) -> [Int], ([Destination]) -> Void)
-    case playTrack(([Track]) -> Int, (Track) -> Void)
+    case playTrack(([Track]) -> Int, (Int, Color, [Color:Int]) -> [Color], (Track) -> Void)
     case playStation(([City]) -> Int, (City) -> Void)
 
     public var description: String {
@@ -34,7 +34,7 @@ public protocol PlayerInterface {
 public class Player: Hashable {
     weak var game: Game!
     var interface: PlayerInterface
-    var hand: [Color:Int] = [:]
+    var hand: [Color:Int] = [.red : 0, .blue : 0, .black : 0, .white : 0, .orange : 0, .yellow: 0, .pink : 0, .green : 0, .locomotive : 0]
     var destinations: [Destination] = []
 
     public var hashValue: Int { return ObjectIdentifier(self).hashValue }
@@ -70,13 +70,12 @@ public class Player: Hashable {
     }
 
     func canAffordCost(_ cost: Int, color: Color) -> Bool {
-        for entry in hand where color == .unspecified || entry.key == color {
-            // swiftlint:disable for_where
-            // too messy to combine this if statement with other where conditions
-            if entry.value >= cost {
+        if color == .unspecified && hand[mostColorInHand()]! >= cost {
+            return true
+        } else if let x = hand[color] {
+            if x >= cost {
                 return true
             }
-            // swiftlint:enable for_where
         }
         return false
     }

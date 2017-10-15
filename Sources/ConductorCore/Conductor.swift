@@ -9,7 +9,7 @@ import SwiftPriorityQueue
 import Weak
 import SwiftyBeaver
 
-let log = SwiftyBeaver.self
+public let log = SwiftyBeaver.self
 
 public class Conductor {
     public static let console = ConsoleDestination()

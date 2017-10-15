@@ -50,7 +50,7 @@ public class DestinationAIPlayerInterface: PlayerInterface {
                         if player.canAffordTrack(track) {
                             return .playTrack({ (tracks: [Track]) -> Int in
                                 return tracks.index(of:track)!
-                            }, {_ in })
+                            }, { DestinationAIPlayerInterface.playCards(cost: $0, color: $1, hand: $2, player: self.player) }, {_ in })
                         } else {
                             return .drawCards({ (colors: [Color]) -> Int? in
                                 let rv = DestinationAIPlayerInterface.smartDraw(player: self.player, target: track, options: colors)
@@ -70,7 +70,7 @@ public class DestinationAIPlayerInterface: PlayerInterface {
         for track in player.game.state.unownedTracks() where player.canAffordTrack(track) {
             return .playTrack({ (tracks: [Track]) -> Int in
                 return tracks.index(of:track)!
-            }, {_ in})
+            }, { DestinationAIPlayerInterface.playCards(cost: $0, color: $1, hand: $2, player: self.player) }, {_ in})
         }
 
         return .drawCards({ (colors: [Color]) -> Int? in
@@ -90,5 +90,18 @@ public class DestinationAIPlayerInterface: PlayerInterface {
         } else {
             return nil
         }
+    }
+
+    class func playCards(cost: Int, color: Color, hand: [Color:Int], player: Player) -> [Color] {
+        var rv: [Color] = []
+        let loc = hand[.locomotive]!
+        rv.append(contentsOf: Array(repeating: .locomotive, count: loc))
+        let nc = cost - loc
+
+        if color == .unspecified {
+            rv.append(contentsOf: Array(repeating: player.mostColorInHand(), count: nc))
+        }
+
+        return rv
     }
 }

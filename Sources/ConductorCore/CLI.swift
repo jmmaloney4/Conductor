@@ -107,7 +107,7 @@ public class CLIPlayerInterface: PlayerInterface {
                 print("\n=> Choose Tracks: ")
                 self.printList(tracks.map({ "\($0)" }))
                 return self.promptInCount(tracks.count)
-            }, { track in
+            }, { DestinationAIPlayerInterface.playCards(cost: $0, color: $1, hand: $2, player: self.player) }, { track in
                 print("Playing Track on \(track)")
             }),
             .playStation({ cities in
