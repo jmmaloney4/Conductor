@@ -48,6 +48,10 @@ public class Game: Hashable {
         // log.info("Rng Seed: \(seed)")
 
         self.board.game = self
+
+        for _ in 0..<rules.get(Rules.kFaceUpCards).int! {
+            cards.append(draw())
+        }
     }
 
     // 12 of each color (8 colors)
@@ -98,6 +102,7 @@ public class Game: Hashable {
                 c = draw()
             }
             player.addCardToHand(c)
+            player.interface.drewCard(c)
 
             // if they drew a locomotive, they only get one card
             if locomotive {
@@ -111,6 +116,7 @@ public class Game: Hashable {
                 c = draw()
             }
             player.addCardToHand(c)
+            player.interface.drewCard(c)
 
         case .getNewDestinations(let fn):
             var destinations: [Destination] = []
@@ -132,6 +138,7 @@ public class Game: Hashable {
             }
 
             player.destinations.append(contentsOf: kept)
+            player.interface.keptDestinations(kept)
 
         case .playTrack(let fn):
             let tracks = unownedTracks().filter({ player.canAffordTrack($0) })
@@ -141,9 +148,43 @@ public class Game: Hashable {
             }
             let (i, l, c) = fn(tracks)
             let track = tracks[i]
-            let cost = track.length - player.hand[.locomotive]!
-            player.hand[.locomotive] = 0
+
+            if track.color != .unspecified && c != nil {
+                log.error("Can't have color be specified if track has a specified color")
+                fatalError()
+            }
+
+            var color: Color
+            if c == nil {
+                if track.color == .unspecified {
+                    color = player.mostColorInHand()
+                } else {
+                    color = track.color
+                }
+            } else {
+                color = c!
+            }
+
+            log.debug("Color: \(color), Track: \(track.color)")
+
+            var loc: Int
+            if l == nil {
+                // Use locomotives only if necessary
+                if  track.length > player.cardsInHand(color) {
+                    loc = track.length - player.cardsInHand(color)
+                } else {
+                    loc = 0
+                }
+            } else {
+                // Otherwise use given number of locomotives
+                loc = l!
+            }
+
+            player.spendCards(.locomotive, cost: loc)
+            player.spendCards(color, cost: track.length - loc)
+
             trackIndex[track] = player
+            player.interface.playedTrack(track)
         }
     }
 
@@ -151,6 +192,9 @@ public class Game: Hashable {
         var pt: Int! = nil
         while turn < 1000 {
             for player in players {
+                if turn > 150 {
+                    log.warning("Long Game")
+                }
                 player.interface.startingTurn(turn)
                 runTurnForPlayer(player)
 

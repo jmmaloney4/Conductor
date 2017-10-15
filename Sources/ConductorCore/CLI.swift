@@ -14,7 +14,7 @@ public class CLI: PlayerInterface {
     public func startingGame() {}
 
     public func startingTurn(_ turn: Int) {
-        print("\n=== Player \(player.game.players.index(of: player)!) " +
+        print("\n=== CLI Player \(player.game.players.index(of: player)!) " +
             "Starting Turn \(turn / player.game.players.count) ===")
         print("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.playerMeetsDestination(player, $0) }))")
         print("Hand: \(player.hand)")
@@ -112,7 +112,15 @@ public class CLI: PlayerInterface {
         return options[promptInCount(options.count)]
     }
 
-    public func actionCompleted(_ action: Action) {
+    public func playedTrack(_ track: Track) {
+        print("Playing Track on \(track)")
+    }
 
+    public func keptDestinations(_ destinations: [Destination]) {
+        print("Keeping: \(destinations.map({ "\($0)" }).joined(separator: ", "))")
+    }
+
+    public func drewCard(_ color: Color) {
+        print("Drew a \(color)")
     }
 }

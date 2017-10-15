@@ -58,7 +58,9 @@ public protocol PlayerInterface {
     func startingGame()
     func startingTurn(_ turn: Int)
     func actionToTakeThisTurn(_ turn: Int) -> Action
-    func actionCompleted(_ action: Action)
+    func drewCard(_ color: Color)
+    func keptDestinations(_ destinations: [Destination])
+    func playedTrack(_ track: Track)
 }
 
 // Mostly storage-only, game logic in the Game class
@@ -85,11 +87,7 @@ public class Player: Hashable {
     }
 
     func addCardToHand(_ color: Color) {
-        if hand[color] == nil {
-            hand[color] = 1
-        } else {
-            hand[color]! += 1
-        }
+        hand[color]! += 1
     }
 
     func cardsInHand(_ color: Color) -> Int {
@@ -98,6 +96,10 @@ public class Player: Hashable {
         } else {
             return 0
         }
+    }
+
+    func spendCards(_ color: Color, cost: Int) {
+        hand[color]! -= cost
     }
 
     func canAffordCost(_ cost: Int, color: Color) -> Bool {
@@ -113,9 +115,11 @@ public class Player: Hashable {
 
     func canAffordTrack(_ track: Track) -> Bool {
         // Need locomotive cards to build ferries
+        /*
         if self.cardsInHand(.locomotive) < track.ferries {
             return false
         }
+         */
         if self.trainsLeft() < track.length {
             return false
         }

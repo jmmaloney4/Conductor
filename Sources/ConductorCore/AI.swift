@@ -29,8 +29,6 @@ public class AI: PlayerInterface {
         fatalError()
     }
 
-    public func actionCompleted(_ action: Action) {}
-
     class func smartDraw(player: Player, target: Track, options: [Color]) -> Int? {
         var color = target.color
         if target.color == .unspecified {
@@ -56,5 +54,11 @@ public class AI: PlayerInterface {
 
         return rv
     }
+
+    public func playedTrack(_ track: Track) {}
+
+    public func keptDestinations(_ destinations: [Destination]) {}
+
+    public func drewCard(_ color: Color) {}
 
 }

@@ -18,24 +18,24 @@ enum Interface {
 
 Conductor.InitLog()
 let log = SwiftyBeaver.self
-Conductor.console.minLevel = .verbose
+Conductor.console.minLevel = .info
 
 if CommandLine.argc < 3 {
     print("Usage: \(CommandLine.arguments[0]) [rules.json] [map.json]")
     exit(1)
 }
-
+/*
 let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
 let board = try! Board(fromJSONFile: CommandLine.arguments[2])
 let game = Game(withRules: rules, board: board, andPlayers: CLI(), CLI())
 print(game.start())
-
+*/
 func runSimulations(interfaces: [Interface], games: Int) -> [[Player:Int]] {
     let group = DispatchGroup()
     var rv: [[Player:Int]] = []
     for _ in 0..<games {
         group.enter()
-        DispatchQueue.global(qos: .default).sync {
+        DispatchQueue.global(qos: .default).async {
             var players: [PlayerInterface] = []
             for i in interfaces {
                 switch i {
@@ -54,11 +54,10 @@ func runSimulations(interfaces: [Interface], games: Int) -> [[Player:Int]] {
 
             if res.count == 0 {
                 log.error("Game Failed")
-                sleep(1)
-                print("Hi")
             }
 
             rv.append(res)
+            log.info(res)
 
             group.leave()
         }
@@ -121,8 +120,6 @@ for i in 1...6 {
 log.info(averagePoints)
 log.info(wins)
 
-// Flush log queue
-sleep(1)
 /*
  let tracks: [(String, String, Int)] = [("Brest", "Dieppe", 0),
  ("Brest", "Paris", 0),
