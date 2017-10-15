@@ -192,8 +192,8 @@ public class Game: Hashable {
         var pt: Int! = nil
         while turn < 1000 {
             for player in players {
-                if turn > 150 {
-                    log.warning("Long Game")
+                if player.hand[.unspecified] != nil {
+                    log.warning("Whoa there")
                 }
                 player.interface.startingTurn(turn)
                 runTurnForPlayer(player)

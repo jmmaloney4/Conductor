@@ -132,13 +132,16 @@ public class Player: Hashable {
     }
 
     func mostColorInHand() -> Color {
-        var most: Color = .unspecified
+        var most: Color = .red
         var mc: Int = 0
-        for (color, i) in hand {
+        for (color, i) in hand where color != .locomotive {
             if mc < i {
                 most = color
                 mc = i
             }
+        }
+        if most == .unspecified || most == .locomotive {
+            log.error("Hand: \(hand)")
         }
         return most
     }
