@@ -6,7 +6,7 @@
 
 import Foundation
 
-public class CLIPlayerInterface: PlayerInterface {
+public class CLI: PlayerInterface {
     public weak var player: Player! = nil
 
     public init() {}
@@ -16,11 +16,11 @@ public class CLIPlayerInterface: PlayerInterface {
     public func startingTurn(_ turn: Int) {
         print("\n=== Player \(player.game.players.index(of: player)!) " +
             "Starting Turn \(turn / player.game.players.count) ===")
-        print("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.state.playerMeetsDestination(player, $0) }))")
+        print("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.playerMeetsDestination(player, $0) }))")
         print("Hand: \(player.hand)")
 
         for p in player.game.players {
-            print("Player \(player.game.players.index(of: p)!) Owns: \(player.game.state.tracksOwnedBy(p))")
+            print("Player \(player.game.players.index(of: p)!) Owns: \(player.game.tracksOwnedBy(p))")
         }
     }
 
@@ -86,8 +86,6 @@ public class CLIPlayerInterface: PlayerInterface {
                 } else {
                     return rv
                 }
-            }, { color in
-                print("Drew a \(color)")
             }),
             .getNewDestinations({ destinations in
                 print("\n=> Choose Destinations:")
@@ -100,28 +98,21 @@ public class CLIPlayerInterface: PlayerInterface {
                     }
                 }
                 return rv
-            }, { kept in
-                print("Keeping: \(kept.map({ "\($0)" }).joined(separator: ", "))")
             }),
             .playTrack({ tracks in
                 print("\n=> Choose Tracks: ")
                 self.printList(tracks.map({ "\($0)" }))
-                return self.promptInCount(tracks.count)
-            }, { DestinationAIPlayerInterface.playCards(cost: $0, color: $1, hand: $2, player: self.player) }, { track in
-                print("Playing Track on \(track)")
+                return (self.promptInCount(tracks.count), nil, nil)
             }),
-            .playStation({ cities in
-                print("=> Choose City: ")
-                self.printList(cities.map({ "\($0.name)" }))
-                return self.promptInCount(cities.count)
-            }, { city in
-                print("Placing Station at \(city)")
-            })
         ]
 
         print("\n=> Choose Action: ")
         printList(options.map({ "\($0)" }))
 
         return options[promptInCount(options.count)]
+    }
+
+    public func actionCompleted(_ action: Action) {
+
     }
 }

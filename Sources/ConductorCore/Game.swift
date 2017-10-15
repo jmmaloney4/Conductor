@@ -12,9 +12,12 @@ public class Game: Hashable {
     public var players: [Player]
     var started: Bool = false
     var board: Board
-    public var state: State!
     var rng: Gust
     var seed: UInt32
+    public var trackIndex: [Track:Player] = [:]
+    // public var stations: [City:Player] = [:]
+    var cards: [Color] = []
+    var turn: Int = 0
 
     public var hashValue: Int { return ObjectIdentifier(self).hashValue }
     public static func == (lhs: Game, rhs: Game) -> Bool {
@@ -45,8 +48,6 @@ public class Game: Hashable {
         // log.info("Rng Seed: \(seed)")
 
         self.board.game = self
-
-        state = State(withGame: self)
     }
 
     // 12 of each color (8 colors)
@@ -82,14 +83,14 @@ public class Game: Hashable {
     }
 
     func runTurnForPlayer(_ player: Player) {
-        switch player.interface.actionToTakeThisTurn(state.turn) {
-        case .drawCards(let fn, let drew):
+        switch player.interface.actionToTakeThisTurn(turn) {
+        case .drawCards(let fn):
             var c: Color
 
             // first card
             var locomotive = false
-            if let i = fn(state.cards) {
-                c = state.takeCard(at: i)!
+            if let i = fn(cards) {
+                c = takeCard(at: i)!
                 if c == .locomotive {
                     locomotive = true
                 }
@@ -97,7 +98,6 @@ public class Game: Hashable {
                 c = draw()
             }
             player.addCardToHand(c)
-            drew(c)
 
             // if they drew a locomotive, they only get one card
             if locomotive {
@@ -105,15 +105,14 @@ public class Game: Hashable {
             }
 
             // second card, filter locomotives, can't take one
-            if let i = fn(state.cards.filter({ $0 != .locomotive })) {
-                c = state.takeCard(at: i)!
+            if let i = fn(cards.filter({ $0 != .locomotive })) {
+                c = takeCard(at: i)!
             } else {
                 c = draw()
             }
             player.addCardToHand(c)
-            drew(c)
 
-        case .getNewDestinations(let fn, let keeping):
+        case .getNewDestinations(let fn):
             var destinations: [Destination] = []
             for _ in 0..<rules.get(Rules.kNumDestinationsToChooseFrom).int! {
                 destinations.append(board.generateDestination())
@@ -131,50 +130,38 @@ public class Game: Hashable {
             for index in indices {
                 kept.append(destinations[index])
             }
-            keeping(kept)
 
             player.destinations.append(contentsOf: kept)
 
-        case .playTrack(let fn, let cards, let playing):
-            let tracks = state.unownedTracks().filter({ player.canAffordTrack($0) })
+        case .playTrack(let fn):
+            let tracks = unownedTracks().filter({ player.canAffordTrack($0) })
             if tracks.isEmpty {
                 log.warning("No avaliable tracks")
                 runTurnForPlayer(player)
             }
-            let track = tracks[fn(tracks)]
-            playing(track)
+            let (i, l, c) = fn(tracks)
+            let track = tracks[i]
             let cost = track.length - player.hand[.locomotive]!
             player.hand[.locomotive] = 0
-            state.tracks[track] = player
-
-        case .playStation(let fn, let playing):
-            let cost = state.stationsOwnedBy(player).count + 1
-            if cost > 3 || !player.canAffordCost(cost, color: .unspecified) {
-                log.warning("No avaliable stations")
-                runTurnForPlayer(player)
-            }
-            let cities = board.cities.filter({ state.stations[$0] == nil })
-            let city = cities[fn(cities)]
-            playing(city)
-            state.stations[city] = player
+            trackIndex[track] = player
         }
     }
 
     public func start() -> [Player:Int] {
         var pt: Int! = nil
-        while state.turn < 1000 {
+        while turn < 1000 {
             for player in players {
-                player.interface.startingTurn(state.turn)
+                player.interface.startingTurn(turn)
                 runTurnForPlayer(player)
 
-                if (pt != nil && state.turn >= pt + players.count) || state.unownedTracks().isEmpty {
-                    log.debug("End (\(state.turn))")
+                if (pt != nil && turn >= pt + players.count) || unownedTracks().isEmpty {
+                    log.debug("End (\(turn))")
                     return winners()
                 } else if pt == nil && player.trainsLeft() < rules.get(Rules.kMinTrains).int! {
-                    pt = state.turn
+                    pt = turn
                 }
 
-                state.turn += 1
+                turn += 1
             }
         }
         log.error("Hit turn limit")
@@ -185,19 +172,107 @@ public class Game: Hashable {
         var rv: [Player:Int] = [:]
         for player in players {
             var points = 0
-            for track in state.tracksOwnedBy(player) {
+            for track in tracksOwnedBy(player) {
                 points += track.points()!
             }
-            for dest in player.destinations where state.playerMeetsDestination(player, dest) {
+            for dest in player.destinations where playerMeetsDestination(player, dest) {
                 points += dest.length
             }
-            for dest in player.destinations where !state.playerMeetsDestination(player, dest) {
+            for dest in player.destinations where !playerMeetsDestination(player, dest) {
                 points -= dest.length
             }
             rv[player] = points
         }
         if rv.count == 0 {
             log.error("No Players")
+        }
+        return rv
+    }
+
+    func playerOwnsTrack(_ player: Player, _ track: Track) -> Bool {
+        return trackIndex[track] == player
+    }
+
+    func isTrackUnowned(_ track: Track) -> Bool {
+        return trackIndex[track] == nil
+    }
+
+    func tracksOwnedBy(_ player: Player) -> [Track] {
+        var rv: [Track] = []
+        for (track, _) in trackIndex where playerOwnsTrack(player, track) {
+            rv.append(track)
+        }
+        return rv
+    }
+
+    func unownedTracks() -> [Track] {
+        var rv: [Track] = []
+        for track in board.getAllTracks() where isTrackUnowned(track) {
+            rv.append(track)
+        }
+        return rv
+    }
+
+    func checkForMaxLocomotives() {
+        if cards.reduce(0, { res, color in
+            if color == .locomotive {
+                return res + 1
+            } else {
+                return res
+            }}) >= rules.get(Rules.kMaxLocomotivesFaceUp).int! {
+            // Refresh cards, too many locomotives
+            var newCards: [Color] = []
+            for _ in 0..<rules.get(Rules.kFaceUpCards).int! {
+                newCards.append(draw())
+            }
+            cards = newCards
+            checkForMaxLocomotives()
+        }
+    }
+
+    func takeCard(at index: Int) -> Color? {
+        if index >= cards.count || index < 0 {
+            return nil
+        }
+
+        let rv = cards.remove(at: index)
+        cards.append(draw())
+        checkForMaxLocomotives()
+        return rv
+    }
+
+    public func playerMeetsDestination(_ player: Player, _ destination: Destination) -> Bool {
+        var queue: [Track] = []
+        let city = destination.cities[0]
+
+        var fn: ((City) -> Bool)! = nil
+        fn = { city in
+            for track in city.tracks where self.playerOwnsTrack(player, track) && !queue.contains(track) {
+                queue.append(track)
+                let endpoint = track.getOtherCity(city)!
+
+                if endpoint == destination.cities[1] {
+                    return true
+                }
+
+                if fn(endpoint) {
+                    return true
+                }
+
+                queue.removeLast()
+            }
+            return false
+        }
+
+        return fn(city)
+    }
+
+    func playerDestinationPoints(_ player: Player) -> Int {
+        var rv = 0
+        for destination in player.destinations {
+            if playerMeetsDestination(player, destination) {
+                rv += destination.length
+            }
         }
         return rv
     }

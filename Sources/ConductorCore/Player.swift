@@ -7,17 +7,47 @@
 import Foundation
 
 public enum Action: CustomStringConvertible {
-    case drawCards(([Color]) -> Int?, (Color) -> Void)
-    case getNewDestinations(([Destination]) -> [Int], ([Destination]) -> Void)
-    case playTrack(([Track]) -> Int, (Int, Color, [Color:Int]) -> [Color], (Track) -> Void)
-    case playStation(([City]) -> Int, (City) -> Void)
+
+    /// Called to determine which card to draw.
+    ///
+    /// Will be called again for the second draw, unless the first draw is a 
+    /// locomotive. Return `nil` to signify a random draw from the pile. If it 
+    /// is the second draw and this returns a locomotive, an error will be thrown.
+    ///
+    /// - Parameter cards: The cards laid out on the table.
+    public typealias DrawCardsFunc = (_ cards: [Color]) -> Int?
+
+    /// Called to determine which destinations to keep.
+    ///
+    /// Return an array of the indicies in the passed array to keep. You must 
+    /// keep at least one.
+    ///
+    /// - Parameter destinations: The destinations to choose from.
+    public typealias NewDestinationsFunc = (_ destinations: [Destination]) -> [Int]
+
+    /// Called to determine which track to play.
+    ///
+    /// Return the index into the passed array of the track you would like to 
+    /// play. Also return the number of locomotive cards you would like to use 
+    /// to pay for the track, or return `nil` to only use locomotives as 
+    /// necessary, and the color of cards you would like to pay with if the 
+    /// track has an unspecified color, otherwise return nil to pay with the 
+    /// specified color.
+    ///
+    /// - Parameter tracks: The tracks to choose from.
+    public typealias PlayTrackFunc = (_ tracks: [Track]) -> (Int, Int?, Color?)
+
+    case drawCards(DrawCardsFunc)
+    case getNewDestinations(NewDestinationsFunc)
+    case playTrack(PlayTrackFunc)
+    // case playStation(([City]) -> Int)
 
     public var description: String {
         switch self {
         case .drawCards: return "Draw Cards"
         case .getNewDestinations: return "Get New Destinations"
         case .playTrack: return "Play Track"
-        case .playStation: return "Play Station"
+        // case .playStation: return "Play Station"
         }
     }
 }
@@ -28,6 +58,7 @@ public protocol PlayerInterface {
     func startingGame()
     func startingTurn(_ turn: Int)
     func actionToTakeThisTurn(_ turn: Int) -> Action
+    func actionCompleted(_ action: Action)
 }
 
 // Mostly storage-only, game logic in the Game class
@@ -44,7 +75,7 @@ public class Player: Hashable {
 
     init(game: Game) {
         self.game = game
-        self.interface = CLIPlayerInterface()
+        self.interface = CLI()
     }
 
     init(withInterface interface: PlayerInterface, andGame game: Game) {
@@ -92,7 +123,7 @@ public class Player: Hashable {
     }
 
     func trainsLeft() -> Int {
-        let trains = game.state.tracksOwnedBy(self).reduce(0, { $0 + $1.length })
+        let trains = game.tracksOwnedBy(self).reduce(0, { $0 + $1.length })
         return game.rules.get(Rules.kInitialTrains).int! - trains
     }
 

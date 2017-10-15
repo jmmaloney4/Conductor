@@ -25,6 +25,11 @@ if CommandLine.argc < 3 {
     exit(1)
 }
 
+let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
+let board = try! Board(fromJSONFile: CommandLine.arguments[2])
+let game = Game(withRules: rules, board: board, andPlayers: CLI(), CLI())
+print(game.start())
+
 func runSimulations(interfaces: [Interface], games: Int) -> [[Player:Int]] {
     let group = DispatchGroup()
     var rv: [[Player:Int]] = []
@@ -35,9 +40,9 @@ func runSimulations(interfaces: [Interface], games: Int) -> [[Player:Int]] {
             for i in interfaces {
                 switch i {
                 case .bigTrack:
-                    players.append(BigTrackAIPlayerInterface())
+                    players.append(BigTrackAI())
                 case .destination:
-                    players.append(DestinationAIPlayerInterface())
+                    players.append(DestinationAI())
                 }
             }
 

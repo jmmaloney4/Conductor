@@ -15,6 +15,7 @@ public class Conductor {
     public static let console = ConsoleDestination()
 
     public class func InitLog() {
+        console.asynchronously = false
         console.minLevel = log.Level.info
         log.addDestination(console)
     }
