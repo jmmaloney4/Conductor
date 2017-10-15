@@ -184,21 +184,21 @@ public class Board: CustomStringConvertible {
                         case .all:
                             break;
                         case .unowned:
-                            if game.state.tracks[track] == nil {
+                            if game.trackIndex[track] == nil {
                                 break
                             } else {
                                 continue
                             }
                         case .avaliable(let player):
-                            if game.state.tracks[track] == player || game.state.tracks[track] == nil {
+                            if game.trackIndex[track] == player || game.trackIndex[track] == nil {
                                 break
                             } else {
                                 continue
                             }
                         case .owned(let owner):
-                            if owner == nil && game.state.tracks[track] != nil {
+                            if owner == nil && game.trackIndex[track] != nil {
                                 break
-                            } else if owner != nil && game.state.tracks[track] == owner {
+                            } else if owner != nil && game.trackIndex[track] == owner {
                                 break
                             } else {
                                 continue

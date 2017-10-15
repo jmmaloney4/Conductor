@@ -6,34 +6,17 @@
 
 import Foundation
 
-public class BigTrackAIPlayerInterface: PlayerInterface {
-    public weak var player: Player!
-
-    public init() {}
-
-    public func startingGame() {}
-
-    public func startingTurn(_ turn: Int) {
-        log.debug("=== Big Track AI Player \(player.game.players.index(of: player)!) " +
-            "Starting Turn \(turn / player.game.players.count) ===")
-        log.debug("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.state.playerMeetsDestination(player, $0) }))")
-        log.debug("Hand: \(player.hand)")
-
-        for p in player.game.players {
-            log.debug("Player \(player.game.players.index(of: p)!) Owns: \(player.game.state.tracksOwnedBy(p))")
-        }
-    }
-
-    public func actionToTakeThisTurn(_ turn: Int) -> Action {
+public class BigTrackAI: AI {
+    public override func actionToTakeThisTurn(_ turn: Int) -> Action {
         log.verbose(turn)
 
-        var tracksSorted = player.game.state.unownedTracks().sorted(by: { (a: Track, b: Track) -> Bool in
+        var tracksSorted = player.game.unownedTracks().filter({ $0.length <= player.trainsLeft() }).sorted(by: { (a: Track, b: Track) -> Bool in
             a.length > b.length
         })
         if !tracksSorted.isEmpty && player.canAffordTrack(tracksSorted[0]) {
-            return .playTrack({ (tracks: [Track]) -> Int in
-                return tracks.index(of: tracksSorted[0])!
-            }, { DestinationAIPlayerInterface.playCards(cost: $0, color: $1, hand: $2, player: self.player) }, { _ in })
+            return .playTrack({ (tracks: [Track]) -> (Int, Int?, Color?) in
+                return (tracks.index(of: tracksSorted[0])!, nil, nil)
+            })
         }
 
         if !tracksSorted.isEmpty {
@@ -45,13 +28,13 @@ public class BigTrackAIPlayerInterface: PlayerInterface {
                 log.verbose("Drawing Random")
                 return nil
             }
-            let rv = DestinationAIPlayerInterface.smartDraw(player: self.player, target: tracksSorted[0], options: colors)
+            let rv = AI.smartDraw(player: self.player, target: tracksSorted[0], options: colors)
             if rv != nil {
                 log.verbose("Drawing \(colors[rv!])")
             } else {
                 log.verbose("Drawing Smart Random")
             }
             return rv
-        }, { _ in log.debug("Hand: \(self.player.hand)") })
+        })
     }
 }

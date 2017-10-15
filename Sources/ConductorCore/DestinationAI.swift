@@ -6,37 +6,20 @@
 
 import Foundation
 
-public class DestinationAIPlayerInterface: PlayerInterface {
-    public weak var player: Player!
-
-    public init() {}
-
-    public func startingGame() {}
-
-    public func startingTurn(_ turn: Int) {
-        log.debug("=== Destination AI Player \(player.game.players.index(of: player)!) " +
-            "Starting Turn \(turn / player.game.players.count) ===")
-        log.debug("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.state.playerMeetsDestination(player, $0) }))")
-        log.debug("Hand: \(player.hand)")
-
-        for p in player.game.players {
-            log.debug("Player \(player.game.players.index(of: p)!) Owns: \(player.game.state.tracksOwnedBy(p))")
-        }
-    }
-
-    public func actionToTakeThisTurn(_ turn: Int) -> Action {
+public class DestinationAI: AI {
+    public override func actionToTakeThisTurn(_ turn: Int) -> Action {
         log.verbose(turn)
 
         // var destination: Destination! = Destination(from: player.game.board.cityForName("Venezia")!, to: player.game.board.cityForName("Pamplona")!, length: 8)
         var destination: Destination! = nil
-        for dest in player.destinations where !player.game.state.playerMeetsDestination(player, dest) {
+        for dest in player.destinations where !player.game.playerMeetsDestination(player, dest) {
             destination = dest
             break
         }
         if destination == nil {
             return .getNewDestinations({ _ in
                 return [0]
-            }, { (kept) in })
+            })
         }
         log.verbose(destination)
 
@@ -46,62 +29,36 @@ public class DestinationAIPlayerInterface: PlayerInterface {
             for i in 1..<route.count {
                 let tracks = player.game.board.tracksBetween(route[i-1], and: route[i])
                 for track in tracks {
-                    if player.game.state.tracks[track] == nil {
+                    if player.game.trackIndex[track] == nil {
                         if player.canAffordTrack(track) {
-                            return .playTrack({ (tracks: [Track]) -> Int in
-                                return tracks.index(of:track)!
-                            }, { DestinationAIPlayerInterface.playCards(cost: $0, color: $1, hand: $2, player: self.player) }, {_ in })
+                            return .playTrack({ (tracks: [Track]) -> (Int, Int?, Color?) in
+                                return (tracks.index(of:track)!, nil, nil)
+                            })
                         } else {
                             return .drawCards({ (colors: [Color]) -> Int? in
-                                let rv = DestinationAIPlayerInterface.smartDraw(player: self.player, target: track, options: colors)
+                                let rv = AI.smartDraw(player: self.player, target: track, options: colors)
                                 if rv != nil {
                                     log.verbose("Drawing \(colors[rv!])")
                                 } else {
                                     log.verbose("Drawing Random")
                                 }
                                 return rv
-                            }, { _ in log.debug("Hand: \(self.player.hand)") })
+                            })
                         }
                     }
                 }
             }
         }
 
-        for track in player.game.state.unownedTracks() where player.canAffordTrack(track) {
-            return .playTrack({ (tracks: [Track]) -> Int in
-                return tracks.index(of:track)!
-            }, { DestinationAIPlayerInterface.playCards(cost: $0, color: $1, hand: $2, player: self.player) }, {_ in})
+        for track in player.game.unownedTracks() where player.canAffordTrack(track) {
+            return .playTrack({ (tracks: [Track]) -> (Int, Int?, Color?) in
+                return (tracks.index(of:track)!, nil, nil)
+            })
         }
 
         return .drawCards({ (colors: [Color]) -> Int? in
             log.verbose("Drawing")
             return nil
-        }, { _ in log.debug("Hand: \(self.player.hand)") })
-    }
-
-    class func smartDraw(player: Player, target: Track, options: [Color]) -> Int? {
-        var color = target.color
-        if target.color == .unspecified {
-            color = player.mostColorInHand()
-        }
-
-        if let rv = options.index(of: color) {
-            return rv
-        } else {
-            return nil
-        }
-    }
-
-    class func playCards(cost: Int, color: Color, hand: [Color:Int], player: Player) -> [Color] {
-        var rv: [Color] = []
-        let loc = hand[.locomotive]!
-        rv.append(contentsOf: Array(repeating: .locomotive, count: loc))
-        let nc = cost - loc
-
-        if color == .unspecified {
-            rv.append(contentsOf: Array(repeating: player.mostColorInHand(), count: nc))
-        }
-
-        return rv
+        })
     }
 }
