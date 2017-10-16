@@ -33,7 +33,7 @@ public class Game: Hashable {
     }
 
     public init(withRules rules: Rules, board: Board, andPlayers players: [PlayerInterface]) {
-        self.seed = UInt32(Date().timeIntervalSinceReferenceDate)
+        self.seed = UInt32(Date().timeIntervalSinceReferenceDate) + (GlobalRng.random() / 100000)
         self.rng = Gust(seed: seed)
         self.rules = rules
         self.board = board
@@ -188,7 +188,7 @@ public class Game: Hashable {
         }
     }
 
-    public func start() -> [Player:Int] {
+    public func start() -> [Int] {
         var pt: Int! = nil
         while turn < 1000 {
             for player in players {
@@ -209,12 +209,11 @@ public class Game: Hashable {
             }
         }
         log.error("Hit turn limit")
-        return [:]
+        return []
     }
 
-    public func winners() -> [Player:Int] {
-        var rv: [Player:Int] = [:]
-        for player in players {
+    public func winners() -> [Int] {
+        let rv = players.map({ (player: Player) -> Int in
             var points = 0
             for track in tracksOwnedBy(player) {
                 points += track.points()!
@@ -225,8 +224,9 @@ public class Game: Hashable {
             for dest in player.destinations where !playerMeetsDestination(player, dest) {
                 points -= dest.length
             }
-            rv[player] = points
-        }
+            return points
+
+        })
         if rv.count == 0 {
             log.error("No Players")
         }

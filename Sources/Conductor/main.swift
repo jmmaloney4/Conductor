@@ -30,9 +30,9 @@ let board = try! Board(fromJSONFile: CommandLine.arguments[2])
 let game = Game(withRules: rules, board: board, andPlayers: CLI(), CLI())
 print(game.start())
 */
-func runSimulations(interfaces: [Interface], games: Int) -> [[Player:Int]] {
+func runSimulations(interfaces: [Interface], games: Int) -> [[Int]] {
     let group = DispatchGroup()
-    var rv: [[Player:Int]] = []
+    var rv: [[Int]] = []
     for i in 0..<games {
         group.enter()
         DispatchQueue.global(qos: .default).async {
@@ -79,20 +79,20 @@ func runSimulations(interfaces: [Interface], games: Int) -> [[Player:Int]] {
  }
  */
 
-func totalWins(_ scores: [[Player:Int]]) -> [Int] {
+func totalWins(_ scores: [[Int]]) -> [Int] {
     var rv = Array(repeating: 0, count: scores[0].count)
     for game in scores {
-        let sorted = Array(game.keys).sorted(by: { game[$0]! < game[$1]! })
+        let sorted = game.sorted(by: { $0 > $1 })
         let winner = sorted[0]
-        rv[Array(game.keys).index(of: winner)!] += 1
+        rv[game.index(of: winner)!] += 1
     }
     return rv
 }
 
-func totalScores(_ scores: [[Player:Int]]) -> [Int] {
+func totalScores(_ scores: [[Int]]) -> [Int] {
     var rv = Array(repeating: 0, count: scores[0].count)
     for game in scores {
-        for (i, v) in Array(game.values).enumerated() {
+        for (i, v) in game.enumerated() {
             rv[i] += v
         }
     }
@@ -106,10 +106,10 @@ for i in 1...6 {
     var interfaces: [Interface] = [.destination]
     interfaces.append(contentsOf: Array(repeating: .bigTrack, count: i))
 
-    var scores: [[Player:Int]] = runSimulations(interfaces: interfaces, games: 1000)
+    var scores = runSimulations(interfaces: interfaces, games: 3)
 
-    log.debug(totalWins(scores))
-    log.debug(totalScores(scores))
+    log.info(totalWins(scores))
+    log.info(totalScores(scores))
     log.info(totalScores(scores).map({ Float($0) / Float(scores.count) }))
     log.info(totalWins(scores).map({ Float($0) / Float(scores.count) }))
 

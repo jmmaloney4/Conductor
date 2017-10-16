@@ -8,8 +8,10 @@ import Foundation
 import SwiftPriorityQueue
 import Weak
 import SwiftyBeaver
+import Squall
 
 public let log = SwiftyBeaver.self
+public let GlobalRng = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
 
 public class Conductor {
     public static let console = ConsoleDestination()
