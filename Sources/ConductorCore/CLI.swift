@@ -13,6 +13,19 @@ public class CLI: PlayerInterface {
 
     public func startingGame() {}
 
+    public func pickInitialDestinations(_ destinations: [Destination]) -> [Int] {
+        print("\n=> Choose Initial Destinations:")
+        self.printList(destinations.map({ "\($0)" }))
+
+        var rv: [Int] = []
+        for (k, dest) in destinations.enumerated() {
+            if self.promptYesNo("Keep \(dest)") {
+                rv.append(k)
+            }
+        }
+        return rv
+    }
+
     public func startingTurn(_ turn: Int) {
         print("\n=== CLI Player \(player.game.players.index(of: player)!) " +
             "Starting Turn \(turn / player.game.players.count) ===")

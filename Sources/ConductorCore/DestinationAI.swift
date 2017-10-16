@@ -7,6 +7,12 @@
 import Foundation
 
 public class DestinationAI: AI {
+    public override func pickInitialDestinations(_ destinations: [Destination]) -> [Int] {
+        let sorted = destinations.sorted(by: { $0.length > $1.length })
+        let index = destinations.index(where: { $0 == sorted[0] })!
+        return [index]
+    }
+
     public override func actionToTakeThisTurn(_ turn: Int) -> Action {
         log.verbose(turn)
 

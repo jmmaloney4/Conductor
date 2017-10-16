@@ -257,7 +257,7 @@ public class Board: CustomStringConvertible {
         return nil
     }
 
-    public func generateDestination(lengthMin: Int? = 5, lengthMax: Int? = nil, trackMin: Int? = 3, trackMax: Int? = nil) -> Destination {
+    public func generateDestination(lengthMin: Int = 5, lengthMax: Int = Int.max, trackMin: Int = 3, trackMax: Int = Int.max) -> Destination {
         var count = 0
         while true {
             var rand: UInt64 = game.rng.random()
@@ -271,10 +271,10 @@ public class Board: CustomStringConvertible {
 
             let (path, distance) = findShortestRoute(between: cityA, and: cityB)!
 
-            if  (lengthMin != nil && distance >= lengthMin!) || lengthMin == nil &&
-                (lengthMax != nil && distance <= lengthMax!) || lengthMax == nil &&
-                (trackMin != nil && path.count >= trackMin!) || trackMin == nil &&
-                (trackMax != nil && path.count <= trackMax!) || trackMax == nil {
+            if  distance >= lengthMin &&
+                distance <= lengthMax &&
+                path.count >= trackMin &&
+                path.count <= trackMax {
                 return Destination(from: cityA, to: cityB, length: distance)
             }
 
@@ -286,7 +286,7 @@ public class Board: CustomStringConvertible {
     }
 }
 
-public struct Destination: CustomStringConvertible {
+public struct Destination: CustomStringConvertible, Equatable {
     var cities: [City]
     var length: Int
 
@@ -297,5 +297,9 @@ public struct Destination: CustomStringConvertible {
     public init(from cityA: City, to cityB: City, length: Int) {
         cities = [cityA, cityB]
         self.length = length
+    }
+
+    public static func ==(lhs: Destination, rhs: Destination) -> Bool {
+        return lhs.cities[0] == rhs.cities[0] && lhs.cities[1] == rhs.cities[1]
     }
 }

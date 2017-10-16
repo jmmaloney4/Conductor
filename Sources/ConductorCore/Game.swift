@@ -189,6 +189,19 @@ public class Game: Hashable {
     }
 
     public func start() -> [Int] {
+        for player in players {
+            player.interface.startingTurn(turn)
+            var destinations: [Destination] = [board.generateDestination(lengthMin: 20)]
+            for _ in 1..<rules.get(Rules.kNumDestinationsToChooseFrom).int! {
+                destinations.append(board.generateDestination())
+            }
+            let kept = player.interface.pickInitialDestinations(destinations).map({ destinations[$0] })
+            player.destinations.append(contentsOf: kept)
+            player.interface.keptDestinations(kept)
+
+            turn += 1
+        }
+
         var pt: Int! = nil
         while turn < 1000 {
             for player in players {

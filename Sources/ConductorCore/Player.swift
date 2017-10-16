@@ -56,6 +56,7 @@ public protocol PlayerInterface {
     weak var player: Player! { get set }
 
     func startingGame()
+    func pickInitialDestinations(_ destinations: [Destination]) -> [Int]
     func startingTurn(_ turn: Int)
     func actionToTakeThisTurn(_ turn: Int) -> Action
     func drewCard(_ color: Color)

@@ -13,6 +13,12 @@ public class AI: PlayerInterface {
 
     public func startingGame() {}
 
+    public func pickInitialDestinations(_ destinations: [Destination]) -> [Int] {
+        let sorted = destinations.sorted(by: { $0.length < $1.length })
+        let index = destinations.index(where: { $0 == sorted[0] })!
+        return [index]
+    }
+
     public func startingTurn(_ turn: Int) {
         log.debug("=== \(String(describing: type(of: self))) Player \(player.game.players.index(of: player)!) " +
             "Starting Turn \(turn / player.game.players.count) ===")
@@ -55,10 +61,16 @@ public class AI: PlayerInterface {
         return rv
     }
 
-    public func playedTrack(_ track: Track) {}
+    public func playedTrack(_ track: Track) {
+        log.debug("Playing Track on \(track)")
+    }
 
-    public func keptDestinations(_ destinations: [Destination]) {}
+    public func keptDestinations(_ destinations: [Destination]) {
+        log.debug("Keeping: \(destinations.map({ "\($0)" }).joined(separator: ", "))")
+    }
 
-    public func drewCard(_ color: Color) {}
+    public func drewCard(_ color: Color) {
+        log.debug("Drew a \(color)")
+    }
 
 }

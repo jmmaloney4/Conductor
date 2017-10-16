@@ -24,15 +24,13 @@ if CommandLine.argc < 3 {
     print("Usage: \(CommandLine.arguments[0]) [rules.json] [map.json]")
     exit(1)
 }
+
 /*
 let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
 let board = try! Board(fromJSONFile: CommandLine.arguments[2])
 let game = Game(withRules: rules, board: board, andPlayers: CLI(), CLI())
 print(game.start())
 */
-
-let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
-let board = try! Board(fromJSONFile: CommandLine.arguments[2])
 
 func runSimulations(interfaces: [Interface], games: Int) -> [[Int]] {
     let group = DispatchGroup()
@@ -50,6 +48,8 @@ func runSimulations(interfaces: [Interface], games: Int) -> [[Int]] {
                 }
             }
 
+            let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
+            let board = try! Board(fromJSONFile: CommandLine.arguments[2])
             let game = Game(withRules: rules, board: board, andPlayers: players)
             let res = game.start()
             log.debug("\(res)")
@@ -111,7 +111,7 @@ for i in 1...6 {
     var interfaces: [Interface] = [.destination]
     interfaces.append(contentsOf: Array(repeating: .bigTrack, count: i))
 
-    var scores = runSimulations(interfaces: interfaces, games: 8)
+    var scores = runSimulations(interfaces: interfaces, games: 10)
 
     log.info(totalWins(scores))
     log.info(totalScores(scores))
