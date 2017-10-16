@@ -30,6 +30,10 @@ let board = try! Board(fromJSONFile: CommandLine.arguments[2])
 let game = Game(withRules: rules, board: board, andPlayers: CLI(), CLI())
 print(game.start())
 */
+
+let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
+let board = try! Board(fromJSONFile: CommandLine.arguments[2])
+
 func runSimulations(interfaces: [Interface], games: Int) -> [[Int]] {
     let group = DispatchGroup()
     var rv: [[Int]] = []
@@ -46,8 +50,6 @@ func runSimulations(interfaces: [Interface], games: Int) -> [[Int]] {
                 }
             }
 
-            let rules = try! Rules(fromJSONFile: CommandLine.arguments[1])
-            let board = try! Board(fromJSONFile: CommandLine.arguments[2])
             let game = Game(withRules: rules, board: board, andPlayers: players)
             let res = game.start()
             log.debug("\(res)")
@@ -57,7 +59,7 @@ func runSimulations(interfaces: [Interface], games: Int) -> [[Int]] {
             }
 
             rv.append(res)
-            log.info("Simulation \(i)/\(games): \(res)")
+            log.info("Simulation \(i+1)/\(games): \(res)")
 
             group.leave()
         }
@@ -84,7 +86,10 @@ func totalWins(_ scores: [[Int]]) -> [Int] {
     for game in scores {
         let sorted = game.sorted(by: { $0 > $1 })
         let winner = sorted[0]
-        rv[game.index(of: winner)!] += 1
+        // If theres a tie nobody wins
+        if game.filter({ $0 == winner }).count == 1 {
+            rv[game.index(of: winner)!] += 1
+        }
     }
     return rv
 }
@@ -106,7 +111,7 @@ for i in 1...6 {
     var interfaces: [Interface] = [.destination]
     interfaces.append(contentsOf: Array(repeating: .bigTrack, count: i))
 
-    var scores = runSimulations(interfaces: interfaces, games: 3)
+    var scores = runSimulations(interfaces: interfaces, games: 8)
 
     log.info(totalWins(scores))
     log.info(totalScores(scores))
