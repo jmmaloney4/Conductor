@@ -24,6 +24,7 @@ public class Board: CustomStringConvertible {
         }
         try self.init(fromData: data)
     }
+    
     public init(fromData data: Data) throws {
         let json = JSON(data: data)
 

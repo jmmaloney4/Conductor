@@ -65,10 +65,18 @@ public protocol PlayerInterface {
     func playedTrack(_ track: Track)
 }
 
-public enum PlayerKind {
+public enum PlayerKind: CustomStringConvertible {
     case cli
     case destinationAI
     case bigTrackAI
+
+    public var description: String {
+        switch self {
+        case .cli: return "CLI"
+        case .bigTrackAI: return "Big Track AI"
+        case .destinationAI: return "Destination AI"
+        }
+    }
 }
 
 // Mostly storage-only, game logic in the Game class

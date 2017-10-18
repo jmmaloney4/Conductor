@@ -23,7 +23,6 @@ public class Conductor {
     }
 }
 
-
 public enum ConductorError: Error {
     case invalidJSON
     case fileError(path: String)

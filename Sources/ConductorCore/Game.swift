@@ -24,8 +24,27 @@ public class Game: Hashable {
         return lhs.hashValue == rhs.hashValue
     }
 
-    public convenience init(withRules rules: Rules, board: Board) {
+    private convenience init(withRules rules: Rules, board: Board) {
         self.init(withRules: rules, board: board, andPlayers: [])
+    }
+
+    public convenience init(withRules rules: Rules, board: Board, andPlayerTypes players: PlayerKind...) {
+        self.init(withRules: rules, board: board, andPlayerTypes: players)
+    }
+
+    public convenience init(withRules rules: Rules, board: Board, andPlayerTypes players: [PlayerKind]) {
+        var interfaces: [PlayerInterface] = []
+        for i in players {
+            switch i {
+            case .bigTrackAI:
+                interfaces.append(BigTrackAI())
+            case .destinationAI:
+                interfaces.append(DestinationAI())
+            case .cli:
+                interfaces.append(CLI())
+            }
+        }
+        self.init(withRules: rules, board: board, andPlayers: interfaces)
     }
 
     public convenience init(withRules rules: Rules, board: Board, andPlayers players: PlayerInterface...) {
