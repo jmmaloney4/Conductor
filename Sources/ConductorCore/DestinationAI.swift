@@ -7,6 +7,10 @@
 import Foundation
 
 public class DestinationAI: AI {
+    public override var kind: PlayerKind {
+        return .destinationAI
+    }
+
     public override func pickInitialDestinations(_ destinations: [Destination]) -> [Int] {
         let sorted = destinations.sorted(by: { $0.length > $1.length })
         let index = destinations.index(where: { $0 == sorted[0] })!

@@ -8,6 +8,9 @@ import Foundation
 
 public class CLI: PlayerInterface {
     public weak var player: Player! = nil
+    public var kind: PlayerKind {
+        return .cli
+    }
 
     public init() {}
 

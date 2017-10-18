@@ -7,6 +7,10 @@
 import Foundation
 
 public class BigTrackAI: AI {
+    public override var kind: PlayerKind {
+        return .bigTrackAI
+    }
+
     public override func actionToTakeThisTurn(_ turn: Int) -> Action {
         log.verbose(turn)
 

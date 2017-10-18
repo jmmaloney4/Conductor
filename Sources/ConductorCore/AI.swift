@@ -8,6 +8,10 @@ import Foundation
 
 public class AI: PlayerInterface {
     public weak var player: Player!
+    public var kind: PlayerKind {
+        log.error("Abstract Class")
+        fatalError()
+    }
 
     public init() {}
 

@@ -54,6 +54,7 @@ public enum Action: CustomStringConvertible {
 
 public protocol PlayerInterface {
     weak var player: Player! { get set }
+    var kind: PlayerKind { get }
 
     func startingGame()
     func pickInitialDestinations(_ destinations: [Destination]) -> [Int]
@@ -62,6 +63,12 @@ public protocol PlayerInterface {
     func drewCard(_ color: Color)
     func keptDestinations(_ destinations: [Destination])
     func playedTrack(_ track: Track)
+}
+
+public enum PlayerKind {
+    case cli
+    case destinationAI
+    case bigTrackAI
 }
 
 // Mostly storage-only, game logic in the Game class
