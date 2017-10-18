@@ -51,6 +51,20 @@ public class Simulation {
         public func averagePoints() -> [Float] {
             return totalPoints().map({ Float($0) / Float(scores.count) })
         }
+
+        public func csv() -> String {
+            var rv = ""
+            for score in scores {
+                for (i, v) in score.enumerated() {
+                    if i != 0 {
+                        rv += ","
+                    }
+                    rv += "\(v)"
+                }
+                rv += "\n"
+            }
+            return rv
+        }
     }
 
     var rulesData: Data

@@ -95,7 +95,17 @@ if players.contains(.cli) {
     // Simulation
     let sim = try! Simulation(rules: rulesPath, board: boardPath, players: players)
     let res = sim.simulate(8)
-    print(res)
-    print(res.wins())
-    print(res.winrate())
+    //print(res)
+    //print(res.wins())
+    //print(res.winrate())
+    print(res.csv())
+
+    if outPath != nil {
+        do {
+            try res.csv().write(to: URL(fileURLWithPath: outPath!), atomically: true, encoding: .utf8)
+        }
+        catch {
+            log.error(error)
+        }
+    }
 }
