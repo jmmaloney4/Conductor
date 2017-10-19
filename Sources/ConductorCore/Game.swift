@@ -282,11 +282,7 @@ public class Game: Hashable {
     }
 
     func unownedTracks() -> [Track] {
-        var rv: [Track] = []
-        for track in board.getAllTracks() where isTrackUnowned(track) {
-            rv.append(track)
-        }
-        return rv
+        return board.getAllTracks().filter({ isTrackUnowned($0) })
     }
 
     func checkForMaxLocomotives() {

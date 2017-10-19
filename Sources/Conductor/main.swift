@@ -25,8 +25,10 @@ let helpOption = BoolOption(shortFlag: "h", longFlag: "help",
                       helpMessage: "Prints a help message.")
 let verbosityOption = CounterOption(shortFlag: "v", longFlag: "verbose",
                               helpMessage: "Print verbose messages. Specify multiple times to increase verbosity.")
+let syncOption = BoolOption(shortFlag: "s", longFlag: "sync",
+                            helpMessage: "Run the simulations sequentially.")
 
-cli.addOptions(rulesPathOption, boardPathOption, outPathOption, playerTypesOption, helpOption, verbosityOption)
+cli.addOptions(rulesPathOption, boardPathOption, outPathOption, playerTypesOption, helpOption, verbosityOption, syncOption)
 
 do {
     try cli.parse()
@@ -45,6 +47,9 @@ let boardPath = boardPathOption.value!
 let outPath = outPathOption.value // optional
 let playerTypes = playerTypesOption.value!
 let verbosity = verbosityOption.value
+let async = !syncOption.value
+print(syncOption.value)
+
 
 Conductor.InitLog()
 let log = SwiftyBeaver.self
@@ -67,6 +72,7 @@ default:
 log.info("rules: \(rulesPath)")
 log.info("board: \(boardPath)")
 log.info("output: \(outPath ?? "none")")
+log.info("Async: \(async)")
 
 var players: [PlayerKind] = []
 for c in playerTypes.characters {
@@ -89,12 +95,12 @@ if players.contains(.cli) {
     // Only run one game, not a simulation
     let rules = try! Rules(fromJSONFile: rulesPath)
     let board = try! Board(fromJSONFile: boardPath)
-    let game = Game(withRules: rules, board: board, andPlayers: CLI(), CLI())
+    let game = Game(withRules: rules, board: board, andPlayerTypes: players)
     print(game.start())
 } else {
     // Simulation
     let sim = try! Simulation(rules: rulesPath, board: boardPath, players: players)
-    let res = sim.simulate(8)
+    let res = sim.simulate(50, async: async)
     //print(res)
     //print(res.wins())
     //print(res.winrate())

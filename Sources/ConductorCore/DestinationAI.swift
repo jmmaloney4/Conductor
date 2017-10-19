@@ -27,8 +27,8 @@ public class DestinationAI: AI {
             break
         }
         if destination == nil {
-            return .getNewDestinations({ _ in
-                return [0]
+            return .getNewDestinations({ (dests: [Destination]) -> [Int] in
+                return self.pickBestDestination(dests: dests)
             })
         }
         log.verbose(destination)
@@ -70,5 +70,32 @@ public class DestinationAI: AI {
             log.verbose("Drawing")
             return nil
         })
+    }
+
+    func pickBestDestination(dests: [Destination]) -> [Int] {
+        let scores = dests.map({ (dest: Destination) -> Int in
+            guard let (route, _) = player.game.board.findShortesAvaliableRoute(between: dest.cities[0], and: dest.cities[1], to: player) else {
+                return Int.max
+            }
+
+            var rv: Int = 0
+
+            for (i, _) in route.enumerated() {
+                if i == 0 {
+                    continue
+                }
+
+                let tracks = player.game.board.tracksBetween(route[i-1], and: route[i]).filter({ !player.game.playerOwnsTrack(player, $0) })
+                if !tracks.isEmpty {
+                    rv += tracks[0].length
+                }
+            }
+
+            return rv
+        })
+
+        let best = dests[scores.index(of: scores.sorted(by: { $0 < $1 })[0])!]
+
+        return [dests.index(of: best)!]
     }
 }
