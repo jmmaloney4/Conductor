@@ -14,14 +14,17 @@ public class Rules {
     public static let kNumDestinationsToChooseFrom = "numDestinationsToChooseFrom"
     public static let kInitialTrains = "initialTrains"
     public static let kMinTrains = "minTrains"
+    public static let kUseRealDeck = "useRealDeck"
+    public static let kDeck = "deck"
 
-    public static let allKeys = [kStartingHandSize, kFaceUpCards, kMaxLocomotivesFaceUp, kNumDestinationsToChooseFrom, kInitialTrains, kMinTrains]
+    public static let allKeys = [kStartingHandSize, kFaceUpCards, kMaxLocomotivesFaceUp, kNumDestinationsToChooseFrom, kInitialTrains, kMinTrains, kUseRealDeck, kDeck]
 
     public enum Rule {
         case int(Int)
         case bool(Bool)
         case string(String)
         case double(Double)
+        case deck([Color:Int])
 
         var int: Int? {
             switch self {
@@ -50,6 +53,13 @@ public class Rules {
             default: return nil
             }
         }
+
+        var deck: [Color:Int]? {
+            switch self {
+            case .deck(let rv): return rv
+            default: return nil
+            }
+        }
     }
 
     var dictionary: [String:Rule] = [:]
@@ -74,6 +84,18 @@ public class Rules {
                 dictionary[key] = .string(string)
             } else if let double = subJson.double {
                 dictionary[key] = .double(double)
+            } else if key == Rules.kDeck {
+                guard let dict = subJson.dictionary else {
+                    log.error("Error Parsing Deck in Rules")
+                    fatalError()
+                }
+
+                var deck: [Color:Int] = [:]
+                for (key, value) in dict {
+                    deck[Color.colorForName(key)!] = value.int!
+                }
+
+                dictionary[key] = .deck(deck)
             } else {
                 throw ConductorError.invalidJSON
             }
@@ -84,7 +106,8 @@ public class Rules {
         if let rv = dictionary[key] {
             return rv
         } else {
-            fatalError("Rule \(key) not defined")
+            log.error("Rule \(key) not defined")
+            fatalError()
         }
     }
 
@@ -100,6 +123,8 @@ public class Rules {
                 dict[key] = string
             case .double(let double):
                 dict[key] = double
+            case .deck(let deck):
+                dict[key] = deck
             }
         }
         return JSON(dict)

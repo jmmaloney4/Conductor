@@ -18,6 +18,7 @@ public class Game: Hashable {
     // public var stations: [City:Player] = [:]
     var cards: [Color] = []
     var turn: Int = 0
+    var deck: [Color]?
 
     public var hashValue: Int { return ObjectIdentifier(self).hashValue }
     public static func == (lhs: Game, rhs: Game) -> Bool {
@@ -56,6 +57,18 @@ public class Game: Hashable {
         self.rng = Gust(seed: seed)
         self.rules = rules
         self.board = board
+
+        self.deck = []
+        deck.append(contentsOf: Array(repeating: .red, count: 12))
+        deck.append(contentsOf: Array(repeating: .blue, count: 12))
+        deck.append(contentsOf: Array(repeating: .black, count: 12))
+        deck.append(contentsOf: Array(repeating: .white, count: 12))
+        deck.append(contentsOf: Array(repeating: .orange, count: 12))
+        deck.append(contentsOf: Array(repeating: .yellow, count: 12))
+        deck.append(contentsOf: Array(repeating: .pink, count: 12))
+        deck.append(contentsOf: Array(repeating: .green, count: 12))
+        deck.append(contentsOf: Array(repeating: .locomotive, count: 14))
+
         self.players = []
         for player in players {
             let p = Player(withInterface: player, andGame: self)
@@ -335,10 +348,10 @@ public class Game: Hashable {
             }
             return false
         }
-
+        
         return fn(city)
     }
-
+    
     func playerDestinationPoints(_ player: Player) -> Int {
         var rv = 0
         for destination in player.destinations {

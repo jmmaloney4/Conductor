@@ -1,0 +1,70 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "CommandLine",
+        "repositoryURL": "https://github.com/jmmaloney4/CommandLine.git",
+        "state": {
+          "branch": null,
+          "revision": "f15b41a5f483a1573e032d924b12859fdbb45aa3",
+          "version": "3.0.2"
+        }
+      },
+      {
+        "package": "SigmaSwiftStatistics",
+        "repositoryURL": "https://github.com/evgenyneu/SigmaSwiftStatistics.git",
+        "state": {
+          "branch": null,
+          "revision": "f4ad79cd07bd03f7d3ec0ab74d085733f8242f41",
+          "version": "7.0.2"
+        }
+      },
+      {
+        "package": "Squall",
+        "repositoryURL": "https://github.com/jmmaloney4/Squall.git",
+        "state": {
+          "branch": null,
+          "revision": "c3ceb5f894a20951395a29fc68a5ba5f58183582",
+          "version": "1.2.3"
+        }
+      },
+      {
+        "package": "SwiftPriorityQueue",
+        "repositoryURL": "https://github.com/davecom/SwiftPriorityQueue.git",
+        "state": {
+          "branch": null,
+          "revision": "9b0576cef65af5102014fcf1299c48e645eccd26",
+          "version": "1.1.2"
+        }
+      },
+      {
+        "package": "SwiftyBeaver",
+        "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
+        "state": {
+          "branch": null,
+          "revision": "00a09e683f7706196ecdc430027aa880e4a3c3c7",
+          "version": "1.4.2"
+        }
+      },
+      {
+        "package": "SwiftyJSON",
+        "repositoryURL": "https://github.com/IBM-Swift/SwiftyJSON.git",
+        "state": {
+          "branch": null,
+          "revision": "4c57d4680e2b3d7be0e7c36737f99b6b36f09aac",
+          "version": "16.0.1"
+        }
+      },
+      {
+        "package": "Weak",
+        "repositoryURL": "https://github.com/jmmaloney4/Weak.git",
+        "state": {
+          "branch": null,
+          "revision": "8ee60b67166ba1f6d5ba621aba2c2d9ce7326afa",
+          "version": "0.0.5"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
