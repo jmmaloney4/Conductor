@@ -1,3 +1,4 @@
 .build/
 Conductor.xcodeproj
 Package.pins
+Package.resolved

@@ -15,7 +15,7 @@ let cli = CommandLineKit.CommandLine()
 
 let rulesPathOption = StringOption(shortFlag: "r", longFlag: "rules", required: true,
                             helpMessage: "Path to the rules file.")
-let boardPathOption = StringOption(shortFlag: "m", longFlag: "board", required: true,
+let boardPathOption = StringOption(shortFlag: "b", longFlag: "board", required: true,
                             helpMessage: "Path to the board file.")
 let outPathOption = StringOption(shortFlag: "o", longFlag: "out", required: false,
                             helpMessage: "Path to the output file.")
@@ -75,7 +75,7 @@ log.info("output: \(outPath ?? "none")")
 log.info("Async: \(async)")
 
 var players: [PlayerKind] = []
-for c in playerTypes.characters {
+for c in playerTypes {
     switch c {
     case "c":
         players.append(.cli)
@@ -101,9 +101,11 @@ if players.contains(.cli) {
     // Simulation
     let sim = try! Simulation(rules: rulesPath, board: boardPath, players: players)
     let res = sim.simulate(50, async: async)
-    //print(res)
-    //print(res.wins())
-    //print(res.winrate())
+    print(res)
+    print(res.wins())
+    print(res.winrate())
+    print(res.totalPoints())
+    print(res.averagePoints())
     print(res.csv())
 
     if outPath != nil {
