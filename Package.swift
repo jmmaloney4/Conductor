@@ -4,20 +4,24 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+// swift-tools-version:4.0
 import PackageDescription
 
 let package = Package(
     name: "Conductor",
-    targets: [ Target(name: "Conductor", dependencies: ["ConductorCore"])],
-    
+    products: [
+        .library(name: "ConductorCore", targets: ["ConductorCore"]),
+        .executable(name: "Conductor", targets: ["Conductor"])
+    ],
+    targets: [ .target(name: "Conductor", dependencies: ["ConductorCore"]), .target(name: "ConductorCore") ],
     dependencies: [
-        .Package(url: "https://github.com/jmmaloney4/Squall.git", "1.2.3"),
-        .Package(url: "https://github.com/davecom/SwiftPriorityQueue.git", "1.1.2"),
-        .Package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", "16.0.1"),
-        .Package(url: "https://github.com/jmmaloney4/Weak.git", "0.0.5"),
-        .Package(url: "https://github.com/jmmaloney4/CommandLine.git", "3.0.2"),
-        .Package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", majorVersion: 1),
-        .Package(url: "https://github.com/evgenyneu/SigmaSwiftStatistics.git", versions: Version(7,0,0)..<Version(8,0,0))
+        .package(url: "https://github.com/jmmaloney4/Squall.git", "1.3.0"),
+        .package(url: "https://github.com/davecom/SwiftPriorityQueue.git", "1.2.1"),
+        .package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", "17.0.0"),
+        .package(url: "https://github.com/jmmaloney4/Weak.git", "0.1.0"),
+        .package(url: "https://github.com/jmmaloney4/CommandLine.git", "3.1.0"),
+        .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", majorVersion: 1),
+        .package(url: "https://github.com/evgenyneu/SigmaSwiftStatistics.git", "7.0.2")
     ],
     exclude: ["Tests/Resources/"]
 )
