@@ -75,7 +75,7 @@ log.info("output: \(outPath ?? "none")")
 log.info("Async: \(async)")
 
 var players: [PlayerKind] = []
-for c in playerTypes.characters {
+for c in playerTypes {
     switch c {
     case "c":
         players.append(.cli)

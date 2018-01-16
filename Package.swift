@@ -1,3 +1,4 @@
+// swift-tools-version:4.0
 // Copyright © 2017 Jack Maloney. All Rights Reserved.
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -8,17 +9,23 @@ import PackageDescription
 
 let package = Package(
     name: "Conductor",
-    targets: [ Target(name: "Conductor", dependencies: ["ConductorCore"])],
-    
-    dependencies: [
-        .Package(url: "https://github.com/jmmaloney4/Squall.git", "1.2.3"),
-        .Package(url: "https://github.com/davecom/SwiftPriorityQueue.git", "1.1.2"),
-        .Package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", "16.0.1"),
-        .Package(url: "https://github.com/jmmaloney4/Weak.git", "0.0.5"),
-        .Package(url: "https://github.com/jmmaloney4/CommandLine.git", "3.0.2"),
-        .Package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", majorVersion: 1),
-        .Package(url: "https://github.com/evgenyneu/SigmaSwiftStatistics.git", versions: Version(7,0,0)..<Version(8,0,0))
+    products: [
+        .library(name: "ConductorCore", targets: ["ConductorCore"]),
+        .executable(name: "Conductor", targets: ["Conductor"])
     ],
-    exclude: ["Tests/Resources/"]
+    dependencies: [
+        .package(url: "https://github.com/jmmaloney4/CommandLine.git", from: "3.1.1"),
+        
+        .package(url: "https://github.com/jmmaloney4/Squall.git", from: "1.2.3"),
+        .package(url: "https://github.com/davecom/SwiftPriorityQueue.git", from: "1.1.2"),
+        .package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", from: "16.0.1"),
+        .package(url: "https://github.com/jmmaloney4/Weak.git", from: "0.0.5"),
+        .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", from: "1.5.1"),
+        .package(url: "https://github.com/evgenyneu/SigmaSwiftStatistics.git", from: "7.0.2")
+    ],
+    targets: [
+        .target(name: "Conductor", dependencies: ["ConductorCore", "CommandLineKit"]),
+        .target(name: "ConductorCore", dependencies: ["Squall", "SwiftPriorityQueue", "SwiftyJSON", "Weak", "SwiftyBeaver", "SigmaSwiftStatistics"])
+    ]
 )
 
