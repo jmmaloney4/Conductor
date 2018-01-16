@@ -75,10 +75,12 @@ public class Board: CustomStringConvertible {
             cityA.addTrack(track)
             cityB.addTrack(track)
         }
+        
+        log.info(self.json)
     }
 
     public var json: JSON {
-        var array: [[String:Any?]] = []
+        var array: [[String:Any]] = []
         for track in getAllTracks() {
             array.append(["endpoints": track.endpoints.map({ "\($0)" }),
                           "color": "\(track.color)",

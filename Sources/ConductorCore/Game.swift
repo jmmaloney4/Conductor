@@ -77,7 +77,7 @@ public class Game: Hashable {
             }
             self.players.append(p)
         }
-        // log.info("Rng Seed: \(seed)")
+        log.verbose("Rng Seed: \(seed)")
 
         self.board.game = self
 
