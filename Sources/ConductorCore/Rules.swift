@@ -62,7 +62,7 @@ public class Rules {
         }
     }
 
-    var dictionary: [String:Rule] = [:]
+    private var dictionary: [String:Rule] = [:]
 
     convenience public init(fromJSONFile path: String) throws {
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)) else {
@@ -71,7 +71,7 @@ public class Rules {
         try self.init(fromData: data)
     }
 
-    init(fromData data: Data) throws {
+    public init(fromData data: Data) throws {
         let json = JSON(data: data)
 
         for key in Rules.allKeys {
@@ -102,7 +102,7 @@ public class Rules {
         }
     }
 
-    func get(_ key: String) -> Rule {
+    public func get(_ key: String) -> Rule {
         if let rv = dictionary[key] {
             return rv
         } else {

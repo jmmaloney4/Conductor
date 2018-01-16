@@ -58,17 +58,21 @@ public class Game: Hashable {
         self.rules = rules
         self.board = board
 
+        let deckConfig = rules.get(Rules.kDeck)
+        
         self.deck = []
-        deck.append(contentsOf: Array(repeating: .red, count: 12))
-        deck.append(contentsOf: Array(repeating: .blue, count: 12))
-        deck.append(contentsOf: Array(repeating: .black, count: 12))
-        deck.append(contentsOf: Array(repeating: .white, count: 12))
-        deck.append(contentsOf: Array(repeating: .orange, count: 12))
-        deck.append(contentsOf: Array(repeating: .yellow, count: 12))
-        deck.append(contentsOf: Array(repeating: .pink, count: 12))
-        deck.append(contentsOf: Array(repeating: .green, count: 12))
-        deck.append(contentsOf: Array(repeating: .locomotive, count: 14))
+        deck!.append(contentsOf: Array(repeating: .red, count: deckConfig.deck![.red]!))
+        deck!.append(contentsOf: Array(repeating: .blue, count: deckConfig.deck![.blue]!))
+        deck!.append(contentsOf: Array(repeating: .black, count: deckConfig.deck![.black]!))
+        deck!.append(contentsOf: Array(repeating: .white, count: deckConfig.deck![.white]!))
+        deck!.append(contentsOf: Array(repeating: .orange, count: deckConfig.deck![.orange]!))
+        deck!.append(contentsOf: Array(repeating: .yellow, count: deckConfig.deck![.yellow]!))
+        deck!.append(contentsOf: Array(repeating: .pink, count: deckConfig.deck![.pink]!))
+        deck!.append(contentsOf: Array(repeating: .green, count: deckConfig.deck![.green]!))
+        deck!.append(contentsOf: Array(repeating: .locomotive, count: deckConfig.deck![.locomotive]!))
 
+        
+        
         self.players = []
         for player in players {
             let p = Player(withInterface: player, andGame: self)

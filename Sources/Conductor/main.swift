@@ -74,6 +74,9 @@ log.info("board: \(boardPath)")
 log.info("output: \(outPath ?? "none")")
 log.info("Async: \(async)")
 
+let rules = try! Rules(fromJSONFile: rulesPath)
+print(rules.get(Rules.kDeck))
+
 var players: [PlayerKind] = []
 for c in playerTypes {
     switch c {

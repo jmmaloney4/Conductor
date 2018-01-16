@@ -6,6 +6,7 @@
 
 import Foundation
 
+// Abstract AI Class
 public class AI: PlayerInterface {
     public weak var player: Player!
     public var kind: PlayerKind {
