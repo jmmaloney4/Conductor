@@ -1,13 +1,10 @@
-matrix:
-  include:
-    - os: linux
-      dist: trusty
-      sudo: required
-      language: cpp
-    - os: osx
-      osx_image: xcode9.2
-      language: objective-c
-      sudo: required
+os:
+  - linux
+  - osx
+language: generic
+sudo: required
+dist: trusty
+osx_image: xcode9.2
 
 install:
   - eval "$(curl -sL https://swiftenv.fuller.li/install.sh)"
