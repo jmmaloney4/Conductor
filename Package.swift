@@ -27,6 +27,7 @@ let package = Package(
     targets: [
         .target(name: "Conductor", dependencies: ["ConductorCore", "CommandLineKit"]),
         .target(name: "ConductorCore", dependencies: ["Squall", "SwiftPriorityQueue", "SwiftyJSON", "Weak", "SwiftyBeaver", "SigmaSwiftStatistics"])
-    ]
+    ],
+    swiftLanguageVersions: [4]
 )
 
