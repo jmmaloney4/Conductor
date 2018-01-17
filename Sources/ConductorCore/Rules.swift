@@ -7,7 +7,7 @@
 import Foundation
 import SwiftyJSON
 
-public class Rules {
+public struct Rules {
     public static let kStartingHandSize = "startingHandSize"
     public static let kFaceUpCards = "faceUpCards"
     public static let kMaxLocomotivesFaceUp = "maxLocomotivesFaceUp"
@@ -16,9 +16,11 @@ public class Rules {
     public static let kMinTrains = "minTrains"
     public static let kUseRealDeck = "useRealDeck"
     public static let kDeck = "deck"
-
+    
     public static let allKeys = [kStartingHandSize, kFaceUpCards, kMaxLocomotivesFaceUp, kNumDestinationsToChooseFrom, kInitialTrains, kMinTrains, kUseRealDeck, kDeck]
-
+}
+    /*
+    
     public enum Rule {
         case int(Int)
         case bool(Bool)
@@ -86,8 +88,9 @@ public class Rules {
                 dictionary[key] = .double(double)
             } else if key == Rules.kDeck {
                 guard let dict = subJson.dictionary else {
-                    log.error("Error Parsing Deck in Rules")
-                    fatalError()
+                    log.debug("Failed to parse deck from Rules JSON, using random deck.")
+                    dictionary[key] = nil
+                    continue;
                 }
 
                 var deck: [Color:Int] = [:]
@@ -129,5 +132,5 @@ public class Rules {
         }
         return JSON(dict)
     }
-    
-}
+ }
+    */

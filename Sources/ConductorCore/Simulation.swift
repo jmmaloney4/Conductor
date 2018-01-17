@@ -6,6 +6,7 @@
 
 import Foundation
 import Dispatch
+import SwiftyJSON
 
 public class Simulation {
 
@@ -73,17 +74,20 @@ public class Simulation {
     var outFile: String?
     var players: [PlayerKind]
 
-    public convenience init(rules: String, board: String, out: String? = nil, players: PlayerKind...) throws {
-        try self.init(rules: rules, board: board, out: out, players: players)
+    public convenience init(rules: String, board: String, out: String? = nil, players: PlayerKind...) {
+        self.init(rules: rules, board: board, out: out, players: players)
     }
 
-    public convenience init(rules: String, board: String, out: String? = nil, players: [PlayerKind]) throws {
-        guard let rulesDataTmp = try? Data(contentsOf: URL(fileURLWithPath: rules)) else {
-            throw ConductorError.fileError(path: rules)
+    public convenience init(rules: String, board: String, out: String? = nil, players: [PlayerKind]) {
+        guard let rulesDataTmp = try? loadDataFile(path: rules) else {
+            log.error("Couldn't load rules at \(rules)")
+            fatalError()
         }
+        print("\(JSON(rulesDataTmp).description)")
 
-        guard let boardDataTmp = try? Data(contentsOf: URL(fileURLWithPath: board)) else {
-            throw ConductorError.fileError(path: board)
+        guard let boardDataTmp = try? loadDataFile(path: board) else {
+            log.error("Couldn't load board at \(board)")
+            fatalError()
         }
 
         self.init(rulesData: rulesDataTmp, boardData: boardDataTmp, out: out, players: players)
@@ -101,7 +105,8 @@ public class Simulation {
         let group = DispatchGroup()
         for i in 0..<count {
             let fn = {
-                let rules = try! Rules(fromData: self.rulesData)
+                let rules = JSON(self.rulesData)
+                print("\(rules)")
                 let board = try! Board(fromData: self.boardData)
                 let game = Game(withRules: rules, board: board, andPlayerTypes: self.players)
                 let res = game.start()

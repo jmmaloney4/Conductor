@@ -75,8 +75,6 @@ public class Board: CustomStringConvertible {
             cityA.addTrack(track)
             cityB.addTrack(track)
         }
-        
-        log.info(self.json)
     }
 
     public var json: JSON {

@@ -144,7 +144,7 @@ public class Player: Hashable {
 
     func trainsLeft() -> Int {
         let trains = game.tracksOwnedBy(self).reduce(0, { $0 + $1.length })
-        return game.rules.get(Rules.kInitialTrains).int! - trains
+        return game.rules[Rules.kInitialTrains].int! - trains
     }
 
     func mostColorInHand() -> Color {

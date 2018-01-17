@@ -74,8 +74,10 @@ log.info("board: \(boardPath)")
 log.info("output: \(outPath ?? "none")")
 log.info("Async: \(async)")
 
-let rules = try! Rules(fromJSONFile: rulesPath)
-print(rules.get(Rules.kDeck))
+let data = try! loadDataFile(path: rulesPath)
+let rules = JSON(data)
+print(rules.description)
+print(String(data: data, encoding: .utf8)!)
 
 var players: [PlayerKind] = []
 for c in playerTypes {
@@ -96,7 +98,7 @@ log.info("players: \(players)")
 
 if players.contains(.cli) {
     // Only run one game, not a simulation
-    let rules = try! Rules(fromJSONFile: rulesPath)
+    let rules = try! loadJSONFile(path: rulesPath)
     let board = try! Board(fromJSONFile: boardPath)
     let game = Game(withRules: rules, board: board, andPlayerTypes: players)
     print(game.start())

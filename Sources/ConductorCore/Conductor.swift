@@ -9,6 +9,7 @@ import SwiftPriorityQueue
 import Weak
 import SwiftyBeaver
 import Squall
+import SwiftyJSON
 
 public let log = SwiftyBeaver.self
 public let globalRng = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
@@ -88,4 +89,20 @@ public enum Color: Int, CustomStringConvertible {
         case .locomotive: return "Locomotive"
         }
     }
+    
+    public var key: String {
+        return self.description
+    }
+}
+
+public func loadDataFile(path: String) throws -> Data {
+    guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)) else {
+        throw ConductorError.fileError(path: path)
+    }
+    print(String(data: data, encoding: .utf8)!)
+    return data
+}
+
+public func loadJSONFile(path: String) throws -> JSON {
+    return JSON(data: try loadDataFile(path: path))
 }
