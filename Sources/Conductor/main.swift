@@ -11,6 +11,10 @@ import CommandLineKit
 import SwiftyBeaver
 import Dispatch
 
+#if os(Linux)
+import Glibc
+#endif
+
 let cli = CommandLineKit.CommandLine()
 
 let rulesPathOption = StringOption(shortFlag: "r", longFlag: "rules", required: true,
