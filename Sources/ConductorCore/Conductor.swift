@@ -11,12 +11,12 @@ import SwiftyBeaver
 import Squall
 
 public let log = SwiftyBeaver.self
-public let GlobalRng = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
+public let globalRng = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
 
 public class Conductor {
     public static let console = ConsoleDestination()
 
-    public class func InitLog() {
+    public class func initLog() {
         console.asynchronously = false
         console.minLevel = log.Level.info
         log.addDestination(console)

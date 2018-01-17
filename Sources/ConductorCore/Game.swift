@@ -53,7 +53,7 @@ public class Game: Hashable {
     }
 
     public init(withRules rules: Rules, board: Board, andPlayers players: [PlayerInterface]) {
-        self.seed = UInt32(Date().timeIntervalSinceReferenceDate) + (GlobalRng.random() / 100000)
+        self.seed = UInt32(Date().timeIntervalSinceReferenceDate) + (globalRng.random() / 100000)
         self.rng = Gust(seed: seed)
         self.rules = rules
         self.board = board

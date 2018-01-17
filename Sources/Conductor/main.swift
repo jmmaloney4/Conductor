@@ -51,7 +51,7 @@ let async = !syncOption.value
 print(syncOption.value)
 
 
-Conductor.InitLog()
+Conductor.initLog()
 let log = SwiftyBeaver.self
 
 switch verbosity {
