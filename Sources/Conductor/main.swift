@@ -12,7 +12,7 @@ import SwiftyBeaver
 import Dispatch
 
 #if os(Linux)
-let EX_USAGE = 64
+let EX_USAGE: Int32 = 64
 #endif
 
 let cli = CommandLineKit.CommandLine()
