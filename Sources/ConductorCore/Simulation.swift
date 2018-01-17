@@ -110,12 +110,12 @@ public class Simulation {
                 let res = game.start()
                 log.debug("\(res)")
 
-                if res.count == 0 {
+                if res.isEmpty {
                     log.error("Game Failed")
                 }
 
                 rv.scores.append(res)
-                log.info("Simulation \(i+1)/\(count): \(res)")
+                log.info("Simulation \(i + 1)/\(count): \(res)")
                 if async {
                     group.leave()
                 }
@@ -132,5 +132,5 @@ public class Simulation {
         }
         return rv
     }
-    
+
 }

@@ -20,7 +20,6 @@ public class DestinationAI: AI {
     public override func actionToTakeThisTurn(_ turn: Int) -> Action {
         log.verbose(turn)
 
-        // var destination: Destination! = Destination(from: player.game.board.cityForName("Venezia")!, to: player.game.board.cityForName("Pamplona")!, length: 8)
         var destination: Destination! = nil
         for dest in player.destinations where !player.game.playerMeetsDestination(player, dest) {
             destination = dest
@@ -37,24 +36,22 @@ public class DestinationAI: AI {
             log.verbose("Route: \(route)")
 
             for i in 1..<route.count {
-                let tracks = player.game.board.tracksBetween(route[i-1], and: route[i])
-                for track in tracks {
-                    if player.game.trackIndex[track] == nil {
-                        if player.canAffordTrack(track) {
-                            return .playTrack({ (tracks: [Track]) -> (Int, Int?, Color?) in
-                                return (tracks.index(of:track)!, nil, nil)
-                            })
-                        } else {
-                            return .drawCards({ (colors: [Color]) -> Int? in
-                                let rv = AI.smartDraw(player: self.player, target: track, options: colors)
-                                if rv != nil {
-                                    log.verbose("Drawing \(colors[rv!])")
-                                } else {
-                                    log.verbose("Drawing Random")
-                                }
-                                return rv
-                            })
-                        }
+                let tracks = player.game.board.tracksBetween(route[i - 1], and: route[i])
+                for track in tracks where player.game.trackIndex[track] == nil {
+                    if player.canAffordTrack(track) {
+                        return .playTrack({ (tracks: [Track]) -> (Int, Int?, Color?) in
+                            return (tracks.index(of: track)!, nil, nil)
+                        })
+                    } else {
+                        return .drawCards({ (colors: [Color]) -> Int? in
+                            let rv = AI.smartDraw(player: self.player, target: track, options: colors)
+                            if rv != nil {
+                                log.verbose("Drawing \(colors[rv!])")
+                            } else {
+                                log.verbose("Drawing Random")
+                            }
+                            return rv
+                        })
                     }
                 }
             }
@@ -62,7 +59,7 @@ public class DestinationAI: AI {
 
         for track in player.game.unownedTracks() where player.canAffordTrack(track) {
             return .playTrack({ (tracks: [Track]) -> (Int, Int?, Color?) in
-                return (tracks.index(of:track)!, nil, nil)
+                return (tracks.index(of: track)!, nil, nil)
             })
         }
 
@@ -80,12 +77,12 @@ public class DestinationAI: AI {
 
             var rv: Int = 0
 
-            for (i, _) in route.enumerated() {
+            for i in route.indices {
                 if i == 0 {
                     continue
                 }
 
-                let tracks = player.game.board.tracksBetween(route[i-1], and: route[i]).filter({ !player.game.playerOwnsTrack(player, $0) })
+                let tracks = player.game.board.tracksBetween(route[i - 1], and: route[i]).filter({ !player.game.playerOwnsTrack(player, $0) })
                 if !tracks.isEmpty {
                     rv += tracks[0].length
                 }

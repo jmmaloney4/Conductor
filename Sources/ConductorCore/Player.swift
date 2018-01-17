@@ -83,7 +83,7 @@ public enum PlayerKind: CustomStringConvertible {
 public class Player: Hashable {
     weak var game: Game!
     var interface: PlayerInterface
-    var hand: [Color:Int] = [.red : 0, .blue : 0, .black : 0, .white : 0, .orange : 0, .yellow: 0, .pink : 0, .green : 0, .locomotive : 0]
+    var hand: [Color: Int] = [.red : 0, .blue : 0, .black : 0, .white : 0, .orange : 0, .yellow: 0, .pink : 0, .green : 0, .locomotive : 0]
     var destinations: [Destination] = []
 
     public var hashValue: Int { return ObjectIdentifier(self).hashValue }

@@ -1,5 +1,5 @@
 disabled_rules: # rule identifiers to exclude from running
-  - weak_delegate
+  - force_try
 opt_in_rules: # some rules are only opt-in
   - empty_count
   - explicit_type_interface
@@ -20,9 +20,7 @@ file_length:
   warning: 500
   error: 1200
 
-line_length: 120
-
-force_try: warning
+line_length: 150
 
 type_name:
   min_length: 3 # only warning
@@ -36,6 +34,6 @@ identifier_name:
   max_length:
     warning: 35
     error: 50
-  excluded: # excluded via string array
+  excluded: ["a", "b"]# excluded via string array
 
 reporter: "xcode"

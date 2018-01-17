@@ -12,23 +12,23 @@ import SwiftyBeaver
 import Dispatch
 
 #if os(Linux)
-let EX_USAGE = 64
+let EX_USAGE = 64 // swiftlint:disable:this identifier_name
 #endif
 
 let cli = CommandLineKit.CommandLine()
 
 let rulesPathOption = StringOption(shortFlag: "r", longFlag: "rules", required: true,
-                            helpMessage: "Path to the rules file.")
+                                   helpMessage: "Path to the rules file.")
 let boardPathOption = StringOption(shortFlag: "b", longFlag: "board", required: true,
-                            helpMessage: "Path to the board file.")
+                                   helpMessage: "Path to the board file.")
 let outPathOption = StringOption(shortFlag: "o", longFlag: "out", required: false,
-                            helpMessage: "Path to the output file.")
+                                 helpMessage: "Path to the output file.")
 let playerTypesOption = StringOption(shortFlag: "p", longFlag: "players", required: true,
-                            helpMessage: "Path to the output file.")
+                                     helpMessage: "Path to the output file.")
 let helpOption = BoolOption(shortFlag: "h", longFlag: "help",
-                      helpMessage: "Prints a help message.")
+                            helpMessage: "Prints a help message.")
 let verbosityOption = CounterOption(shortFlag: "v", longFlag: "verbose",
-                              helpMessage: "Print verbose messages. Specify multiple times to increase verbosity.")
+                                    helpMessage: "Print verbose messages. Specify multiple times to increase verbosity.")
 let syncOption = BoolOption(shortFlag: "s", longFlag: "sync",
                             helpMessage: "Run the simulations synchronously (will default to running asynchronously).")
 
@@ -53,7 +53,6 @@ let playerTypes = playerTypesOption.value!
 let verbosity = verbosityOption.value
 let async = !syncOption.value
 print(syncOption.value)
-
 
 Conductor.initLog()
 let log = SwiftyBeaver.self
@@ -117,8 +116,7 @@ if players.contains(.cli) {
     if outPath != nil {
         do {
             try res.csv().write(to: URL(fileURLWithPath: outPath!), atomically: true, encoding: .utf8)
-        }
-        catch {
+        } catch {
             log.error(error)
         }
     }
