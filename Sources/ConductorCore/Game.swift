@@ -58,8 +58,6 @@ public class Game: Hashable {
         self.rng = Gust(seed: seed)
         self.rules = rules
         self.board = board
-
-        print("Rules: \(rules.description)")
         
         let realDeck = rules[Rules.kUseRealDeck].bool!
         let deckConfig = rules[Rules.kDeck]

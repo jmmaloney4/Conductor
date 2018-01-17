@@ -99,7 +99,6 @@ public func loadDataFile(path: String) throws -> Data {
     guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)) else {
         throw ConductorError.fileError(path: path)
     }
-    print(String(data: data, encoding: .utf8)!)
     return data
 }
 

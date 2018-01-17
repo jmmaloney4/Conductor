@@ -83,7 +83,6 @@ public class Simulation {
             log.error("Couldn't load rules at \(rules)")
             fatalError()
         }
-        print("\(JSON(rulesDataTmp).description)")
 
         guard let boardDataTmp = try? loadDataFile(path: board) else {
             log.error("Couldn't load board at \(board)")
@@ -105,8 +104,7 @@ public class Simulation {
         let group = DispatchGroup()
         for i in 0..<count {
             let fn = {
-                let rules = JSON(self.rulesData)
-                print("\(rules)")
+                let rules = JSON(data: self.rulesData)
                 let board = try! Board(fromData: self.boardData)
                 let game = Game(withRules: rules, board: board, andPlayerTypes: self.players)
                 let res = game.start()

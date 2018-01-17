@@ -26,7 +26,7 @@ let helpOption = BoolOption(shortFlag: "h", longFlag: "help",
 let verbosityOption = CounterOption(shortFlag: "v", longFlag: "verbose",
                               helpMessage: "Print verbose messages. Specify multiple times to increase verbosity.")
 let syncOption = BoolOption(shortFlag: "s", longFlag: "sync",
-                            helpMessage: "Run the simulations sequentially.")
+                            helpMessage: "Run the simulations synchronously (will default to running asynchronously).")
 
 cli.addOptions(rulesPathOption, boardPathOption, outPathOption, playerTypesOption, helpOption, verbosityOption, syncOption)
 
@@ -69,15 +69,12 @@ default:
     log.info("Verbosity set to verbose")
 }
 
-log.info("rules: \(rulesPath)")
-log.info("board: \(boardPath)")
-log.info("output: \(outPath ?? "none")")
-log.info("Async: \(async)")
-
-let data = try! loadDataFile(path: rulesPath)
-let rules = JSON(data)
-print(rules.description)
-print(String(data: data, encoding: .utf8)!)
+log.info("Loading rules from \(rulesPath)")
+log.info("Rules: \(try! loadJSONFile(path: rulesPath).description)")
+log.info("Loading board from \(boardPath)")
+log.debug("Board: \(try! Board(fromJSONFile: boardPath))")
+log.info("Writing output to \(outPath ?? "none")")
+log.info("Running simulation asynchronously: \(async)")
 
 var players: [PlayerKind] = []
 for c in playerTypes {
@@ -104,7 +101,7 @@ if players.contains(.cli) {
     print(game.start())
 } else {
     // Simulation
-    let sim = try! Simulation(rules: rulesPath, board: boardPath, players: players)
+    let sim = Simulation(rules: rulesPath, board: boardPath, players: players)
     let res = sim.simulate(50, async: async)
     print(res)
     print(res.wins())
