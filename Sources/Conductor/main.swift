@@ -12,7 +12,7 @@ import SwiftyBeaver
 import Dispatch
 
 #if os(Linux)
-import Glibc
+let EX_USAGE = 64
 #endif
 
 let cli = CommandLineKit.CommandLine()
