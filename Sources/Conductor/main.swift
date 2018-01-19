@@ -12,7 +12,7 @@ import SwiftyBeaver
 import Dispatch
 
 #if os(Linux)
-let EX_USAGE = 64 // swiftlint:disable:this identifier_name
+let EX_USAGE: Int32 = 64 // swiftlint:disable:this identifier_name
 #endif
 
 let cli = CommandLineKit.CommandLine()
