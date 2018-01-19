@@ -106,16 +106,19 @@ if players.contains(.cli) {
     // Simulation
     let sim = Simulation(rules: rulesPath, board: boardPath, players: players)
     let res = sim.simulate(50, async: async)
+    /*
     print(res)
     print(res.wins())
     print(res.winrate())
     print(res.totalPoints())
     print(res.averagePoints())
     print(res.csv())
-
+     */
     if outPath != nil {
         do {
-            try res.csv().write(to: URL(fileURLWithPath: outPath!), atomically: true, encoding: .utf8)
+            let out = players.map { $0.description }.joined(separator: ",") + "\n" + res.csv()
+            print(out)
+            try out.write(to: URL(fileURLWithPath: outPath!), atomically: true, encoding: .utf8)
         } catch {
             log.error(error)
         }
