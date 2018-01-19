@@ -52,7 +52,6 @@ let outPath = outPathOption.value // optional
 let playerTypes = playerTypesOption.value!
 let verbosity = verbosityOption.value
 let async = !syncOption.value
-print(syncOption.value)
 
 Conductor.initLog()
 let log = SwiftyBeaver.self
