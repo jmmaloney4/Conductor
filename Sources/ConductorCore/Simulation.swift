@@ -18,6 +18,10 @@ public class Simulation {
             return "\(scores)"
         }
 
+        public var count: Int {
+            return scores.count
+        }
+
         init(sim: Simulation) {
             self.sim = sim
             self.scores = []

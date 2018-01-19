@@ -105,6 +105,21 @@ if players.contains(.cli) {
     // Simulation
     let sim = Simulation(rules: rulesPath, board: boardPath, players: players)
     let res = sim.simulate(50, async: async)
+
+    if outPath != nil {
+        do {
+            let out = players.map { $0.description }.joined(separator: ",") + "\n" + res.csv()
+            try out.write(to: URL(fileURLWithPath: outPath!), atomically: true, encoding: .utf8)
+            log.info("Wrote result of \(res.count) simulations to \(outPath!)")
+        } catch {
+            log.error(error)
+        }
+    }
+
+
+    log.info("Average Points: [\(players.enumerated().map({ i, player in return (player, res.averagePoints()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
+    log.info("Winrate: [\(players.enumerated().map({ i, player in return (player, res.winrate()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
+
     /*
     print(res)
     print(res.wins())
@@ -113,13 +128,5 @@ if players.contains(.cli) {
     print(res.averagePoints())
     print(res.csv())
      */
-    if outPath != nil {
-        do {
-            let out = players.map { $0.description }.joined(separator: ",") + "\n" + res.csv()
-            print(out)
-            try out.write(to: URL(fileURLWithPath: outPath!), atomically: true, encoding: .utf8)
-        } catch {
-            log.error(error)
-        }
-    }
+
 }
