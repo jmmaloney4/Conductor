@@ -23,8 +23,12 @@ let boardPathOption = StringOption(shortFlag: "b", longFlag: "board", required: 
                                    helpMessage: "Path to the board file.")
 let outPathOption = StringOption(shortFlag: "o", longFlag: "out", required: false,
                                  helpMessage: "Path to the output file.")
+let logPathOption = StringOption(shortFlag: "l", longFlag: "log", required: false,
+                                 helpMessage: "Path to the log file.")
+let configPathOption = StringOption(shortFlag: "c", longFlag: "config", required: false,
+                                    helpMessage: "Path to the simulation configuration file.")
 let playerTypesOption = StringOption(shortFlag: "p", longFlag: "players", required: true,
-                                     helpMessage: "Path to the output file.")
+                                     helpMessage: "The type of players that will be used.")
 let helpOption = BoolOption(shortFlag: "h", longFlag: "help",
                             helpMessage: "Prints a help message.")
 let verbosityOption = CounterOption(shortFlag: "v", longFlag: "verbose",
@@ -32,7 +36,8 @@ let verbosityOption = CounterOption(shortFlag: "v", longFlag: "verbose",
 let syncOption = BoolOption(shortFlag: "s", longFlag: "sync",
                             helpMessage: "Run the simulations synchronously (will default to running asynchronously).")
 
-cli.addOptions(rulesPathOption, boardPathOption, outPathOption, playerTypesOption, helpOption, verbosityOption, syncOption)
+cli.addOptions(rulesPathOption, boardPathOption, outPathOption, logPathOption,
+               configPathOption, playerTypesOption, helpOption, verbosityOption, syncOption)
 
 do {
     try cli.parse()
@@ -49,12 +54,17 @@ if helpOption.wasSet {
 let rulesPath = rulesPathOption.value!
 let boardPath = boardPathOption.value!
 let outPath = outPathOption.value // optional
+let logPath = logPathOption.value // optional
+let configPath = configPathOption.value // optional
 let playerTypes = playerTypesOption.value!
 let verbosity = verbosityOption.value
 let async = !syncOption.value
 
 Conductor.initLog()
-let log = SwiftyBeaver.self
+if logPath != nil {
+    Conductor.addLogFile(path: logPath!)
+}
+log.info("Logging to \(logPath ?? "none")")
 
 switch verbosity {
 case 0:
@@ -75,23 +85,13 @@ log.info("Loading rules from \(rulesPath)")
 log.info("Rules: \(try! loadJSONFile(path: rulesPath).description)")
 log.info("Loading board from \(boardPath)")
 log.debug("Board: \(try! Board(fromJSONFile: boardPath))")
+if outPath != nil {
+    try! FileManager.default.createDirectory(at: URL(fileURLWithPath: outPath!), withIntermediateDirectories: true, attributes: nil)
+}
 log.info("Writing output to \(outPath ?? "none")")
 log.info("Running simulation asynchronously: \(async)")
 
-var players: [PlayerKind] = []
-for c in playerTypes {
-    switch c {
-    case "c":
-        players.append(.cli)
-    case "b":
-        players.append(.bigTrackAI)
-    case "d":
-        players.append(.destinationAI)
-    default:
-        log.error("\(c) does not corrispond to a type of player")
-        fatalError()
-    }
-}
+var players: [PlayerKind] = playerStringToPlayerKind(playerTypes)
 
 log.info("players: \(players)")
 
@@ -103,8 +103,35 @@ if players.contains(.cli) {
     print(game.start())
 } else {
     // Simulation
+    if configPath != nil {
+        let config = try! loadJSONFile(path: configPath!)
+
+        let simulations = config["simulations"].int!
+        log.info("running \(simulations) simulations")
+
+        let playerKinds = config["players"].array!.map({ return $0.string! }).map({ return playerStringToPlayerKind($0) })
+        for (i, players) in playerKinds.enumerated() {
+            let sim = Simulation(rules: rulesPath, board: boardPath, players: players)
+            let res = sim.simulate(simulations, async: async)
+
+            if outPath != nil {
+                do {
+                    let out = players.map { $0.description }.joined(separator: ",") + "\n" + res.csv()
+                    log.warning(outPath! + "/\(i).csv")
+                    try out.write(to: URL(fileURLWithPath: outPath! + "/\(i).csv"), atomically: true, encoding: .utf8)
+                    log.info("Wrote result of \(res.count) simulations to \(outPath!)")
+                } catch {
+                    log.error(error)
+                }
+            }
+
+            log.info("Average Points: [\(players.enumerated().map({ i, player in return (player, res.averagePoints()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
+            log.info("Winrate: [\(players.enumerated().map({ i, player in return (player, res.winrate()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
+        }
+    }
+/*
     let sim = Simulation(rules: rulesPath, board: boardPath, players: players)
-    let res = sim.simulate(50, async: async)
+    let res = sim.simulate(10, async: async)
 
     if outPath != nil {
         do {
@@ -119,7 +146,7 @@ if players.contains(.cli) {
 
     log.info("Average Points: [\(players.enumerated().map({ i, player in return (player, res.averagePoints()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
     log.info("Winrate: [\(players.enumerated().map({ i, player in return (player, res.winrate()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
-
+*/
     /*
     print(res)
     print(res.wins())

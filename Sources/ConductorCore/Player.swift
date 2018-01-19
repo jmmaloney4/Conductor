@@ -79,6 +79,24 @@ public enum PlayerKind: CustomStringConvertible {
     }
 }
 
+public func playerStringToPlayerKind(_ string: String) -> [PlayerKind] {
+    var players: [PlayerKind] = []
+    for c in string {
+        switch c {
+        case "c":
+            players.append(.cli)
+        case "b":
+            players.append(.bigTrackAI)
+        case "d":
+            players.append(.destinationAI)
+        default:
+            log.error("\(c) does not corrispond to a type of player")
+            fatalError()
+        }
+    }
+    return players
+}
+
 // Mostly storage-only, game logic in the Game class
 public class Player: Hashable {
     weak var game: Game!

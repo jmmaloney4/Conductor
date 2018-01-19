@@ -1,0 +1,7 @@
+{
+	"simulations": 5,
+	"players": ["bd", "bdd", "bddd", "bdddd", "dbb", "dbbb", "dbbbb"],
+	"rules": {
+		"useRealDeck": [true, false]
+	}
+}

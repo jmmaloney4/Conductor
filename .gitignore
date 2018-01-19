@@ -4,3 +4,5 @@ Package.pins
 Package.resolved
 results.csv
 res
+*.log
+results/

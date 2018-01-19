@@ -16,11 +16,21 @@ public let globalRng = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
 
 public class Conductor {
     public static let console: ConsoleDestination = ConsoleDestination()
+    public static var logFiles: [FileDestination] = []
 
     public class func initLog() {
         console.asynchronously = false
-        console.minLevel = log.Level.info
+        console.minLevel = .info
         log.addDestination(console)
+    }
+
+    public class func addLogFile(path: String) {
+        let dest = FileDestination()
+        dest.asynchronously = false
+        dest.logFileURL = URL(fileURLWithPath: path)
+        dest.minLevel = .verbose
+        logFiles.append(dest)
+        log.addDestination(dest)
     }
 }
 
