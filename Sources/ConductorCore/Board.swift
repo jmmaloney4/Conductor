@@ -24,7 +24,7 @@ public class Board: CustomStringConvertible {
         }
         try self.init(fromData: data)
     }
-    
+
     public init(fromData data: Data) throws {
         let json = JSON(data: data)
 
@@ -75,12 +75,10 @@ public class Board: CustomStringConvertible {
             cityA.addTrack(track)
             cityB.addTrack(track)
         }
-        
-        log.info(self.json)
     }
 
     public var json: JSON {
-        var array: [[String:Any]] = []
+        var array: [[String: Any]] = []
         for track in getAllTracks() {
             array.append(["endpoints": track.endpoints.map({ "\($0)" }),
                           "color": "\(track.color)",
@@ -160,6 +158,7 @@ public class Board: CustomStringConvertible {
         return findShortestRoute(between: cityA, and: cityB, search: .owned(player))
     }
 
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
     func findShortestRoute(between cityA: City, and cityB: City, search: DijkstraSearchType) -> ([City], Int)? {
 
         var queue: PriorityQueue<DijkstraNode> = PriorityQueue<DijkstraNode>(ascending: true)
@@ -185,7 +184,7 @@ public class Board: CustomStringConvertible {
                     for track in tracks {
                         switch search {
                         case .all:
-                            break;
+                            break
                         case .unowned:
                             if game.trackIndex[track] == nil {
                                 break
@@ -251,11 +250,11 @@ public class Board: CustomStringConvertible {
 
     func depthFirstSearch(player: Player, city: City, prev: City?) -> ([City], Int)? {
         var tracks = city.tracks
-        tracks.sort { (a, b) -> Bool in
+        tracks.sort { a, b -> Bool in
             return a.length < b.length
         }
         for track in tracks where prev == nil || !track.connectsToCity(prev!) {
-            
+
         }
         return nil
     }
@@ -289,7 +288,7 @@ public class Board: CustomStringConvertible {
     }
 }
 
-public struct Destination: CustomStringConvertible, Equatable {
+public struct Destination: CustomStringConvertible, Hashable {
     var cities: [City]
     var length: Int
 
@@ -302,7 +301,11 @@ public struct Destination: CustomStringConvertible, Equatable {
         self.length = length
     }
 
-    public static func ==(lhs: Destination, rhs: Destination) -> Bool {
+    public var hashValue: Int {
+        return (cities[0].name + cities[1].name).hashValue
+    }
+
+    public static func == (lhs: Destination, rhs: Destination) -> Bool {
         return lhs.cities[0] == rhs.cities[0] && lhs.cities[1] == rhs.cities[1]
     }
 }

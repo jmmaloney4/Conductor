@@ -14,7 +14,8 @@ public class BigTrackAI: AI {
     public override func actionToTakeThisTurn(_ turn: Int) -> Action {
         log.verbose(turn)
 
-        var tracksSorted = player.game.unownedTracks().filter({ $0.length <= player.trainsLeft() }).sorted(by: { (a: Track, b: Track) -> Bool in
+        var tracksSorted = player.game.unownedTracks().filter({ $0.length <= player.trainsLeft() })
+            .sorted(by: { (a: Track, b: Track) -> Bool in
             a.length > b.length
         })
         if !tracksSorted.isEmpty && player.canAffordTrack(tracksSorted[0]) {

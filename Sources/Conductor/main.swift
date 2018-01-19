@@ -12,25 +12,25 @@ import SwiftyBeaver
 import Dispatch
 
 #if os(Linux)
-let EX_USAGE: Int32 = 64
+let EX_USAGE: Int32 = 64 // swiftlint:disable:this identifier_name
 #endif
 
 let cli = CommandLineKit.CommandLine()
 
 let rulesPathOption = StringOption(shortFlag: "r", longFlag: "rules", required: true,
-                            helpMessage: "Path to the rules file.")
+                                   helpMessage: "Path to the rules file.")
 let boardPathOption = StringOption(shortFlag: "b", longFlag: "board", required: true,
-                            helpMessage: "Path to the board file.")
+                                   helpMessage: "Path to the board file.")
 let outPathOption = StringOption(shortFlag: "o", longFlag: "out", required: false,
-                            helpMessage: "Path to the output file.")
+                                 helpMessage: "Path to the output file.")
 let playerTypesOption = StringOption(shortFlag: "p", longFlag: "players", required: true,
-                            helpMessage: "Path to the output file.")
+                                     helpMessage: "Path to the output file.")
 let helpOption = BoolOption(shortFlag: "h", longFlag: "help",
-                      helpMessage: "Prints a help message.")
+                            helpMessage: "Prints a help message.")
 let verbosityOption = CounterOption(shortFlag: "v", longFlag: "verbose",
-                              helpMessage: "Print verbose messages. Specify multiple times to increase verbosity.")
+                                    helpMessage: "Print verbose messages. Specify multiple times to increase verbosity.")
 let syncOption = BoolOption(shortFlag: "s", longFlag: "sync",
-                            helpMessage: "Run the simulations sequentially.")
+                            helpMessage: "Run the simulations synchronously (will default to running asynchronously).")
 
 cli.addOptions(rulesPathOption, boardPathOption, outPathOption, playerTypesOption, helpOption, verbosityOption, syncOption)
 
@@ -54,8 +54,7 @@ let verbosity = verbosityOption.value
 let async = !syncOption.value
 print(syncOption.value)
 
-
-Conductor.InitLog()
+Conductor.initLog()
 let log = SwiftyBeaver.self
 
 switch verbosity {
@@ -73,10 +72,12 @@ default:
     log.info("Verbosity set to verbose")
 }
 
-log.info("rules: \(rulesPath)")
-log.info("board: \(boardPath)")
-log.info("output: \(outPath ?? "none")")
-log.info("Async: \(async)")
+log.info("Loading rules from \(rulesPath)")
+log.info("Rules: \(try! loadJSONFile(path: rulesPath).description)")
+log.info("Loading board from \(boardPath)")
+log.debug("Board: \(try! Board(fromJSONFile: boardPath))")
+log.info("Writing output to \(outPath ?? "none")")
+log.info("Running simulation asynchronously: \(async)")
 
 var players: [PlayerKind] = []
 for c in playerTypes {
@@ -97,26 +98,28 @@ log.info("players: \(players)")
 
 if players.contains(.cli) {
     // Only run one game, not a simulation
-    let rules = try! Rules(fromJSONFile: rulesPath)
+    let rules = try! loadJSONFile(path: rulesPath)
     let board = try! Board(fromJSONFile: boardPath)
     let game = Game(withRules: rules, board: board, andPlayerTypes: players)
     print(game.start())
 } else {
     // Simulation
-    let sim = try! Simulation(rules: rulesPath, board: boardPath, players: players)
+    let sim = Simulation(rules: rulesPath, board: boardPath, players: players)
     let res = sim.simulate(50, async: async)
+    /*
     print(res)
     print(res.wins())
     print(res.winrate())
     print(res.totalPoints())
     print(res.averagePoints())
     print(res.csv())
-
+     */
     if outPath != nil {
         do {
-            try res.csv().write(to: URL(fileURLWithPath: outPath!), atomically: true, encoding: .utf8)
-        }
-        catch {
+            let out = players.map { $0.description }.joined(separator: ",") + "\n" + res.csv()
+            print(out)
+            try out.write(to: URL(fileURLWithPath: outPath!), atomically: true, encoding: .utf8)
+        } catch {
             log.error(error)
         }
     }

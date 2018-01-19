@@ -83,7 +83,7 @@ public enum PlayerKind: CustomStringConvertible {
 public class Player: Hashable {
     weak var game: Game!
     var interface: PlayerInterface
-    var hand: [Color:Int] = [.red : 0, .blue : 0, .black : 0, .white : 0, .orange : 0, .yellow: 0, .pink : 0, .green : 0, .locomotive : 0]
+    var hand: [Color: Int] = [.red: 0, .blue: 0, .black: 0, .white: 0, .orange: 0, .yellow: 0, .pink: 0, .green: 0, .locomotive: 0]
     var destinations: [Destination] = []
 
     public var hashValue: Int { return ObjectIdentifier(self).hashValue }
@@ -116,6 +116,10 @@ public class Player: Hashable {
 
     func spendCards(_ color: Color, cost: Int) {
         hand[color]! -= cost
+        if game.deck != nil {
+            log.debug("Spent \(cost) \(color) cards, adding them back into the deck")
+            game.deck!.append(contentsOf: Array(repeating: color, count: cost))
+        }
     }
 
     func canAffordCost(_ cost: Int, color: Color) -> Bool {
@@ -144,14 +148,14 @@ public class Player: Hashable {
 
     func trainsLeft() -> Int {
         let trains = game.tracksOwnedBy(self).reduce(0, { $0 + $1.length })
-        return game.rules.get(Rules.kInitialTrains).int! - trains
+        return game.rules[Rules.kInitialTrains].int! - trains
     }
 
     func mostColorInHand() -> Color {
         var most: Color = .red
         var mc: Int = 0
         for (color, i) in hand where color != .locomotive {
-            if mc < i {
+            if mc < i { // swiftlint:disable:this for_where
                 most = color
                 mc = i
             }

@@ -6,6 +6,8 @@
 
 import Foundation
 
+// Abstract AI Class
+// swiftlint:disable:next type_name
 public class AI: PlayerInterface {
     public weak var player: Player!
     public var kind: PlayerKind {
@@ -26,7 +28,8 @@ public class AI: PlayerInterface {
     public func startingTurn(_ turn: Int) {
         log.debug("=== \(String(describing: type(of: self))) Player \(player.game.players.index(of: player)!) " +
             "Starting Turn \(turn / player.game.players.count) ===")
-        log.debug("Active Destinations: \(player.destinations) \(player.destinations.map({ player.game.playerMeetsDestination(player, $0) }))")
+        log.debug("Active Destinations: " +
+            "\(player.destinations.reduce(into: [Destination: Bool]()) { $0[$1] = player.game.playerMeetsDestination(player, $1) })")
         log.debug("Hand: \(player.hand)")
 
         for p in player.game.players {
@@ -52,7 +55,7 @@ public class AI: PlayerInterface {
         }
     }
 
-    class func playCards(cost: Int, color: Color, hand: [Color:Int], player: Player) -> [Color] {
+    class func playCards(cost: Int, color: Color, hand: [Color: Int], player: Player) -> [Color] {
         var rv: [Color] = []
         let loc = hand[.locomotive]!
         rv.append(contentsOf: Array(repeating: .locomotive, count: loc))

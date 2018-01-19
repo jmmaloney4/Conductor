@@ -9,14 +9,15 @@ import SwiftPriorityQueue
 import Weak
 import SwiftyBeaver
 import Squall
+import SwiftyJSON
 
 public let log = SwiftyBeaver.self
-public let GlobalRng = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
+public let globalRng = Gust(seed: UInt32(Date().timeIntervalSinceReferenceDate))
 
 public class Conductor {
-    public static let console = ConsoleDestination()
+    public static let console: ConsoleDestination = ConsoleDestination()
 
-    public class func InitLog() {
+    public class func initLog() {
         console.asynchronously = false
         console.minLevel = log.Level.info
         log.addDestination(console)
@@ -58,6 +59,7 @@ public enum Color: Int, CustomStringConvertible {
         }
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     static func colorForName(_ name: String) -> Color? {
         switch name {
         case Color.red.description: return .red
@@ -88,4 +90,19 @@ public enum Color: Int, CustomStringConvertible {
         case .locomotive: return "Locomotive"
         }
     }
+
+    public var key: String {
+        return self.description
+    }
+}
+
+public func loadDataFile(path: String) throws -> Data {
+    guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)) else {
+        throw ConductorError.fileError(path: path)
+    }
+    return data
+}
+
+public func loadJSONFile(path: String) throws -> JSON {
+    return JSON(data: try loadDataFile(path: path))
 }

@@ -6,33 +6,36 @@
 
 import Foundation
 import Squall
+import SwiftyJSON
 
 public class Game: Hashable {
-    var rules: Rules
+    var rules: JSON
     public var players: [Player]
     var started: Bool = false
     var board: Board
     var rng: Gust
     var seed: UInt32
-    public var trackIndex: [Track:Player] = [:]
+    public var trackIndex: [Track: Player] = [:]
     // public var stations: [City:Player] = [:]
     var cards: [Color] = []
     var turn: Int = 0
+    var deck: [Color]?
+    var probabilities: [Double]?
 
     public var hashValue: Int { return ObjectIdentifier(self).hashValue }
     public static func == (lhs: Game, rhs: Game) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
 
-    private convenience init(withRules rules: Rules, board: Board) {
+    private convenience init(withRules rules: JSON, board: Board) {
         self.init(withRules: rules, board: board, andPlayers: [])
     }
 
-    public convenience init(withRules rules: Rules, board: Board, andPlayerTypes players: PlayerKind...) {
+    public convenience init(withRules rules: JSON, board: Board, andPlayerTypes players: PlayerKind...) {
         self.init(withRules: rules, board: board, andPlayerTypes: players)
     }
 
-    public convenience init(withRules rules: Rules, board: Board, andPlayerTypes players: [PlayerKind]) {
+    public convenience init(withRules rules: JSON, board: Board, andPlayerTypes players: [PlayerKind]) {
         var interfaces: [PlayerInterface] = []
         for i in players {
             switch i {
@@ -47,19 +50,52 @@ public class Game: Hashable {
         self.init(withRules: rules, board: board, andPlayers: interfaces)
     }
 
-    public convenience init(withRules rules: Rules, board: Board, andPlayers players: PlayerInterface...) {
+    public convenience init(withRules rules: JSON, board: Board, andPlayers players: PlayerInterface...) {
         self.init(withRules: rules, board: board, andPlayers: players)
     }
 
-    public init(withRules rules: Rules, board: Board, andPlayers players: [PlayerInterface]) {
-        self.seed = UInt32(Date().timeIntervalSinceReferenceDate) + (GlobalRng.random() / 100000)
+    public init(withRules rules: JSON, board: Board, andPlayers players: [PlayerInterface]) {
+        self.seed = UInt32(Date().timeIntervalSinceReferenceDate) + (globalRng.random() / 100000)
         self.rng = Gust(seed: seed)
         self.rules = rules
         self.board = board
+
+        let realDeck = rules[Rules.kUseRealDeck].bool!
+        let deckConfig = rules[Rules.kDeck]
+
+        self.deck = []
+        deck!.append(contentsOf: Array(repeating: .red, count: deckConfig[Color.red.key].int!))
+        deck!.append(contentsOf: Array(repeating: .blue, count: deckConfig[Color.red.key].int!))
+        deck!.append(contentsOf: Array(repeating: .black, count: deckConfig[Color.red.key].int!))
+        deck!.append(contentsOf: Array(repeating: .white, count: deckConfig[Color.red.key].int!))
+        deck!.append(contentsOf: Array(repeating: .orange, count: deckConfig[Color.red.key].int!))
+        deck!.append(contentsOf: Array(repeating: .yellow, count: deckConfig[Color.red.key].int!))
+        deck!.append(contentsOf: Array(repeating: .pink, count: deckConfig[Color.red.key].int!))
+        deck!.append(contentsOf: Array(repeating: .green, count: deckConfig[Color.red.key].int!))
+        deck!.append(contentsOf: Array(repeating: .locomotive, count: deckConfig[Color.red.key].int!))
+
+        // Use random deck instead
+        if !realDeck {
+            let total = deck!.count
+            probabilities = [
+                Double(deckConfig[Color.red.key].int!) / Double(total),
+                Double(deckConfig[Color.red.key].int!) / Double(total),
+                Double(deckConfig[Color.red.key].int!) / Double(total),
+                Double(deckConfig[Color.red.key].int!) / Double(total),
+                Double(deckConfig[Color.red.key].int!) / Double(total),
+                Double(deckConfig[Color.red.key].int!) / Double(total),
+                Double(deckConfig[Color.red.key].int!) / Double(total),
+                Double(deckConfig[Color.red.key].int!) / Double(total),
+
+                Double(deckConfig[Color.red.key].int!) / Double(total)
+            ]
+            deck = nil
+        }
+
         self.players = []
         for player in players {
             let p = Player(withInterface: player, andGame: self)
-            for _ in 0..<rules.get(Rules.kStartingHandSize).int! {
+            for _ in 0..<rules[Rules.kStartingHandSize].int! {
                 p.addCardToHand(draw())
             }
             self.players.append(p)
@@ -68,7 +104,7 @@ public class Game: Hashable {
 
         self.board.game = self
 
-        for _ in 0..<rules.get(Rules.kFaceUpCards).int! {
+        for _ in 0..<rules[Rules.kFaceUpCards].int! {
             cards.append(draw())
         }
     }
@@ -78,31 +114,34 @@ public class Game: Hashable {
     // (12 * 8) + 14 = 110
     // 12 / 110 =
     func draw() -> Color {
-        let probabilities: [Double] = [
-            Double(12) / Double(110),
-            Double(12) / Double(110),
-            Double(12) / Double(110),
-            Double(12) / Double(110),
-            Double(12) / Double(110),
-            Double(12) / Double(110),
-            Double(12) / Double(110),
-            Double(12) / Double(110),
 
-            Double(14) / Double(110)
-        ]
-
-        let rngout: UInt64 = rng.random()
-        let rand = Double(rngout) / Double(UInt64.max)
-        var accum = 0.0
-        for (i, prob) in probabilities.enumerated() {
-            accum += prob
-            if rand < accum {
-                return Color.colorForIndex(i)!
+        if deck != nil {
+            // Real deck
+            if deck!.isEmpty {
+                log.error("Ran out of cards!")
+                fatalError()
+            } else {
+                let rngout: UInt64 = rng.random()
+                let rv = deck!.remove(at: Int(rngout % UInt64(deck!.count)))
+                log.verbose("Drew a \(rv), \(deck!.count) cards left in deck")
+                return rv
             }
-        }
+        } else {
+            let rngout: UInt64 = rng.random()
+            let rand = Double(rngout) / Double(UInt64.max)
+            var accum = 0.0
+            for (i, prob) in probabilities!.enumerated() {
+                accum += prob
+                if rand < accum {
+                    let rv = Color.colorForIndex(i)!
+                    log.verbose("Drew a \(rv)")
+                    return rv
+                }
+            }
 
-        log.warning("Double Math error")
-        return .locomotive
+            log.warning("Double Math error")
+            return .locomotive
+        }
     }
 
     func runTurnForPlayer(_ player: Player) {
@@ -139,7 +178,7 @@ public class Game: Hashable {
 
         case .getNewDestinations(let fn):
             var destinations: [Destination] = []
-            for _ in 0..<rules.get(Rules.kNumDestinationsToChooseFrom).int! {
+            for _ in 0..<rules[Rules.kNumDestinationsToChooseFrom].int! {
                 destinations.append(board.generateDestination())
             }
 
@@ -211,7 +250,7 @@ public class Game: Hashable {
         for player in players {
             player.interface.startingTurn(turn)
             var destinations: [Destination] = [board.generateDestination(lengthMin: 20)]
-            for _ in 1..<rules.get(Rules.kNumDestinationsToChooseFrom).int! {
+            for _ in 1..<rules[Rules.kNumDestinationsToChooseFrom].int! {
                 destinations.append(board.generateDestination())
             }
             let kept = player.interface.pickInitialDestinations(destinations).map({ destinations[$0] })
@@ -233,7 +272,7 @@ public class Game: Hashable {
                 if (pt != nil && turn >= pt + players.count) || unownedTracks().isEmpty {
                     log.debug("End (\(turn))")
                     return winners()
-                } else if pt == nil && player.trainsLeft() < rules.get(Rules.kMinTrains).int! {
+                } else if pt == nil && player.trainsLeft() < rules[Rules.kMinTrains].int! {
                     pt = turn
                 }
 
@@ -259,7 +298,7 @@ public class Game: Hashable {
             return points
 
         })
-        if rv.count == 0 {
+        if rv.isEmpty {
             log.error("No Players")
         }
         return rv
@@ -291,10 +330,10 @@ public class Game: Hashable {
                 return res + 1
             } else {
                 return res
-            }}) >= rules.get(Rules.kMaxLocomotivesFaceUp).int! {
+            }}) >= rules[Rules.kMaxLocomotivesFaceUp].int! {
             // Refresh cards, too many locomotives
             var newCards: [Color] = []
-            for _ in 0..<rules.get(Rules.kFaceUpCards).int! {
+            for _ in 0..<rules[Rules.kFaceUpCards].int! {
                 newCards.append(draw())
             }
             cards = newCards

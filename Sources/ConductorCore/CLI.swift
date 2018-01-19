@@ -119,7 +119,7 @@ public class CLI: PlayerInterface {
                 print("\n=> Choose Tracks: ")
                 self.printList(tracks.map({ "\($0)" }))
                 return (self.promptInCount(tracks.count), nil, nil)
-            }),
+            })
         ]
 
         print("\n=> Choose Action: ")
