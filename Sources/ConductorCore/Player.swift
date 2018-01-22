@@ -69,12 +69,14 @@ public enum PlayerKind: CustomStringConvertible {
     case cli
     case destinationAI
     case bigTrackAI
+    case randomAI
 
     public var description: String {
         switch self {
         case .cli: return "CLI"
         case .bigTrackAI: return "Big Track AI"
         case .destinationAI: return "Destination AI"
+        case .randomAI: return "Random AI"
         }
     }
 }
@@ -89,12 +91,27 @@ public func playerStringToPlayerKind(_ string: String) -> [PlayerKind] {
             players.append(.bigTrackAI)
         case "d":
             players.append(.destinationAI)
+        case "r":
+            players.append(.randomAI)
         default:
             log.error("\(c) does not corrispond to a type of player")
             fatalError()
         }
     }
     return players
+}
+
+public func playerKindsToString(_ kinds: [PlayerKind]) -> String {
+    var rv = String()
+    for player in kinds {
+        switch player {
+        case .bigTrackAI: rv.append("b")
+        case .destinationAI: rv.append("d")
+        case .cli: rv.append("c")
+        case .randomAI: rv.append("r")
+        }
+    }
+    return rv
 }
 
 // Mostly storage-only, game logic in the Game class

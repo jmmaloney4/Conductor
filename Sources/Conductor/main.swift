@@ -95,6 +95,34 @@ var players: [PlayerKind] = playerStringToPlayerKind(playerTypes)
 
 log.info("players: \(players)")
 
+/// Simulate a game using the specified rules, board and players.  Run the specified
+/// number of simulations and output the results to the specified output file.
+public func simulate(rulesFile: String, boardFile: String, players: [PlayerKind],
+                     numSims: Int, outFile: String?) {
+    /// run simulations
+    log.info("Simulation starting: \(players)")
+    let sim = Simulation(rules: rulesFile, board: boardFile, players: players)
+    let res = sim.simulate(numSims, async: async)
+    log.info("Simulation complete: \(players)")
+
+    // output results to output file
+    if outPath != nil {
+        let outFile = outPath! + "/\(playerKindsToString(players)).csv"
+        do {
+            let out = players.map { $0.description }.joined(separator: ",") + "\n" + res.csv()
+            log.warning(outFile)
+            try out.write(to: URL(fileURLWithPath: outFile), atomically: true, encoding: .utf8)
+            log.info("Wrote result of \(res.count) simulations to \(outFile)")
+        } catch {
+            log.error(error)
+        }
+    }
+    
+    // log simulation summary to console and log file
+    log.info("Average Points: [\(players.enumerated().map({ i, player in return (player, res.averagePoints()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
+    log.info("Winrate: [\(players.enumerated().map({ i, player in return (player, res.winrate()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
+}
+
 if players.contains(.cli) {
     // Only run one game, not a simulation
     let rules = try! loadJSONFile(path: rulesPath)
@@ -104,56 +132,26 @@ if players.contains(.cli) {
 } else {
     // Simulation
     if configPath != nil {
+        log.info("Using JSON config file: \(configPath!)")
+        
         let config = try! loadJSONFile(path: configPath!)
-
+        
         let simulations = config["simulations"].int!
         log.info("running \(simulations) simulations")
-
+        
         let playerKinds = config["players"].array!.map({ return $0.string! }).map({ return playerStringToPlayerKind($0) })
+        
         for (i, players) in playerKinds.enumerated() {
-            let sim = Simulation(rules: rulesPath, board: boardPath, players: players)
-            let res = sim.simulate(simulations, async: async)
-
-            if outPath != nil {
-                do {
-                    let out = players.map { $0.description }.joined(separator: ",") + "\n" + res.csv()
-                    log.warning(outPath! + "/\(i).csv")
-                    try out.write(to: URL(fileURLWithPath: outPath! + "/\(i).csv"), atomically: true, encoding: .utf8)
-                    log.info("Wrote result of \(res.count) simulations to \(outPath!)")
-                } catch {
-                    log.error(error)
-                }
-            }
-
-            log.info("Average Points: [\(players.enumerated().map({ i, player in return (player, res.averagePoints()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
-            log.info("Winrate: [\(players.enumerated().map({ i, player in return (player, res.winrate()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
+            let outFile = outPath! + "/\(i).csv"
+            simulate(rulesFile: rulesPath, boardFile: boardPath, players: players,
+                     numSims: simulations, outFile: outFile)
         }
     }
-/*
-    let sim = Simulation(rules: rulesPath, board: boardPath, players: players)
-    let res = sim.simulate(10, async: async)
-
-    if outPath != nil {
-        do {
-            let out = players.map { $0.description }.joined(separator: ",") + "\n" + res.csv()
-            try out.write(to: URL(fileURLWithPath: outPath!), atomically: true, encoding: .utf8)
-            log.info("Wrote result of \(res.count) simulations to \(outPath!)")
-        } catch {
-            log.error(error)
-        }
+    else {
+        log.info("NOT using JSON config file")
+        
+        // run 50 simulations
+        simulate(rulesFile: rulesPath, boardFile: boardPath, players: players,
+                 numSims: 1, outFile: outPath)
     }
-
-
-    log.info("Average Points: [\(players.enumerated().map({ i, player in return (player, res.averagePoints()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
-    log.info("Winrate: [\(players.enumerated().map({ i, player in return (player, res.winrate()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
-*/
-    /*
-    print(res)
-    print(res.wins())
-    print(res.winrate())
-    print(res.totalPoints())
-    print(res.averagePoints())
-    print(res.csv())
-     */
-
 }
