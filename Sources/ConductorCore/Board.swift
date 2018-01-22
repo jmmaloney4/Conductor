@@ -240,11 +240,11 @@ public class Board: CustomStringConvertible {
     }
 
     public func longestPathOwnedBy(player: Player) -> ([City], Int)? {
-        var rv: ([City], Int) = ([], 0)
+        //var rv: ([City], Int) = ([], 0)
 
-        for city in cities {
+        //for city in cities {
 
-        }
+        //}
         return nil
     }
 
