@@ -52,9 +52,9 @@ public class RandomAI: AI {
 
         if numTracks > 0 {
             // randomly choose between playing track and drawing cards
-            // - 33% chance to play track
-            // - 66% chance to draw cards
-            if genRandomInt(3) < 1 {
+            // - 45% chance to play track
+            // - 55% chance to draw cards
+            if genRandomInt(100) < 55 {
                 playTrack = true
                 log.verbose("Agent choose to play track")
             }
