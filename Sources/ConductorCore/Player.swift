@@ -152,7 +152,7 @@ public class Player: Hashable {
     func spendCards(_ color: Color, cost: Int) {
         hand[color]! -= cost
         if game.deck != nil {
-            log.debug("Spent \(cost) \(color) cards, adding them back into the deck")
+            log.verbose("Spent \(cost) \(color) cards, adding them back into the deck")
             game.deck!.append(contentsOf: Array(repeating: color, count: cost))
         }
     }

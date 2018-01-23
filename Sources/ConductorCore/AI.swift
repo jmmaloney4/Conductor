@@ -28,12 +28,12 @@ public class AI: PlayerInterface {
     public func startingTurn(_ turn: Int) {
         log.debug("=== \(String(describing: type(of: self))) Player \(player.game.players.index(of: player)!) " +
             "Starting Turn \(turn / player.game.players.count) ===")
-        log.debug("Active Destinations: " +
+        log.verbose("Active Destinations: " +
             "\(player.destinations.reduce(into: [Destination: Bool]()) { $0[$1] = player.game.playerMeetsDestination(player, $1) })")
-        log.debug("Hand: \(player.hand)")
+        log.verbose("Hand: \(player.hand)")
 
         for p in player.game.players {
-            log.debug("Player \(player.game.players.index(of: p)!) Owns: \(player.game.tracksOwnedBy(p))")
+            log.verbose("Player \(player.game.players.index(of: p)!) Owns: \(player.game.tracksOwnedBy(p))")
         }
     }
 
@@ -69,15 +69,15 @@ public class AI: PlayerInterface {
     }
 
     public func playedTrack(_ track: Track) {
-        log.debug("Playing Track on \(track)")
+        log.verbose("Playing Track on \(track)")
     }
 
     public func keptDestinations(_ destinations: [Destination]) {
-        log.debug("Keeping: \(destinations.map({ "\($0)" }).joined(separator: ", "))")
+        log.verbose("Keeping: \(destinations.map({ "\($0)" }).joined(separator: ", "))")
     }
 
     public func drewCard(_ color: Color) {
-        log.debug("Drew a \(color)")
+        log.verbose("Drew a \(color)")
     }
 
 }

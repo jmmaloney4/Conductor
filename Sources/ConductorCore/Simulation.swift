@@ -13,6 +13,7 @@ public class Simulation {
     public struct Result: CustomStringConvertible {
         var sim: Simulation
         var scores: [[Int]]
+        var times: [Double]
 
         public var description: String {
             return "\(scores)"
@@ -25,6 +26,12 @@ public class Simulation {
         init(sim: Simulation) {
             self.sim = sim
             self.scores = []
+            self.times = []
+        }
+
+        mutating func addGame(score: [Int], time: Double) {
+            scores.append(score)
+            times.append(time)
         }
 
         public func wins() -> [Int] {
@@ -38,6 +45,14 @@ public class Simulation {
                 }
             }
             return rv
+        }
+
+        public func totalTime() -> Double {
+            return times.reduce(Double(0), { $0 + $1 })
+        }
+
+        public func averageTime() -> Double {
+            return totalTime() / Double(times.count)
         }
 
         public func winrate() -> [Float] {
@@ -112,14 +127,14 @@ public class Simulation {
                 let board = try! Board(fromData: self.boardData)
                 let game = Game(withRules: rules, board: board, andPlayerTypes: self.players)
                 let res = game.start()
-                log.debug("\(res)")
+                // log.debug("\(res)")
 
                 if res.isEmpty {
                     log.error("Game Failed")
                 }
 
-                rv.scores.append(res)
-                log.info("Simulation \(i + 1)/\(count): \(res)")
+                rv.addGame(score: res, time: game.time!)
+                log.info("Simulation \(i + 1)/\(count): \(res) took \(game.time!) seconds")
                 if async {
                     group.leave()
                 }

@@ -21,6 +21,7 @@ public class Game: Hashable {
     var turn: Int = 0
     var deck: [Color]?
     var probabilities: [Double]?
+    var time: Double?
     
     public var hashValue: Int { return ObjectIdentifier(self).hashValue }
     public static func == (lhs: Game, rhs: Game) -> Bool {
@@ -57,7 +58,7 @@ public class Game: Hashable {
     }
     
     public init(withRules rules: JSON, board: Board, andPlayers players: [PlayerInterface]) {
-        log.info("Initialize game: \(players)")
+        log.debug("Initialize game: \(players)")
         self.seed = UInt32(Date().timeIntervalSinceReferenceDate) + (globalRng.random() / 100000)
         self.rng = Gust(seed: seed)
         self.rules = rules
@@ -97,7 +98,7 @@ public class Game: Hashable {
         
         self.players = []
         for (i, player) in players.enumerated() {
-            log.info("=== \(String(describing: type(of: player))) Player \(i) initializing hand")
+            log.debug("\(String(describing: type(of: player))) Player \(i) initializing hand")
             let p = Player(withInterface: player, andGame: self)
             for _ in 0..<rules[Rules.kStartingHandSize].int! {
                 p.addCardToHand(draw())
@@ -107,12 +108,12 @@ public class Game: Hashable {
         log.verbose("Rng Seed: \(seed)")
         
         self.board.game = self
-        
-        log.info("Initialize face up cards")
+
         for _ in 0..<rules[Rules.kFaceUpCards].int! {
             cards.append(draw())
         }
-        log.info("Game initialized: \(players)")
+        log.debug("Initialize face up cards: \(cards)")
+        log.debug("Game initialized: \(players)")
     }
     
     // 12 of each color (8 colors)
@@ -166,7 +167,7 @@ public class Game: Hashable {
             // case 1a: selected card index is not out of range
             if let tmp = takeCard(at: i) {
                 selectedCard = tmp
-                log.info("Took face up \(selectedCard) card")
+                log.verbose("Took face up \(selectedCard) card")
                 if selectedCard == .locomotive {
                     // player picked a face up locomotive
                     drawAgain = false
@@ -175,12 +176,12 @@ public class Game: Hashable {
             } else {
                 // draw from the pile if card is out of range
                 selectedCard = draw()
-                log.info("Drew \(selectedCard) - index out of range")
+                log.verbose("Drew \(selectedCard) - index out of range")
             }
         // case 2: selected card index is nil - draw from pile
         } else {
             selectedCard = draw()
-            log.info("Drew \(selectedCard)")
+            log.verbose("Drew \(selectedCard)")
         }
         
         return (selectedCard, drawAgain)
@@ -255,7 +256,7 @@ public class Game: Hashable {
                 color = c!
             }
             
-            log.debug("Color: \(color), Track: \(track.color)")
+            log.verbose("Color: \(color), Track: \(track.color)")
             
             var loc: Int
             if l == nil {
@@ -277,14 +278,15 @@ public class Game: Hashable {
             player.interface.playedTrack(track)
         }
         
-        log.debug("=== \(String(describing: type(of: player))) Player \(players.index(of: player)!) " +
-            "Turn \(turn / player.game.players.count) Complete ===")
+        log.verbose("\(String(describing: type(of: player))) Player \(players.index(of: player)!) " +
+            "Turn \(turn / player.game.players.count) Complete")
     }
     
     public func start() -> [Int] {
-        log.info("Starting game: \(players)")
+        let start = DispatchTime.now()
+        log.debug("Starting game: \(players) at \(start.uptimeNanoseconds)ns")
         for (i, player) in players.enumerated() {
-            log.info("=== \(String(describing: type(of: player))) Player \(i) choosing initial destinations")
+            log.debug("\(String(describing: type(of: player))) Player \(i) choosing initial destinations")
             player.interface.startingTurn(turn)
             var destinations: [Destination] = [board.generateDestination(lengthMin: 20)]
             for _ in 1..<rules[Rules.kNumDestinationsToChooseFrom].int! {
@@ -293,13 +295,13 @@ public class Game: Hashable {
             let kept = player.interface.pickInitialDestinations(destinations).map({ destinations[$0] })
             player.destinations.append(contentsOf: kept)
             player.interface.keptDestinations(kept)
-            log.info("=== \(String(describing: type(of: player))) Player \(i) kept destinations: \(kept)")
+            log.debug("\(String(describing: type(of: player))) Player \(i) kept destinations: \(kept)")
 
             turn += 1
         }
         
-        log.info("All players have selected initial destinations")
-        log.info("===== Start normal game turns ======")
+        log.debug("All players have selected initial destinations")
+        log.debug("===== Start normal game turns ======")
 
         var pt: Int! = nil
         while turn < 1000 {
@@ -311,7 +313,9 @@ public class Game: Hashable {
                 runTurnForPlayer(player)
                 
                 if (pt != nil && turn >= pt + players.count) || unownedTracks().isEmpty {
-                    log.debug("End (\(turn))")
+                    let end = DispatchTime.now()
+                    self.time = Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000_000
+                    log.debug("Ended on turn \(turn) at \(end.uptimeNanoseconds)ns, lasted \(time!) seconds")
                     return winners()
                 } else if pt == nil && player.trainsLeft() < rules[Rules.kMinTrains].int! {
                     pt = turn
@@ -388,7 +392,7 @@ public class Game: Hashable {
         }
         
         let rv = cards.remove(at: index)
-        log.info("Player took face up \(rv) card - draw a replacement card")
+        log.verbose("Player took face up \(rv) card - draw a replacement card")
         cards.append(draw())
         checkForMaxLocomotives()
         return rv

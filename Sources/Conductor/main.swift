@@ -119,6 +119,7 @@ public func simulate(rulesFile: String, boardFile: String, players: [PlayerKind]
     }
     
     // log simulation summary to console and log file
+    log.info("Total Time: \(res.totalTime()), Average Time: \(res.averageTime())")
     log.info("Average Points: [\(players.enumerated().map({ i, player in return (player, res.averagePoints()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
     log.info("Winrate: [\(players.enumerated().map({ i, player in return (player, res.winrate()[i]) }).map({ "\($0): \($1)" }).joined(separator: ", "))]")
 }
@@ -152,6 +153,6 @@ if players.contains(.cli) {
         
         // run 50 simulations
         simulate(rulesFile: rulesPath, boardFile: boardPath, players: players,
-                 numSims: 1, outFile: outPath)
+                 numSims: 100, outFile: outPath)
     }
 }
