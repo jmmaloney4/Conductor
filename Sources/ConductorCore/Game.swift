@@ -7,6 +7,7 @@
 import Foundation
 import Squall
 import SwiftyJSON
+import Dispatch
 
 public class Game: Hashable {
     var rules: JSON
