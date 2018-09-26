@@ -1,0 +1,7 @@
+[package]
+name = "conductor"
+version = "0.1.0"
+authors = ["Jack Maloney <jmmaloney4@gmail.com>"]
+publish = false
+
+[dependencies]
