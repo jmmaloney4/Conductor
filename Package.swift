@@ -21,12 +21,12 @@ let package = Package(
         .package(url: "https://github.com/davecom/SwiftPriorityQueue.git", from: "1.2.1"),
         .package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", from: "17.0.0"),
         .package(url: "https://github.com/jmmaloney4/Weak.git", from: "0.1.0"),
-        .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", from: "1.5.1"),
-        .package(url: "https://github.com/evgenyneu/SigmaSwiftStatistics.git", from: "7.0.2")
+        .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", from: "1.5.1")
+        // .package(url: "https://github.com/evgenyneu/SigmaSwiftStatistics.git", from: "7.0.2")
     ],
     targets: [
         .target(name: "Conductor", dependencies: ["ConductorCore", "CommandLineKit"]),
-        .target(name: "ConductorCore", dependencies: ["Squall", "SwiftPriorityQueue", "SwiftyJSON", "Weak", "SwiftyBeaver", "SigmaSwiftStatistics"])
+        .target(name: "ConductorCore", dependencies: ["Squall", "SwiftPriorityQueue", "SwiftyJSON", "Weak", "SwiftyBeaver"])
     ],
     swiftLanguageVersions: [4]
 )
