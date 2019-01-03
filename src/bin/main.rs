@@ -31,7 +31,7 @@ impl<'a> City<'a> {
 
 #[derive(Debug)]
 pub struct Route<'a> {
-    pub ends: [&'a City<'a>; 2],
+    pub ends: Vec<&'a City<'a>>,
     pub ferries: u32,
     pub tunnel: bool,
 }
