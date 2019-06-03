@@ -20,7 +20,7 @@ let package = Package(
         .package(url: "https://github.com/jmmaloney4/Squall.git", from: "1.2.3"),
         .package(url: "https://github.com/davecom/SwiftPriorityQueue.git", from: "1.2.1"),
         .package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", from: "17.0.0"),
-        .package(url: "https://github.com/jmmaloney4/Weak.git", from: "0.1.0"),
+        .package(url: "https://github.com/jmmaloney4/Weak.git", .branch("master")),
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", from: "1.5.1")
         // .package(url: "https://github.com/evgenyneu/SigmaSwiftStatistics.git", from: "7.0.2")
     ],
