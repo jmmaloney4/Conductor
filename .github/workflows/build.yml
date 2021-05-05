@@ -3,11 +3,12 @@ on:
 
 name: Build
 jobs:
-  - name: Build
+  checks:
+    name: Build
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2.0.0
 
-    - name: run
+    - name: build
       uses: cedrickring/golang-action@1.6.0
