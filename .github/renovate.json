@@ -5,5 +5,5 @@
   "prHourlyLimit": 0,
   "rebaseWhen": "behind-base-branch",
   "dependencyDashboard": true,
-  "dependencyDashboardTitle": "Renovate Dashboard",
+  "dependencyDashboardTitle": "Renovate Dashboard"
 }
