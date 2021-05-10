@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "timezone": "America/Chicago",
+  "extends": ["config:base"],
+  "prHourlyLimit": 0,
+  "rebaseWhen": "behind-base-branch",
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Renovate Dashboard"
+}
