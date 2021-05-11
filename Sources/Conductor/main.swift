@@ -10,8 +10,8 @@ let main = command(Argument<String>("mapfile", description: "JSON File to load t
     }
 
     let map = try Map(fromJSONStream: inputFile)
-    let (distances, pathDict) = map.graph.dijkstra(root: "Wien", startDistance: 0)
-    let nameDistance: [String: Int?] = distanceArrayToVertexDict(distances: distances, graph: map.graph)
+    let (distances, pathDict) = map.graph.dijkstra(root: "Wien", startDistance: Track())
+    let nameDistance: [String: Track?] = distanceArrayToVertexDict(distances: distances, graph: map.graph)
     print(nameDistance["Kyiv"]!!)
 
     let rules = try Rules.rulesFromYaml(file: rulesfile)
