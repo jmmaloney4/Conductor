@@ -56,6 +56,15 @@
         }
       },
       {
+        "package": "SwiftGraph",
+        "repositoryURL": "https://github.com/davecom/SwiftGraph.git",
+        "state": {
+          "branch": "master",
+          "revision": "59414e26a0d48aece7d842720f24bdebddfe9ae9",
+          "version": null
+        }
+      },
+      {
         "package": "Version",
         "repositoryURL": "https://github.com/mxcl/Version",
         "state": {
