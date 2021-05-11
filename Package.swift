@@ -15,7 +15,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/danger/swift.git", from: "3.0.0"),
+        .package(url: "https://github.com/danger/swift.git", from: "3.10.1"),
         .package(url: "https://github.com/kylef/Commander.git", from: "0.9.1"),
         .package(url: "https://github.com/davecom/SwiftGraph.git", .branch("master")),
     ],
