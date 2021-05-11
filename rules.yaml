@@ -1,0 +1,13 @@
+colors:
+- Black
+- Blue
+- Green
+- Orange
+- Pink
+- Red
+- White
+- Yellow
+
+initialTraincars: 45
+minimumTraincars: 3
+

@@ -1,6 +1,6 @@
 import Foundation
 
-public enum CardColor {
+public enum CardColor: Hashable {
     case color(name: String)
     case locomotive
 }

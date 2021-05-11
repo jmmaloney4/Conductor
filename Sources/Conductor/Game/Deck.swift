@@ -1,7 +1,7 @@
 import Foundation
 import Squall
 
-enum DeckType {
+public enum DeckType {
     /// All colors are uniformly distributed
     case uniform(colors: [CardColor])
 
@@ -10,7 +10,7 @@ enum DeckType {
     case finite(cards: [CardColor])
 }
 
-protocol Deck {
+public protocol Deck {
     /// Returns Int.max if this is a uniform deck
     var count: Int { get }
     var type: DeckType { get }
@@ -21,31 +21,31 @@ protocol Deck {
     func discard(_: [CardColor])
 }
 
-class UniformDeck: Deck {
-    var count: Int { Int.max }
+public class UniformDeck: Deck {
+    public var count: Int { Int.max }
     var colors: [CardColor]
-    var type: DeckType { .uniform(colors: colors) }
+    public var type: DeckType { .uniform(colors: colors) }
     var rng: Gust
 
-    init(colors: [CardColor], rng: Gust) {
+    public init(colors: [CardColor], rng: Gust) {
         self.colors = colors
         self.rng = rng
     }
 
-    convenience init(colors: [CardColor]) {
+    public convenience init(colors: [CardColor]) {
         self.init(colors: colors, rng: Gust())
     }
 
-    func draw() -> CardColor {
+    public func draw() -> CardColor {
         let rand: Double = rng.uniform(lower: 0.0, Double(colors.count))
         return colors[Int(floor(rand))]
     }
 
-    func draw(_ count: Int) -> [CardColor] {
+    public func draw(_ count: Int) -> [CardColor] {
         (1 ... count).map { _ in self.draw() }
     }
 
-    func discard(_: CardColor) {}
+    public func discard(_: CardColor) {}
 
-    func discard(_: [CardColor]) {}
+    public func discard(_: [CardColor]) {}
 }
