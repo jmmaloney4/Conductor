@@ -9,16 +9,8 @@ struct RouteJSON: Codable {
     var ferries: Int
 }
 
-struct City: Codable, Equatable {
-    var name: String
-
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.name == rhs.name
-    }
-}
-
 class Map {
-    var graph: SwiftGraph.WeightedGraph<City, Int>
+    var graph: SwiftGraph.WeightedGraph<String, Int>
 
     init(fromJSONStream stream: InputStream) throws {
         let decodedJson = try JSONDecoder().decode([RouteJSON].self, from: try Data(reading: stream))
@@ -27,12 +19,10 @@ class Map {
         decodedJson.forEach { route in
             // Add cities if they do not already exist
             route.endpoints
-                .filter { name in !self.graph.vertices.contains { $0.name == name } }
-                .forEach { name in _ = self.graph.addVertex(City(name: name)) }
+                .filter { name in !self.graph.vertices.contains(name) }
+                .forEach { name in _ = self.graph.addVertex(name) }
 
-            self.graph.addEdge(from: City(name: route.endpoints[0]), to: City(name: route.endpoints[1]), weight: route.length)
+            self.graph.addEdge(from: route.endpoints[0], to: route.endpoints[1], weight: route.length)
         }
-
-        print(graph)
     }
 }

@@ -18,17 +18,14 @@ let package = Package(
         .package(url: "https://github.com/danger/swift.git", from: "3.10.1"),
         .package(url: "https://github.com/kylef/Commander.git", from: "0.9.1"),
         .package(url: "https://github.com/davecom/SwiftGraph.git", .branch("master")),
+        .package(url: "https://github.com/quells/Squall.git", from: "1.3.3"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "Conductor",
-            dependencies: ["Danger", "Commander", "SwiftGraph"]
-        ),
-        .testTarget(
-            name: "ConductorTests",
-            dependencies: ["Conductor"]
+            dependencies: ["Danger", "Commander", "SwiftGraph", "Squall"]
         ),
     ]
 )
