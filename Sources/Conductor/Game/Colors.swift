@@ -1,13 +1,27 @@
 import Foundation
 
-public enum CardColor: Hashable {
+public enum CardColor: Hashable, CustomStringConvertible {
     case color(name: String)
     case locomotive
+
+    public var description: String {
+        switch self {
+        case let .color(name): return name
+        case .locomotive: return "Locomotive"
+        }
+    }
 }
 
-public enum TrackColor: Equatable {
+public enum TrackColor: Equatable, CustomStringConvertible {
     case color(name: String)
     case unspecified
+
+    public var description: String {
+        switch self {
+        case let .color(name): return name
+        case .unspecified: return "Unspecified"
+        }
+    }
 }
 
 extension TrackColor: Codable {

@@ -15,14 +15,14 @@ public protocol Deck {
     var count: Int { get }
     var type: DeckType { get }
 
-    func draw() -> CardColor
-    func draw(_: Int) -> [CardColor]
+    func draw() -> CardColor?
+    func draw(_: Int) -> [CardColor?]
     func discard(_: CardColor)
     func discard(_: [CardColor])
 }
 
 public extension Deck {
-    func draw(_ count: Int) -> [CardColor] {
+    func draw(_ count: Int) -> [CardColor?] {
         (1 ... count).map { _ in self.draw() }
     }
 
@@ -46,12 +46,9 @@ public class UniformDeck: Deck {
         self.init(colors: colors, rng: Gust())
     }
 
-    public func draw() -> CardColor {
-        colors[Int(rng.next(upperBound: UInt(colors.count)))]
-    }
+    public func draw() -> CardColor? { colors[Int(rng.next(upperBound: UInt(colors.count)))] }
 
     public func discard(_: CardColor) {}
-
     public func discard(_: [CardColor]) {}
 }
 
@@ -73,12 +70,11 @@ public class FiniteDeck: Deck {
         self.init(cards: cards, rng: Gust())
     }
 
-    public func draw() -> CardColor {
+    public func draw() -> CardColor? {
+        if cards.isEmpty { return nil }
         let index = Int(rng.next(upperBound: UInt(cards.count)))
         return cards.remove(at: index)
     }
 
-    public func discard(_ card: CardColor) {
-        cards.append(card)
-    }
+    public func discard(_ card: CardColor) { cards.append(card) }
 }

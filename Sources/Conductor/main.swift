@@ -26,7 +26,7 @@ let main = command(Argument<String>("mapfile", description: "JSON File to load t
         dict[color] = 0
     }
 
-    (0 ... 20000).map { _ in deck.draw() }.forEach { color in
+    (0 ... 20000).map { _ in deck.draw()! }.forEach { color in
         dict[color]! += 1
     }
 
@@ -47,7 +47,7 @@ let main = command(Argument<String>("mapfile", description: "JSON File to load t
         dict[color] = 0
     }
 
-    (0 ... 20000).map { _ in let rv = finiteDeck.draw(); finiteDeck.discard(rv); return rv }.forEach { color in
+    (0 ... 20000).map { _ in let rv = finiteDeck.draw()!; finiteDeck.discard(rv); return rv }.forEach { color in
         dict[color]! += 1
     }
 
