@@ -9,7 +9,6 @@ class ConductorTests: XCTestCase {
         XCTAssertEqual(Conductor().text, "Hello, World!")
     }
 
-
     static var allTests = [
         ("testExample", testExample),
     ]
