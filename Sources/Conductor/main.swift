@@ -33,6 +33,28 @@ let main = command(Argument<String>("mapfile", description: "JSON File to load t
     dict.values.forEach {
         print($0)
     }
+
+    var cards: [CardColor] = []
+    rules.colors.forEach {
+        cards.append(contentsOf: Array(repeating: CardColor.color(name: $0), count: 8))
+    }
+    cards.append(contentsOf: Array(repeating: CardColor.locomotive, count: 8))
+
+    let finiteDeck = FiniteDeck(cards: cardColors)
+
+    dict = [:]
+    cardColors.forEach { color in
+        dict[color] = 0
+    }
+
+    (0 ... 20000).map { _ in let rv = finiteDeck.draw(); finiteDeck.discard(rv); return rv }.forEach { color in
+        dict[color]! += 1
+    }
+
+    print("Finite Deck:")
+    dict.values.forEach {
+        print($0)
+    }
 }
 
 main.run()
