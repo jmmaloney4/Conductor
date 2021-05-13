@@ -8,6 +8,8 @@ colors:
 - White
 - Yellow
 
+finiteDeck: false
 initialTraincars: 45
 minimumTraincars: 3
-
+faceUpCards: 5
+onlyOneActionPerTurn: true

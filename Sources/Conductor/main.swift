@@ -10,7 +10,7 @@ let main = command(Argument<String>("mapfile", description: "JSON File to load t
     }
 
     let map = try Map(fromJSONStream: inputFile)
-    let (distances, pathDict) = map.graph.dijkstra(root: "Wien", startDistance: Track())
+    let (distances, _) = map.graph.dijkstra(root: "Wien", startDistance: Track())
     let nameDistance: [String: Track?] = distanceArrayToVertexDict(distances: distances, graph: map.graph)
     print(nameDistance["Kyiv"]!!)
 
@@ -19,7 +19,7 @@ let main = command(Argument<String>("mapfile", description: "JSON File to load t
 
     var cardColors = rules.colors.map { CardColor.color(name: $0) }
     cardColors.append(.locomotive)
-    let deck = UniformDeck(colors: cardColors)
+    var deck = UniformDeck(colors: cardColors)
 
     var dict: [CardColor: Int] = [:]
     cardColors.forEach { color in
@@ -40,7 +40,7 @@ let main = command(Argument<String>("mapfile", description: "JSON File to load t
     }
     cards.append(contentsOf: Array(repeating: CardColor.locomotive, count: 8))
 
-    let finiteDeck = FiniteDeck(cards: cardColors)
+    var finiteDeck = FiniteDeck(cards: cardColors)
 
     dict = [:]
     cardColors.forEach { color in
@@ -55,6 +55,11 @@ let main = command(Argument<String>("mapfile", description: "JSON File to load t
     dict.values.forEach {
         print($0)
     }
+
+    var state = GameState(playerData: [PlayerData(hand: []), PlayerData(hand: [])], faceupCards: [.locomotive, .locomotive], deck: deck)
+    var state2 = try SerializeDeserialize(state)
+    print(state.deck.draw(10))
+    print(state2.deck.draw(10))
 }
 
 main.run()
