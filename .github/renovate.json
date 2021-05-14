@@ -6,5 +6,8 @@
   "rebaseWhen": "behind-base-branch",
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dashboard",
-  "assignees": ["jmmaloney4"]
+  "assignees": ["jmmaloney4"],
+  "pre-commit": {
+    "enabled": true
+  }
 }
