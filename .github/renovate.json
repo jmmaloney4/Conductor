@@ -15,7 +15,7 @@
     "commands": ["swift package update", "swiftformat ."],
     "fileFilters": ["Package.*"],
     "executionMode": "update"
-  }
+  },
   "rangeStrategy": "pin",
   "packageRules": [
     { 
