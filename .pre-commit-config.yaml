@@ -15,7 +15,7 @@ repos:
   rev: v1.1.9
   hooks:
   - id: insert-license
-    files: Sources/*.swift
+    files: ^Sources/(.*).swift$
     args:
     - --license-filepath
     - LICENSE_HEADER

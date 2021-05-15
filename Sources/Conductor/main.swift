@@ -1,3 +1,9 @@
+// Copyright © 2017-2021 Jack Maloney. All Rights Reserved.
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 import Commander
 import Foundation
 import SwiftGraph
@@ -16,6 +22,11 @@ let main = command(Argument<String>("mapfile", description: "JSON File to load t
 
     let rules = try Rules.rulesFromYaml(file: rulesfile)
     print(rules.colors)
+
+    let game = Game(rules: rules)
+    print(game.history.head!)
+    var next = try SerializeDeserialize(game.history.head!)
+    print(next.deck.draw())
 }
 
 main.run()
