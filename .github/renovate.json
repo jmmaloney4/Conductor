@@ -10,5 +10,8 @@
   "assignees": ["jmmaloney4"],
   "pre-commit": {
     "enabled": true
+  },
+  "postUpgradeTasks": {
+    "commands": ["swift package update", "swiftformat ."]
   }
 }
