@@ -17,6 +17,9 @@
   "rangeStrategy": "pin",
   "packageRules": [
     { 
+      "matchDepTypes": [
+        "dependencies"
+      ],
       "rangeStrategy": "pin" 
     }
   ]
