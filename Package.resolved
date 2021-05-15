@@ -50,7 +50,7 @@
         "package": "Squall",
         "repositoryURL": "https://github.com/jmmaloney4/Squall.git",
         "state": {
-          "branch": null,
+          "branch": "master",
           "revision": "bbfdbe08df5e0364ddeaa3f092dba5e842f77d14",
           "version": null
         }
@@ -68,7 +68,7 @@
         "package": "SwiftGraph",
         "repositoryURL": "https://github.com/davecom/SwiftGraph.git",
         "state": {
-          "branch": null,
+          "branch": "master",
           "revision": "59414e26a0d48aece7d842720f24bdebddfe9ae9",
           "version": null
         }
@@ -78,8 +78,8 @@
         "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
         "state": {
           "branch": null,
-          "revision": "97477264cd683a387e80fc2f9b0f0e8db8070ed2",
-          "version": "1.9.0"
+          "revision": "5cfd6888447adcc49b80b625281b6177104f011f",
+          "version": "1.9.4"
         }
       },
       {
