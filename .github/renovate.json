@@ -14,5 +14,10 @@
   "postUpgradeTasks": {
     "commands": ["swift package update", "swiftformat ."]
   },
-  "rangeStrategy": "pin"
+  "rangeStrategy": "pin",
+  "packageRules": [
+    { 
+      "rangeStrategy": "pin" 
+    }
+  ]
 }
