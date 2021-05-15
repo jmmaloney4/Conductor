@@ -1,7 +1,12 @@
 import Foundation
 
-public enum ConductorError: Error {
+internal enum ConductorError: Error {
     case fileInputError(path: String)
     case dataInputError
     case jsonDecodingError
+}
+
+internal enum ConductorCodingError: Error {
+    case unknownValue
+    case invalidState
 }

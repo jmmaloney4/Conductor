@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "LinkedList",
+        "repositoryURL": "https://github.com/Wildchild9/LinkedList.git",
+        "state": {
+          "branch": "master",
+          "revision": "2798170e7e4a93fe924490ec7bee0b3ce31bf866",
+          "version": null
+        }
+      },
+      {
         "package": "Logger",
         "repositoryURL": "https://github.com/shibapm/Logger",
         "state": {

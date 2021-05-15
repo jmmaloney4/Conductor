@@ -1,9 +1,5 @@
 import Foundation
 
-private enum CodingError: Error {
-    case unknownValue
-}
-
 public enum CardColor: Hashable, CustomStringConvertible {
     case color(name: String)
     case locomotive
@@ -29,7 +25,7 @@ extension CardColor: Codable {
         } else if let _ = try? container.decodeNil(forKey: .locomotive) {
             self = .locomotive
         } else {
-            throw CodingError.unknownValue
+            throw ConductorCodingError.unknownValue
         }
     }
 
@@ -69,7 +65,7 @@ extension TrackColor: Codable {
         } else if let _ = try? container.decodeNil(forKey: .unspecified) {
             self = .unspecified
         } else {
-            throw CodingError.unknownValue
+            throw ConductorCodingError.unknownValue
         }
     }
 
@@ -106,7 +102,7 @@ extension DeckType: Codable {
         } else if let cards = try container.decodeIfPresent([CardColor].self, forKey: .finite) {
             self = .finite(cards: cards)
         } else {
-            throw CodingError.unknownValue
+            throw ConductorCodingError.unknownValue
         }
     }
 
@@ -115,38 +111,6 @@ extension DeckType: Codable {
         switch self {
         case let .uniform(colors): try container.encode(colors, forKey: .uniform)
         case let .finite(cards): try container.encode(cards, forKey: .finite)
-        }
-    }
-}
-
-extension GameState: Codable {
-    enum CodingKeys: CodingKey {
-        case playerData
-        case faceupCards
-        case deck
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(playerData, forKey: .playerData)
-        try container.encode(faceupCards, forKey: .faceupCards)
-        switch deck.type {
-        case .uniform: try container.encode(deck as! UniformDeck, forKey: .deck)
-        case .finite: try container.encode(deck as! FiniteDeck, forKey: .deck)
-        }
-    }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let playerData = try container.decode([PlayerData].self, forKey: .playerData)
-        let faceupCards = try container.decode([CardColor].self, forKey: .faceupCards)
-
-        if let deck = try? container.decode(UniformDeck.self, forKey: .deck) {
-            self.init(playerData: playerData, faceupCards: faceupCards, deck: deck)
-        } else if let deck = try? container.decode(FiniteDeck.self, forKey: .deck) {
-            self.init(playerData: playerData, faceupCards: faceupCards, deck: deck)
-        } else {
-            throw CodingError.unknownValue
         }
     }
 }

@@ -1,23 +1,28 @@
 import Foundation
 import Yams
 
-struct Rules: Codable {
+internal struct Rules: Codable {
     /// Colors used in the deck and in the tracks of the loaded map.
-    var colors: [String]
+    var colors: [String] = ["Black", "Blue", "Green", "Orange", "Pink", "Red", "White", "Yellow"]
 
-    /// Whether to use a uniform distribution over thee cards, or a finite deck
-    var finiteDeck: Bool
+    internal struct DeckConfiguration: Codable {
+        var type: DeckType
+        var cardsPerColor: Either<Int, [Int]> = Either(left: 12, right: nil)
+        var numLocomotives: Int = 14
+    }
+
+    var deck: DeckConfiguration!
 
     /// Number of traincars each player starts with.
-    var initialTraincars: Int
+    var initialTraincars: Int = 45
 
     /// If a player has less than this many traincars, the game ends after one more turn.
-    var minimumTraincars: Int
+    var minimumTraincars: Int = 3
 
     /// Number of face up cards to be chosen from
-    var faceUpCards: Int
+    var faceUpCards: Int = 5
 
-    var onlyOneActionPerTurn: Bool
+    var onlyOneActionPerTurn: Bool = true
 
     static func rulesFromYaml(stream: InputStream) throws -> Rules {
         try YAMLDecoder().decode(Rules.self, from: try Data(reading: stream))
@@ -28,5 +33,29 @@ struct Rules: Codable {
             throw ConductorError.fileInputError(path: path)
         }
         return try rulesFromYaml(stream: stream)
+    }
+
+    init() {
+        var cards = Array(repeating: CardColor.locomotive, count: deck.numLocomotives)
+        cards.append(contentsOf: colors.map { color in
+            Array(repeating: CardColor.color(name: color), count: self.deck.cardsPerColor.left!)
+        }.reduce([]) { $0 + $1 })
+        deck = DeckConfiguration(type: .finite(cards: cards))
+    }
+
+    func initialGameState() -> GameState {
+        var deck = makeDeck()
+        return GameState(
+            playerData: [PlayerData(), PlayerData()],
+            faceupCards: (1 ... faceUpCards).map { _ in deck.draw() },
+            deck: deck
+        )
+    }
+
+    func makeDeck() -> Deck {
+        switch deck.type {
+        case let .uniform(colors): return UniformDeck(colors: colors)
+        case let .finite(cards): return FiniteDeck(cards: cards)
+        }
     }
 }
