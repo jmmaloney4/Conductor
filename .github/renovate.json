@@ -11,10 +11,11 @@
   "pre-commit": {
     "enabled": true
   },
-  "commands": ["swift package update", "swiftformat ."],
   "postUpgradeTasks": {
-    "commands": ["swift package update", "swiftformat ."]
-  },
+    "commands": ["swift package update", "swiftformat ."],
+    "fileFilters": ["Package.*"],
+    "executionMode": "update"
+  }
   "rangeStrategy": "pin",
   "packageRules": [
     { 
