@@ -15,7 +15,7 @@ let package = Package(
         .package(url: "https://github.com/davecom/SwiftGraph.git", .branch("master")),
         .package(url: "https://github.com/jmmaloney4/Squall.git", .branch("master")),
         .package(url: "https://github.com/jpsim/Yams.git", from: "4.0.6"),
-        .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", .upToNextMajor(from: "1.9.0")),
+        .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", from: "1.9.4"),
     ],
     targets: [
         .target(
