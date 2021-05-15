@@ -22,5 +22,6 @@ let package = Package(
             name: "Conductor",
             dependencies: ["Danger", "Commander", "SwiftGraph", "Squall", "Yams", "SwiftyBeaver"]
         ),
-    ]
+    ],
+    swiftLanguageVersions: [.v5]
 )
