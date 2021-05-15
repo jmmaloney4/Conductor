@@ -11,6 +11,7 @@
   "pre-commit": {
     "enabled": true
   },
+  "commands": ["swift package update", "swiftformat ."],
   "postUpgradeTasks": {
     "commands": ["swift package update", "swiftformat ."]
   },
