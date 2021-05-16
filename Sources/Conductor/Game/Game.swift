@@ -24,7 +24,7 @@ struct PlayerData: Codable {
 }
 
 struct GameState {
-    var playerData: [PlayerData]
+    var playerData: Pair<PlayerData, PlayerData>
     var faceupCards: [CardColor?]
     var deck: Deck
 }
@@ -48,7 +48,7 @@ extension GameState: Codable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let playerData = try container.decode([PlayerData].self, forKey: .playerData)
+        let playerData = try container.decode(Pair<PlayerData, PlayerData>.self, forKey: .playerData)
         let faceupCards = try container.decode([CardColor].self, forKey: .faceupCards)
 
         if let deck = try? container.decode(UniformDeck.self, forKey: .deck) {
@@ -65,11 +65,15 @@ extension GameState: Codable {
 class Game {
     var map: Map
     var rules: Rules
+    var players: [Player]
     var history: LinkedList<GameState>
 
-    init(map: Map, rules: Rules) throws {
+    init(map: Map, rules: Rules, players p1: Player, _ p2: Player) throws {
         self.map = map
         self.rules = rules
+        players = [p1, p2]
         history = [try self.rules.initialGameState()]
     }
+
+    func play() {}
 }

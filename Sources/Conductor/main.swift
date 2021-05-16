@@ -23,7 +23,7 @@ let main = command(Argument<String>("mapfile", description: "JSON File to load t
     let rules = try Rules.rulesFromYaml(file: rulesfile)
     print(rules.colors)
 
-    let game = try Game(map: map, rules: rules)
+    let game = try Game(map: map, rules: rules, players: RandomPlayer(), RandomPlayer())
     print(game.history.head!)
     var next = try SerializeDeserialize(game.history.head!)
     print(next.deck.draw()!)

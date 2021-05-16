@@ -89,4 +89,9 @@ class Map {
             self.graph.addEdge(from: route.endpoints[0], to: route.endpoints[1], weight: Edge(from: route))
         }
     }
+
+    func randomDestination<T>(using rng: inout T) -> Destination where T: RandomNumberGenerator {
+        let shuffled = graph.vertices.shuffled(using: &rng)
+        return Destination(a: shuffled[0], b: shuffled[1])
+    }
 }

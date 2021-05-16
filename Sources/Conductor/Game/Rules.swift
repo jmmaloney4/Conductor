@@ -21,16 +21,21 @@ internal struct Rules: Codable {
 
     /// Number of traincars each player starts with.
     var initialTraincars: Int = 45
-
     /// If a player has less than this many traincars, the game ends after one more turn.
     var minimumTraincars: Int = 3
-
     /// Number of face up cards to be chosen from
     var faceupCards: Int = 5
-
-    var onlyOneActionPerTurn: Bool = true
-
+    /// Number of cards dealt to each player at the start of the game.
     var initialHandSize: Int = 4
+
+    // Start of Game
+    /// Nunber of Destinations that muust be kept at the start of the game
+    var minimumDestinations: Int = 2
+    var initialLongDestinations: Int = 1
+    var initialShortDestinations: Int = 3
+
+    // Advanced
+    var onlyOneActionPerTurn: Bool = true
 
     static func rulesFromYaml(stream: InputStream) throws -> Rules {
         try YAMLDecoder().decode(Rules.self, from: try Data(reading: stream))
@@ -65,7 +70,7 @@ internal struct Rules: Codable {
         guard !faceups.contains(nil) else { throw ConductorError.outOfCardsError }
 
         return GameState(
-            playerData: playerData,
+            playerData: Pair(a: playerData[0], b: playerData[1]),
             faceupCards: faceups,
             deck: deck
         )
