@@ -14,13 +14,26 @@ public protocol Deck {
 
     mutating func draw() -> CardColor?
     mutating func draw(_: Int) -> [CardColor?]
+    mutating func draw<T>(using: inout T) -> CardColor? where T: RandomNumberGenerator
+    mutating func draw<T>(_: Int, using: inout T) -> [CardColor?] where T: RandomNumberGenerator
+
     mutating func discard(_: CardColor)
     mutating func discard(_: [CardColor])
 }
 
 public extension Deck {
+    mutating func draw() -> CardColor? {
+        var rng = Gust()
+        return draw(using: &rng)
+    }
+
     mutating func draw(_ count: Int) -> [CardColor?] {
-        (1 ... count).map { _ in self.draw() }
+        var rng = Gust()
+        return (1 ... count).map { _ in self.draw(using: &rng) }
+    }
+
+    mutating func draw<T>(_: Int, using rng: inout T) -> [CardColor?] where T: RandomNumberGenerator {
+        (1 ... count).map { _ in self.draw(using: &rng) }
     }
 
     mutating func discard(_ cards: [CardColor]) {
@@ -29,46 +42,36 @@ public extension Deck {
 }
 
 public struct UniformDeck: Deck, Codable {
-    public var count: Int { Int.max }
-    var colors: [CardColor]
-    public var type: DeckType { .uniform(colors: colors) }
-    var rng: Gust
+    private var colors: [CardColor]
 
-    public init(colors: [CardColor], rng: Gust) {
-        self.colors = colors
-        self.rng = rng
-    }
+    public var count: Int { Int.max }
+    public var type: DeckType { .uniform(colors: colors) }
 
     public init(colors: [CardColor]) {
-        self.init(colors: colors, rng: Gust())
+        self.colors = colors
     }
 
-    public mutating func draw() -> CardColor? { colors[Int(rng.next(upperBound: UInt(colors.count)))] }
+    public mutating func draw<T>(using rng: inout T) -> CardColor? where T: RandomNumberGenerator {
+        colors.randomElement(using: &rng)
+    }
 
     public func discard(_: CardColor) {}
-    public func discard(_: [CardColor]) {}
 }
 
 public struct FiniteDeck: Deck, Codable {
-    public var count: Int { cards.count }
+    private var initialCards: [CardColor]
+    private var cards: [CardColor]
 
-    var initialCards: [CardColor]
-    var cards: [CardColor]
-    var rng: Gust
+    public var count: Int { cards.count }
     public var type: DeckType { .finite(cards: initialCards) }
 
-    public init(cards: [CardColor], rng: Gust) {
+    public init(cards: [CardColor]) {
         initialCards = cards
         self.cards = initialCards
-        self.rng = rng
     }
 
-    public init(cards: [CardColor]) {
-        self.init(cards: cards, rng: Gust())
-    }
-
-    public mutating func draw() -> CardColor? {
-        if cards.isEmpty { return nil }
+    public mutating func draw<T>(using rng: inout T) -> CardColor? where T: RandomNumberGenerator {
+        guard !cards.isEmpty else { return nil }
         let index = Int(rng.next(upperBound: UInt(cards.count)))
         return cards.remove(at: index)
     }

@@ -24,7 +24,7 @@ struct PlayerData: Codable {
 }
 
 struct GameState {
-    var playerData: Pair<PlayerData, PlayerData>
+    var playerData: [PlayerData]
     var faceupCards: [CardColor?]
     var deck: Deck
 }
@@ -48,7 +48,7 @@ extension GameState: Codable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let playerData = try container.decode(Pair<PlayerData, PlayerData>.self, forKey: .playerData)
+        let playerData = try container.decode([PlayerData].self, forKey: .playerData)
         let faceupCards = try container.decode([CardColor].self, forKey: .faceupCards)
 
         if let deck = try? container.decode(UniformDeck.self, forKey: .deck) {
@@ -62,18 +62,28 @@ extension GameState: Codable {
 }
 
 /// Single execution of a game
-class Game {
+class Game: GameDataDelegate {
     var map: Map
     var rules: Rules
     var players: [Player]
     var history: LinkedList<GameState>
 
-    init(map: Map, rules: Rules, players p1: Player, _ p2: Player) throws {
-        self.map = map
-        self.rules = rules
-        players = [p1, p2]
-        history = [try self.rules.initialGameState()]
+    var state: GameState {
+        history.tail!
     }
 
-    func play() {}
+    init(map: Map, rules: Rules, players: Player...) throws {
+        self.map = map
+        self.rules = rules
+        self.players = players
+        history = [try self.rules.initialGameState(playerCount: players.count)]
+    }
+
+    func play() {
+        players.map { _ in
+//            (0..<(rules.initialLongDestinations + rules.initialShortDestinations)).map { _ in
+//                map.randomDestination(using: &self)
+//            }
+        }
+    }
 }

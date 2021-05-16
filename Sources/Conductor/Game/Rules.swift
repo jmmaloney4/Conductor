@@ -56,10 +56,10 @@ internal struct Rules: Codable {
         deck = DeckConfiguration(type: .finite(cards: cards))
     }
 
-    func initialGameState() throws -> GameState {
+    func initialGameState(playerCount: Int = 2) throws -> GameState {
         var deck = makeDeck()
 
-        let playerData = try (0 ... 1).map { _ in
+        let playerData = try (0 ..< playerCount).map { _ in
             let h = deck.draw(self.initialHandSize)
             guard !h.contains(nil) else { throw ConductorError.outOfCardsError }
             return h.map { PlayerData.CardData(color: $0!, known: false) }
@@ -70,7 +70,7 @@ internal struct Rules: Codable {
         guard !faceups.contains(nil) else { throw ConductorError.outOfCardsError }
 
         return GameState(
-            playerData: Pair(a: playerData[0], b: playerData[1]),
+            playerData: playerData,
             faceupCards: faceups,
             deck: deck
         )
