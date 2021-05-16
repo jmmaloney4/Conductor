@@ -12,12 +12,12 @@ internal struct Rules: Codable {
     var colors: [String] = ["Black", "Blue", "Green", "Orange", "Pink", "Red", "White", "Yellow"]
 
     internal struct DeckConfiguration: Codable {
-        var type: DeckType
+        var type: DeckType!
         var cardsPerColor: Either<Int, [Int]> = Either(left: 12, right: nil)
         var numLocomotives: Int = 14
     }
 
-    var deck: DeckConfiguration!
+    var deck = DeckConfiguration()
 
     /// Number of traincars each player starts with.
     var initialTraincars: Int = 45
@@ -80,6 +80,7 @@ internal struct Rules: Codable {
         switch deck.type {
         case let .uniform(colors): return UniformDeck(colors: colors)
         case let .finite(cards): return FiniteDeck(cards: cards)
+        default: fatalError("deck.type cannot be nil")
         }
     }
 }

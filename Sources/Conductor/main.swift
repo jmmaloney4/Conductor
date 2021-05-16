@@ -9,7 +9,7 @@ import Foundation
 import SwiftGraph
 
 let main = command(Argument<String>("mapfile", description: "JSON File to load the map from."),
-                   Argument<String>("rulesfile", description: "YAML File to load the rules from.")) { mapfile, rulesfile in
+                   Argument<String>("rulesfile", description: "YAML File to load the rules from.")) { mapfile, _ in
 
     guard let inputFile = InputStream(fileAtPath: mapfile) else {
         throw ConductorError.fileInputError(path: mapfile)
@@ -20,13 +20,8 @@ let main = command(Argument<String>("mapfile", description: "JSON File to load t
     let nameDistance: [String: Edge?] = distanceArrayToVertexDict(distances: distances, graph: map.graph)
     print(nameDistance["Kyiv"]!!)
 
-    let rules = try Rules.rulesFromYaml(file: rulesfile)
-    print(rules.colors)
-
-    let game = try Game(map: map, rules: rules, players: RandomPlayer(), RandomPlayer())
-    print(game.history.head!)
-    var next = try SerializeDeserialize(game.history.head!)
-    print(next.deck.draw()!)
+    let game = try Game(map: map, rules: Rules(), players: RandomPlayer(), RandomPlayer())
+    game.play()
 }
 
 main.run()
