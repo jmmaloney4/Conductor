@@ -26,9 +26,11 @@ internal struct Rules: Codable {
     var minimumTraincars: Int = 3
 
     /// Number of face up cards to be chosen from
-    var faceUpCards: Int = 5
+    var faceupCards: Int = 5
 
     var onlyOneActionPerTurn: Bool = true
+
+    var initialHandSize: Int = 4
 
     static func rulesFromYaml(stream: InputStream) throws -> Rules {
         try YAMLDecoder().decode(Rules.self, from: try Data(reading: stream))
@@ -49,11 +51,22 @@ internal struct Rules: Codable {
         deck = DeckConfiguration(type: .finite(cards: cards))
     }
 
-    func initialGameState() -> GameState {
+    func initialGameState() throws -> GameState {
         var deck = makeDeck()
+
+        let playerData = try (0 ... 1).map { _ in
+            let h = deck.draw(self.initialHandSize)
+            guard !h.contains(nil) else { throw ConductorError.outOfCardsError }
+            return h.map { PlayerData.CardData(color: $0!, known: false) }
+        }
+        .map { PlayerData(hand: $0) }
+
+        let faceups = deck.draw(faceupCards)
+        guard !faceups.contains(nil) else { throw ConductorError.outOfCardsError }
+
         return GameState(
-            playerData: [PlayerData(), PlayerData()],
-            faceupCards: (1 ... faceUpCards).map { _ in deck.draw() },
+            playerData: playerData,
+            faceupCards: faceups,
             deck: deck
         )
     }

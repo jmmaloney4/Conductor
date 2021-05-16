@@ -10,6 +10,7 @@ internal enum ConductorError: Error {
     case fileInputError(path: String)
     case dataInputError
     case jsonDecodingError
+    case outOfCardsError
 }
 
 internal enum ConductorCodingError: Error {

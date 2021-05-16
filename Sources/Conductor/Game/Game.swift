@@ -7,6 +7,10 @@
 import Foundation
 import LinkedList
 
+typealias City = String
+typealias CityPair = Pair<City, City>
+typealias Destination = CityPair
+
 struct PlayerData: Codable {
     struct CardData: Codable {
         var color: CardColor
@@ -15,6 +19,8 @@ struct PlayerData: Codable {
     }
 
     var hand: [CardData] = []
+    var tracks: [CityPair] = []
+    var destinations: [CityPair] = []
 }
 
 struct GameState {
@@ -57,11 +63,13 @@ extension GameState: Codable {
 
 /// Single execution of a game
 class Game {
+    var map: Map
     var rules: Rules
     var history: LinkedList<GameState>
 
-    init(rules: Rules) {
+    init(map: Map, rules: Rules) throws {
+        self.map = map
         self.rules = rules
-        history = [self.rules.initialGameState()]
+        history = [try self.rules.initialGameState()]
     }
 }

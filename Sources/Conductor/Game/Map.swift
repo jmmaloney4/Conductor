@@ -15,7 +15,7 @@ struct RouteJSON: Codable {
     var ferries: Int
 }
 
-struct Track: Codable {
+struct Edge: Codable {
     var length: Int
 
     struct TrackData: Codable {
@@ -32,17 +32,17 @@ struct Track: Codable {
     }
 }
 
-extension Track: Comparable {
-    static func == (lhs: Track, rhs: Track) -> Bool {
+extension Edge: Comparable {
+    static func == (lhs: Edge, rhs: Edge) -> Bool {
         lhs.length == rhs.length
     }
 
-    static func < (lhs: Track, rhs: Track) -> Bool {
+    static func < (lhs: Edge, rhs: Edge) -> Bool {
         lhs.length < rhs.length
     }
 }
 
-extension Track: Numeric {
+extension Edge: Numeric {
     typealias Magnitude = Int
     typealias IntegerLiteralType = Int
 
@@ -56,25 +56,25 @@ extension Track: Numeric {
         self.init(integerLiteral: Int(source))
     }
 
-    static func * (lhs: Track, rhs: Track) -> Track {
-        Track(integerLiteral: lhs.length * rhs.length)
+    static func * (lhs: Edge, rhs: Edge) -> Edge {
+        Edge(integerLiteral: lhs.length * rhs.length)
     }
 
-    static func *= (lhs: inout Track, rhs: Track) {
+    static func *= (lhs: inout Edge, rhs: Edge) {
         lhs.length *= rhs.length
     }
 
-    static func + (lhs: Track, rhs: Track) -> Track {
-        Track(integerLiteral: lhs.length + rhs.length)
+    static func + (lhs: Edge, rhs: Edge) -> Edge {
+        Edge(integerLiteral: lhs.length + rhs.length)
     }
 
-    static func - (lhs: Track, rhs: Track) -> Track {
-        Track(integerLiteral: lhs.length - rhs.length)
+    static func - (lhs: Edge, rhs: Edge) -> Edge {
+        Edge(integerLiteral: lhs.length - rhs.length)
     }
 }
 
 class Map {
-    var graph: SwiftGraph.WeightedGraph<String, Track>
+    var graph: SwiftGraph.WeightedGraph<String, Edge>
 
     init(fromJSONStream stream: InputStream) throws {
         let decodedJson = try JSONDecoder().decode([RouteJSON].self, from: try Data(reading: stream))
@@ -86,7 +86,7 @@ class Map {
                 .filter { name in !self.graph.vertices.contains(name) }
                 .forEach { name in _ = self.graph.addVertex(name) }
 
-            self.graph.addEdge(from: route.endpoints[0], to: route.endpoints[1], weight: Track(from: route))
+            self.graph.addEdge(from: route.endpoints[0], to: route.endpoints[1], weight: Edge(from: route))
         }
     }
 }

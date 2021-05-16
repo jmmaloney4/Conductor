@@ -16,17 +16,17 @@ let main = command(Argument<String>("mapfile", description: "JSON File to load t
     }
 
     let map = try Map(fromJSONStream: inputFile)
-    let (distances, _) = map.graph.dijkstra(root: "Wien", startDistance: Track())
-    let nameDistance: [String: Track?] = distanceArrayToVertexDict(distances: distances, graph: map.graph)
+    let (distances, _) = map.graph.dijkstra(root: "Wien", startDistance: Edge())
+    let nameDistance: [String: Edge?] = distanceArrayToVertexDict(distances: distances, graph: map.graph)
     print(nameDistance["Kyiv"]!!)
 
     let rules = try Rules.rulesFromYaml(file: rulesfile)
     print(rules.colors)
 
-    let game = Game(rules: rules)
+    let game = try Game(map: map, rules: rules)
     print(game.history.head!)
     var next = try SerializeDeserialize(game.history.head!)
-    print(next.deck.draw())
+    print(next.deck.draw()!)
 }
 
 main.run()

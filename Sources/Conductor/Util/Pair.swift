@@ -5,3 +5,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import Foundation
+
+struct Pair<A, B> {
+    var a: A
+    var b: B
+}
+
+extension Pair: Codable where A: Codable, B: Codable {}
