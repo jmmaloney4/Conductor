@@ -12,3 +12,5 @@ struct Pair<A, B> {
 }
 
 extension Pair: Codable where A: Codable, B: Codable {}
+
+extension Pair: Equatable where A: Equatable, B: Equatable {}

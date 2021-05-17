@@ -76,6 +76,8 @@ extension Edge: Numeric {
 class Map {
     var graph: SwiftGraph.WeightedGraph<String, Edge>
 
+    var lookupTable: [City: ([City: Edge?], [City: [WeightedEdge<Edge>]])] = [:]
+
     init(fromJSONStream stream: InputStream) throws {
         let decodedJson = try JSONDecoder().decode([RouteJSON].self, from: try Data(reading: stream))
 
@@ -88,10 +90,37 @@ class Map {
 
             self.graph.addEdge(from: route.endpoints[0], to: route.endpoints[1], weight: Edge(from: route))
         }
+
+        graph.vertices.forEach { city in
+            let (distancesDict, pathDict) = self.graph.dijkstra(root: city, startDistance: Edge())
+            let paths = [String: [WeightedEdge<Edge>]](uniqueKeysWithValues: self.graph.vertices.filter { $0 != city }
+                .map { to in
+                    let path = pathDictToPath(from: self.graph.indexOfVertex(city)!, to: self.graph.indexOfVertex(to)!, pathDict: pathDict)
+                    return (to, path)
+                })
+            let distances = distanceArrayToVertexDict(distances: distancesDict, graph: self.graph)
+            self.lookupTable[city] = (distances, paths)
+        }
     }
 
     func randomDestination<T>(using rng: inout T) -> Destination where T: RandomNumberGenerator {
         let shuffled = graph.vertices.shuffled(using: &rng)
         return Destination(a: shuffled[0], b: shuffled[1])
+    }
+
+    func distance(from a: City, to b: City) -> Edge {
+        lookupTable[a]!.0[b]!!
+    }
+
+    func distance(_ pair: CityPair) -> Edge {
+        distance(from: pair.a, to: pair.b)
+    }
+
+    func path(from a: City, to b: City) -> [Edge] {
+        lookupTable[a]!.1[b]!.map(\.weight)
+    }
+
+    func path(_ pair: CityPair) -> [Edge] {
+        path(from: pair.a, to: pair.b)
     }
 }

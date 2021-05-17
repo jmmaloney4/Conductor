@@ -5,6 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import Foundation
+import Squall
 import Yams
 
 internal struct Rules: Codable {
@@ -56,7 +57,7 @@ internal struct Rules: Codable {
         deck = DeckConfiguration(type: .finite(cards: cards))
     }
 
-    func initialGameState(playerCount: Int = 2) throws -> GameState {
+    func initialGameState(playerCount: Int = 2, seed _: Int = Int(Date().timeIntervalSince1970.rounded())) throws -> GameState {
         var deck = makeDeck()
 
         let playerData = try (0 ..< playerCount).map { _ in
@@ -72,7 +73,8 @@ internal struct Rules: Codable {
         return GameState(
             playerData: playerData,
             faceupCards: faceups,
-            deck: deck
+            deck: deck,
+            rng: Gust()
         )
     }
 
