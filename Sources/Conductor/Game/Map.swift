@@ -27,8 +27,8 @@ struct Edge: Codable {
     var data: TrackData?
 
     init(from route: RouteJSON) {
-        length = route.length
-        data = TrackData(color: .color(name: route.color), tunnel: route.tunnel, ferries: route.ferries)
+        self.length = route.length
+        self.data = TrackData(color: .color(name: route.color), tunnel: route.tunnel, ferries: route.ferries)
     }
 }
 
@@ -46,9 +46,9 @@ extension Edge: Numeric {
     typealias Magnitude = Int
     typealias IntegerLiteralType = Int
 
-    var magnitude: Int { length }
+    var magnitude: Int { self.length }
 
-    init(integerLiteral value: Int) { length = value }
+    init(integerLiteral value: Int) { self.length = value }
 
     init() { self.init(integerLiteral: 0) }
 
@@ -81,7 +81,7 @@ class Map {
     init(fromJSONStream stream: InputStream) throws {
         let decodedJson = try JSONDecoder().decode([RouteJSON].self, from: try Data(reading: stream))
 
-        graph = WeightedGraph(vertices: [])
+        self.graph = WeightedGraph(vertices: [])
         decodedJson.forEach { route in
             // Add cities if they do not already exist
             route.endpoints
@@ -91,7 +91,7 @@ class Map {
             self.graph.addEdge(from: route.endpoints[0], to: route.endpoints[1], weight: Edge(from: route))
         }
 
-        graph.vertices.forEach { city in
+        self.graph.vertices.forEach { city in
             let (distancesDict, pathDict) = self.graph.dijkstra(root: city, startDistance: Edge())
             let paths = [String: [WeightedEdge<Edge>]](uniqueKeysWithValues: self.graph.vertices.filter { $0 != city }
                 .map { to in
@@ -104,23 +104,23 @@ class Map {
     }
 
     func randomDestination<T>(using rng: inout T) -> Destination where T: RandomNumberGenerator {
-        let shuffled = graph.vertices.shuffled(using: &rng)
+        let shuffled = self.graph.vertices.shuffled(using: &rng)
         return Destination(a: shuffled[0], b: shuffled[1])
     }
 
     func distance(from a: City, to b: City) -> Edge {
-        lookupTable[a]!.0[b]!!
+        self.lookupTable[a]!.0[b]!!
     }
 
     func distance(_ pair: CityPair) -> Edge {
-        distance(from: pair.a, to: pair.b)
+        self.distance(from: pair.a, to: pair.b)
     }
 
     func path(from a: City, to b: City) -> [Edge] {
-        lookupTable[a]!.1[b]!.map(\.weight)
+        self.lookupTable[a]!.1[b]!.map(\.weight)
     }
 
     func path(_ pair: CityPair) -> [Edge] {
-        path(from: pair.a, to: pair.b)
+        self.path(from: pair.a, to: pair.b)
     }
 }

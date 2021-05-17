@@ -25,13 +25,13 @@ extension Either: Codable where U: Codable, V: Codable {
 
     internal func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        if left != nil, right != nil {
+        if self.left != nil, self.right != nil {
             throw ConductorCodingError.invalidState
         }
-        if left != nil {
-            try container.encode(left)
+        if self.left != nil {
+            try container.encode(self.left)
         } else {
-            try container.encode(right)
+            try container.encode(self.right)
         }
     }
 }

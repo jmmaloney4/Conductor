@@ -41,13 +41,13 @@ extension GameState: Codable {
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(playerData, forKey: .playerData)
-        try container.encode(faceupCards, forKey: .faceupCards)
-        switch deck.type {
-        case .uniform: try container.encode(deck as! UniformDeck, forKey: .deck)
-        case .finite: try container.encode(deck as! FiniteDeck, forKey: .deck)
+        try container.encode(self.playerData, forKey: .playerData)
+        try container.encode(self.faceupCards, forKey: .faceupCards)
+        switch self.deck.type {
+        case .uniform: try container.encode(self.deck as! UniformDeck, forKey: .deck)
+        case .finite: try container.encode(self.deck as! FiniteDeck, forKey: .deck)
         }
-        try container.encode(rng, forKey: .rng)
+        try container.encode(self.rng, forKey: .rng)
     }
 
     public init(from decoder: Decoder) throws {
@@ -78,25 +78,42 @@ class Game: GameDataDelegate {
         self.map = map
         self.rules = rules
         self.players = players
-        history = []
-        state = try self.rules.initialGameState(playerCount: players.count)
+        self.state = try self.rules.initialGameState(playerCount: players.count)
+        self.history = [try SerializeDeserialize(self.state)]
     }
 
     func play() {
-        players.map { p -> [Destination] in
-            let destinations = (0 ..< (rules.initialLongDestinations + rules.initialShortDestinations)).map { _ in
-                self.map.randomDestination(using: &self.state.rng)
-            }
-
-            let chosen = p.initialDestinationSelection(delegate: self)(destinations)
-
-            destinations.forEach { dest in
-                print("\(dest) \(self.map.distance(dest)) \(self.map.path(dest)) \(chosen.contains(dest))")
-            }
-
-            return chosen
+        self.players.map { p -> [Destination] in
+            p.initialDestinationSelection(delegate: self)(selectInitialDestinations())
         }.enumerated().forEach { k, chosen in
             self.state.playerData[k].destinations = chosen
         }
+    }
+
+    private func selectInitialDestinations() -> [Destination] {
+        let longDestinations = (0 ..< self.rules.initialLongDestinations).map { _ -> Destination in
+            while true {
+                let d = self.map.randomDestination(using: &self.state.rng)
+                let l = self.map.distance(d).length
+                guard self.rules.longestShortDestination < l, l <= self.rules.longestLongDestination else {
+                    continue
+                }
+                return d
+            }
+        }
+
+        let shortDestinations = (0 ..< self.rules.initialShortDestinations).map { _ -> Destination in
+            while true {
+                let d = self.map.randomDestination(using: &self.state.rng)
+                let l = self.map.distance(d).length
+
+                guard self.rules.shortestShortDestination <= l, l <= self.rules.longestShortDestination else {
+                    continue
+                }
+                return d
+            }
+        }
+
+        return longDestinations + shortDestinations
     }
 }

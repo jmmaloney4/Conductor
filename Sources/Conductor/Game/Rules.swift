@@ -34,6 +34,9 @@ internal struct Rules: Codable {
     var minimumDestinations: Int = 2
     var initialLongDestinations: Int = 1
     var initialShortDestinations: Int = 3
+    var longestLongDestination = Int.max
+    var longestShortDestination: Int = 20
+    var shortestShortDestination: Int = 6
 
     // Advanced
     var onlyOneActionPerTurn: Bool = true
@@ -46,19 +49,19 @@ internal struct Rules: Codable {
         guard let stream = InputStream(fileAtPath: path) else {
             throw ConductorError.fileInputError(path: path)
         }
-        return try rulesFromYaml(stream: stream)
+        return try self.rulesFromYaml(stream: stream)
     }
 
     init() {
-        var cards = Array(repeating: CardColor.locomotive, count: deck.numLocomotives)
-        cards.append(contentsOf: colors.map { color in
+        var cards = Array(repeating: CardColor.locomotive, count: self.deck.numLocomotives)
+        cards.append(contentsOf: self.colors.map { color in
             Array(repeating: CardColor.color(name: color), count: self.deck.cardsPerColor.left!)
         }.reduce([]) { $0 + $1 })
-        deck = DeckConfiguration(type: .finite(cards: cards))
+        self.deck = DeckConfiguration(type: .finite(cards: cards))
     }
 
     func initialGameState(playerCount: Int = 2, seed _: Int = Int(Date().timeIntervalSince1970.rounded())) throws -> GameState {
-        var deck = makeDeck()
+        var deck = self.makeDeck()
 
         let playerData = try (0 ..< playerCount).map { _ in
             let h = deck.draw(self.initialHandSize)
@@ -67,7 +70,7 @@ internal struct Rules: Codable {
         }
         .map { PlayerData(hand: $0) }
 
-        let faceups = deck.draw(faceupCards)
+        let faceups = deck.draw(self.faceupCards)
         guard !faceups.contains(nil) else { throw ConductorError.outOfCardsError }
 
         return GameState(
@@ -79,7 +82,7 @@ internal struct Rules: Codable {
     }
 
     func makeDeck() -> Deck {
-        switch deck.type {
+        switch self.deck.type {
         case let .uniform(colors): return UniformDeck(colors: colors)
         case let .finite(cards): return FiniteDeck(cards: cards)
         default: fatalError("deck.type cannot be nil")

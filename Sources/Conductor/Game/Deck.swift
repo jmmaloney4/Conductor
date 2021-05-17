@@ -24,7 +24,7 @@ public protocol Deck {
 public extension Deck {
     mutating func draw() -> CardColor? {
         var rng = Gust()
-        return draw(using: &rng)
+        return self.draw(using: &rng)
     }
 
     mutating func draw(_ count: Int) -> [CardColor?] {
@@ -45,14 +45,14 @@ public struct UniformDeck: Deck, Codable {
     private var colors: [CardColor]
 
     public var count: Int { Int.max }
-    public var type: DeckType { .uniform(colors: colors) }
+    public var type: DeckType { .uniform(colors: self.colors) }
 
     public init(colors: [CardColor]) {
         self.colors = colors
     }
 
     public mutating func draw<T>(using rng: inout T) -> CardColor? where T: RandomNumberGenerator {
-        colors.randomElement(using: &rng)
+        self.colors.randomElement(using: &rng)
     }
 
     public func discard(_: CardColor) {}
@@ -62,19 +62,19 @@ public struct FiniteDeck: Deck, Codable {
     private var initialCards: [CardColor]
     private var cards: [CardColor]
 
-    public var count: Int { cards.count }
-    public var type: DeckType { .finite(cards: initialCards) }
+    public var count: Int { self.cards.count }
+    public var type: DeckType { .finite(cards: self.initialCards) }
 
     public init(cards: [CardColor]) {
-        initialCards = cards
-        self.cards = initialCards
+        self.initialCards = cards
+        self.cards = self.initialCards
     }
 
     public mutating func draw<T>(using rng: inout T) -> CardColor? where T: RandomNumberGenerator {
-        guard !cards.isEmpty else { return nil }
-        let index = Int(rng.next(upperBound: UInt(cards.count)))
-        return cards.remove(at: index)
+        guard !self.cards.isEmpty else { return nil }
+        let index = Int(rng.next(upperBound: UInt(self.cards.count)))
+        return self.cards.remove(at: index)
     }
 
-    public mutating func discard(_ card: CardColor) { cards.append(card) }
+    public mutating func discard(_ card: CardColor) { self.cards.append(card) }
 }
