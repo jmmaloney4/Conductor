@@ -15,7 +15,7 @@ jobs:
       
       
     steps:
-    - uses: actions/checkout@v2.3.4
+    - uses: actions/checkout@v2.3.5
     
     - uses: fwal/setup-swift@v1.7.0
       with:
