@@ -5,7 +5,7 @@ repos:
   - id: swiftformat
 
 - repo: https://github.com/pre-commit/pre-commit-hooks.git
-  rev: v4.0.0
+  rev: v4.0.1
   hooks:
   - id: pretty-format-json
   - id: check-json
